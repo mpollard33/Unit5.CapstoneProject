@@ -1,5 +1,3 @@
-// HorizontalNav.js
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './products/index.css'; 
@@ -7,7 +5,7 @@ import './products/index.css';
 const HorizontalNav = () => {
   const [isMenuOpen, setMenuOpen] = useState(false);
 
-  const handleMenuToggle = () => {
+  const handleMenuToggle = () => {  // To-implement
     setMenuOpen(!isMenuOpen);
   };
 

@@ -6,9 +6,6 @@ import Products from './features/products/Products';
 function App() {
   return (
     <>
-      <header>
-        <h1>E-Commerce Site</h1>
-      </header>
       <HorizontalNav />
       <Routes>
         <Route path="/" element={<h2>/home</h2>} />
