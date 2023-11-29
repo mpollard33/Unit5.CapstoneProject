@@ -2,7 +2,6 @@ import React from 'react';
 import { useGetProductsQuery } from './productsApi';
 import ProductCard from './ProductCard';
 import './index.css';
-import VerticalNav from '../VerticalNav';
 
 const Products = () => {
   const { data, error, isLoading } = useGetProductsQuery();
@@ -15,7 +14,6 @@ const Products = () => {
   return (
     <main className="main-container">
       <div className="page-container">
-        <VerticalNav />
         <ul className="product-container">
           {data.map((product) => (
             <ProductCard key={product.id} product={product} />

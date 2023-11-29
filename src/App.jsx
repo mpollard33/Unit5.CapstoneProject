@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import HorizontalNav from './features/HorizontalNav';
 import Products from './features/products/Products';
-import VerticalNav from './features/VerticalNav';
 
 function App() {
   return (
@@ -11,7 +10,6 @@ function App() {
         <h1>E-Commerce Site</h1>
       </header>
       <HorizontalNav />
-      {/* <VerticalNav  /> */}
       <Routes>
         <Route path="/" element={<h2>/home</h2>} />
         <Route path="/products" element={<Products />} />
