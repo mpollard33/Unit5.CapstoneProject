@@ -7,12 +7,23 @@
   height: 50vh;
   width: 80vw;
 }
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+}
 .single-product-title {
   font-size: 3em;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
     'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
+
+.single-product-button {
+  margin-top: 2em;
+}
+
 .single-product-description {
-  display: block;
-  width: 40em;
+  font-size: 1.3em;
+  width: auto;
+  padding: 1em;
 }
