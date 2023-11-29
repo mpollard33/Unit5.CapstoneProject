@@ -60,7 +60,7 @@ p {
 .horizontal-nav {
   display: flex;
   position: static;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
   background-color: #203c5c;
   color: #ffffff;
