@@ -1,6 +1,8 @@
-import { Routes , Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
-import Nav from './features/Nav';
+import HorizontalNav from './features/HorizontalNav';
+import Products from './features/products/Products';
+import VerticalNav from './features/VerticalNav';
 
 function App() {
   return (
@@ -8,13 +10,13 @@ function App() {
       <header>
         <h1>E-Commerce Site</h1>
       </header>
-      <Nav />
+      <HorizontalNav />
+      {/* <VerticalNav  /> */}
       <Routes>
-        <Route path='/' element={<h2>/home</h2>} />
-        <Route path='/products' element={<h2>/products</h2>} />
-        <Route path='/account' element={<h2>/account</h2>} />
-        <Route path='/cart' element={<h2>/cart</h2>} />
-
+        <Route path="/" element={<h2>/home</h2>} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/account" element={<h2>/account</h2>} />
+        <Route path="/cart" element={<h2>/cart</h2>} />
       </Routes>
     </>
   );
