@@ -1,0 +1,18 @@
+.product-card-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 1em;
+  margin: auto;
+  height: 50vh;
+  width: 80vw;
+}
+.single-product-title {
+  font-size: 3em;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
+    'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.single-product-description {
+  display: block;
+  width: 40em;
+}

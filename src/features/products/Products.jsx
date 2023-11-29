@@ -2,6 +2,7 @@ import React from 'react';
 import { useGetProductsQuery } from './productsApi';
 import ProductCard from './ProductCard';
 import './index.css';
+import { Link } from 'react-router-dom';
 
 const Products = () => {
   const { data, error, isLoading } = useGetProductsQuery();
