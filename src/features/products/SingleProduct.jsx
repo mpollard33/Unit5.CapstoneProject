@@ -28,10 +28,9 @@ const ProductDetails = () => {
           <p className="single-product-price">{data.price.toFixed(2)}</p>
           <p className="single-product-description">{data.description}</p>
           <form>
-          <button className="single-product-button">Purchase</button>
-        </form>
+            <button className="single-product-button">Add to Cart</button>
+          </form>
         </div>
-
       </div>
     </>
   );
