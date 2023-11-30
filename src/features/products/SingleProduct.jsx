@@ -4,7 +4,6 @@ import './productCard.css';
 
 const ProductDetails = () => {
   const { id } = useParams();
-
   const { data, error, isLoading } = useGetProductByIdQuery(id);
 
   if (isLoading) return <div>Loading...</div>;
@@ -12,6 +11,11 @@ const ProductDetails = () => {
   if (!data) return <div>No data found</div>;
 
   console.log('Product Details: ', data);
+
+  const generateStars = (rating) => {
+    const numberOfStars = Math.round(rating);
+    return '★'.repeat(numberOfStars) + '☆'.repeat(5 - numberOfStars);
+  };
 
   return (
     <>
@@ -25,7 +29,14 @@ const ProductDetails = () => {
           <header>
             <h2 className="single-product-title">{data.title}</h2>
           </header>
-          <p className="single-product-price">{data.price.toFixed(2)}</p>
+          <section className="rating-container">
+            <div className="yellow-stars">
+              {generateStars(data.rating.rate)}
+            </div>
+            <div className="rating">{data.rating.rate}</div>
+            <div className="rating-count">{data.rating.count} reviews</div>
+          </section>
+          <p className="single-product-price">${data.price.toFixed(2)}</p>
           <p className="single-product-description">{data.description}</p>
           <form>
             <button className="single-product-button">Add to Cart</button>
@@ -35,4 +46,5 @@ const ProductDetails = () => {
     </>
   );
 };
+
 export default ProductDetails;

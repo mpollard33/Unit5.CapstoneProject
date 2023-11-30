@@ -22,8 +22,36 @@
   margin-top: 2em;
 }
 
+.single-product-price {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-weight: 400;
+  font-size: larger;
+}
+
 .single-product-description {
   font-size: 1.3em;
   width: auto;
   padding: 1em;
+}
+
+.rating-container {
+  display: flex;
+  flex-direction: row;
+  margin-top: 1em;
+  font-size: larger;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+}
+
+.yellow-stars {
+  color: gold;
+  text-shadow: 2px 2px 2px black;
+}
+.rating {
+  margin-left: 1em;
+}
+
+.rating-count {
+  margin-left: 1em;
 }
