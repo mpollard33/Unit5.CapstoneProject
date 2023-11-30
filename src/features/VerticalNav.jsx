@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import '../index.css';
 
-const VerticalNav = () => {
+const VerticalNav = ({ handleSortChange, sortBy }) => {
   return (
     <ul className="vertical-nav-bar">
       <header>
@@ -13,7 +13,7 @@ const VerticalNav = () => {
         Category:
         <div className="nav-dropdown">
           <select>
-            <option value=""></option>
+            <option value="">-- Select --</option>
             <option value="/">Jewelry</option>
             <option value="/">Electronic</option>
             <option value="/">Men's Clothing</option>
@@ -21,11 +21,17 @@ const VerticalNav = () => {
           </select>
         </div>
         <div className="bottom-border"></div>
+        <div className="search-bar"></div>
+      </div>
+      <div>
         <label>
-          <input type="checkbox" className="nav-checkbox" />
-          placeholder
+          Sort by Price: <span>{'  '} </span>
+          <select onChange={handleSortChange} value={sortBy}>
+            <option value="">-- Select --</option>
+            <option value="low">Low to High</option>
+            <option value="high">High to Low</option>
+          </select>
         </label>
-        <li className="search-bar"></li>
       </div>
     </ul>
   );

@@ -1,24 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGetProductsQuery } from './productsApi';
 import ProductCard from './ProductCard';
 import './index.css';
-import { Link } from 'react-router-dom';
 import VerticalNav from '../VerticalNav';
 
 const Products = () => {
   const { data, error, isLoading } = useGetProductsQuery();
+  const [sortBy, setSortBy] = useState('');
+
+  const sortData = (data, sortBy) => {
+    return (data || []).slice().sort((a, b) => {
+      if (sortBy === 'low') {
+        return a.price - b.price;
+      } else if (sortBy === 'high') {
+        return b.price - a.price;
+      } else {
+        return 0;
+      }
+    });
+  };
+
+  const sortedData = sortData(data, sortBy);
+
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
-  console.log(data);
-
   return (
     <main className="main-container">
       <div className="page-container">
-        <VerticalNav />
+        <VerticalNav handleSortChange={handleSortChange} sortBy={sortBy} />
         <ul className="product-container">
-          {data.map((product) => (
+          {sortedData.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </ul>
