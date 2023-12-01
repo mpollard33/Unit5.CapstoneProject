@@ -1,58 +1,56 @@
 import React, { useState } from 'react';
-import { useGetProductsQuery } from './productsApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { useGetProductByCategoryQuery } from './productsApi';
 import ProductCard from './ProductCard';
 import './index.css';
 import VerticalNav from '../VerticalNav';
 
+const sortData = (data, sort) => {
+  return (data || []).slice().sort((a, b) => {
+    switch (sort.sortType) {
+      case 'price':
+        return sort.order === 'asc' ? a.price - b.price : b.price - a.price;
+      case 'rating':
+        return sort.order === 'asc'
+          ? a.rating.rate - b.rating.rate
+          : b.rating.rate - a.rating.rate;
+      case 'count':
+        return sort.order === 'asc'
+          ? a.rating.count - b.rating.count
+          : b.rating.count - a.rating.count;
+      default:
+        return 0;
+    }
+  });
+};
+
 const Products = () => {
-  const { data, error, isLoading } = useGetProductsQuery();
-  const [sort, setSort] = useState({ sortType: '', order: 'asc' }); // use state to manage sort type and order. Default order is ascending
-  const [selectedCategory, setSelectedCategory] = useState(''); // use state to manage category state
+  const { data, error, isLoading } = useGetProductByCategoryQuery(
+    useSelector((state) => state.products.selectedCategory),
+  );
+  const dispatch = useDispatch();
+  const [sort, setSort] = useState({ sortType: '', order: 'asc' });
 
-  const sortData = (data, sort) => {
+  const sortedData = data ? sortData(data, sort) : [];
 
-    return (data || []).slice().sort((a, b) => {
-      // switch statement to manage sort state. Sets setType and uses boolean expression to manage asc/descending property
-      switch (sort.sortType) {
-        case 'price':
-          return sort.order === 'asc' ? a.price - b.price : b.price - a.price;
-        case 'rating':
-          return sort.order === 'asc'
-            ? a.rating.rate - b.rating.rate
-            : b.rating.rate - a.rating.rate;
-        case 'count':
-          return sort.order === 'asc'
-            ? a.rating.count - b.rating.count
-            : b.rating.count - a.rating.count;
-        default:
-          return 0;
-      }
-    });
-  };
-
-  const sortedData = sortData(data, sort);
-
-  //  handles updating the sortState 
   const handleSortChange = (sortType) => {
-    const prevSort = sort;
-    setSort((current) => ({
+    const newSort = {
       sortType,
       order:
-        current.sortType === sortType && current.order === 'asc'
-          ? 'desc'
-          : 'asc',
-    }));
+        sort.sortType === sortType && sort.order === 'asc' ? 'desc' : 'asc',
+    };
+    setSort(newSort);
 
     console.log('Selected sortType changed to: ', sortType);
-    console.log('Previous sortType:', prevSort.sortType);
+    console.log('Previous sortType:', sort.sortType);
   };
 
   const handleCategoryChange = (category) => {
-    const previousCategory = selectedCategory;
-    setSelectedCategory(category);
+    // Assuming you dispatch an action to update the selected category
+    dispatch({ type: 'SET_CATEGORY', payload: category });
 
     console.log('Selected category changed to: ', category);
-    console.log('Previous Category:', previousCategory);
+    console.log('Previous Category:', category);
   };
 
   if (isLoading) return <div>Loading...</div>;
