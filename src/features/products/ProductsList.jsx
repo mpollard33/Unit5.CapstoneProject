@@ -7,9 +7,7 @@ import { useEffect } from 'react';
 
 const Products = () => {
   const sortType = useSelector((state) => state.products.sort.sortType);
-  const sortOrder = useSelector((state) => {
-    state.products.sort.order;
-  });
+  const sortOrder = useSelector((state) => state.products.sort.order);
 
   const { data, error, isLoading } = useGetProductsQuery();
 
@@ -17,6 +15,7 @@ const Products = () => {
     return (data || []).slice().sort((a, b) => {
       switch (sortType) {
         case 'price':
+          console.log('price', a.price);
           return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
         case 'rating':
           return sortOrder === 'asc'
@@ -40,7 +39,7 @@ const Products = () => {
   if (error) return <div>{error}</div>;
 
   let sortedData = sortData(data, sortType);
-  
+
   console.log('sort order', sortOrder);
   console.log('sortType ', sortType);
 
