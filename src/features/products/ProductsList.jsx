@@ -3,45 +3,45 @@ import { useGetProductsQuery } from './productsApi';
 import ProductCard from './ProductCard';
 import './index.css';
 import VerticalNav from '../VerticalNav';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const Products = () => {
   const sortType = useSelector((state) => state.products.sort.sortType);
   const sortOrder = useSelector((state) => state.products.sort.order);
+  const [sortedData, setSortedData] = useState([]);
 
   const { data, error, isLoading } = useGetProductsQuery();
 
-  const sortData = (data, sortType) => {
+  const sortData = () => {
     return (data || []).slice().sort((a, b) => {
       switch (sortType) {
         case 'price':
-          console.log('price', a.price);
           return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
         case 'rating':
           return sortOrder === 'asc'
             ? a.rating.rate - b.rating.rate
             : b.rating.rate - a.rating.rate;
-        case 'count':
+        case 'rating count':
+          console.log('Sorting by count');
+          console.log('Count for a:', a.rating.count);
+          console.log('Count for b:', b.rating.count);
           return sortOrder === 'asc'
             ? a.rating.count - b.rating.count
             : b.rating.count - a.rating.count;
         default:
+          console.log('Reached default case');
           return 0;
       }
     });
   };
+
   useEffect(() => {
-    console.log('SortType Changed!: ', sortType);
-    sortData(data, sortType);
-  }, [sortType]);
+    const newData = sortData();
+    setSortedData(newData);
+  }, [data, sortType, sortOrder]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-
-  let sortedData = sortData(data, sortType);
-
-  console.log('sort order', sortOrder);
-  console.log('sortType ', sortType);
 
   return (
     <main className="main-container">

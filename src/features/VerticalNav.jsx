@@ -58,8 +58,8 @@ const VerticalNav = () => {
         </div>
         <div className="bottom-border"></div>
       </div>
-      {['Price', 'Rating', 'Rating Count'].map((option) => (
-        <div key={option.toLowerCase()} className="nav-option">
+      {['price', 'rating', 'rating count'].map((option) => (
+        <div key={option} className="nav-option">
           <label className="single-filter">
             Sort by {option}:{' '}
             <select
