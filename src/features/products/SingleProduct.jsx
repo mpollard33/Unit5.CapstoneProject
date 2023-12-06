@@ -1,10 +1,10 @@
 import { useParams } from 'react-router-dom';
-import { useGetProductByIdQuery } from './productsApi';
+import { useGetProductsByIdQuery } from './productsApi';
 import './productCard.css';
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const { data, error, isLoading } = useGetProductByIdQuery(id);
+  const { data, error, isLoading } = useGetProductsByIdQuery(id);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;

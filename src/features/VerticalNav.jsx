@@ -1,13 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../index.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCategory, setSort } from '../store/productSlice';
+import { useNavigate } from 'react-router-dom';
 
-const VerticalNav = ({ handleSortChange, handleCategoryChange, sort }) => {
-  const categories = [
-    'jewelry',
-    'electronics',
-    'mens-clothing',
-    'womens-clothing',
-  ];
+const categories = [
+  'jewelery',
+  'electronics',
+  "men's clothing".trim(),
+  "women's clothing",
+];
+
+const VerticalNav = () => {
+  const currentCategory = useSelector(
+    (state) => state.products.selectedCategory,
+  );
+  const currentSort = useSelector((state) => state.products.sort.sortType);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleCategoryChange = (categoryType) => {
+    dispatch(setCategory(categoryType));
+    navigate(`/${categoryType}`);
+  };
+
+  const handleSortChange = (sortType, orderType) => {
+    const newSortState = {
+      sortType: sortType.toLowerCase(),
+      order: orderType,
+    };
+    dispatch(setSort(newSortState));
+  };
 
   return (
     <ul className="vertical-nav-bar">
@@ -21,14 +44,14 @@ const VerticalNav = ({ handleSortChange, handleCategoryChange, sort }) => {
             Sort by Category:
             <select
               onChange={(e) => {
-                handleCategoryChange(e.target.value.replace(' ', '-'));
+                handleCategoryChange(e.target.value);
               }}
-              value={sort.category || ''}
+              value={currentCategory}
             >
               <option value=""> -- All Categories --</option>
               {categories.map((category) => (
                 <option key={category} value={category}>
-                  {category.replace('-', ' ')}
+                  {category}
                 </option>
               ))}
             </select>
@@ -41,8 +64,10 @@ const VerticalNav = ({ handleSortChange, handleCategoryChange, sort }) => {
           <label className="single-filter">
             Sort by {option}:{' '}
             <select
-              onChange={() => handleSortChange(option.toLowerCase())}
-              value={sort.sortType === option.toLowerCase() ? sort.order : ''}
+              onChange={(e) => {
+                handleSortChange(option, e.target.value);
+              }}
+              value={currentSort}
             >
               <option value="">-- Select --</option>
               <option value="asc">Low to High</option>
