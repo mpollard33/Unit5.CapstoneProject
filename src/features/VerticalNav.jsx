@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
 import '../index.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCategory, setSort } from '../store/productSlice';
 import { useNavigate } from 'react-router-dom';
-import sortData from './products/sortUtil';
 
 const categories = [
   'jewelery',
@@ -27,7 +25,7 @@ const VerticalNav = () => {
 
   const handleSortChange = (sortType, orderType) => {
     const newSortState = {
-      sortType: sortType,
+      sortType: sortType.toLowerCase(),
       order: orderType,
     };
     dispatch(setSort(newSortState));
