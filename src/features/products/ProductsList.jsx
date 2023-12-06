@@ -9,7 +9,7 @@ const Products = () => {
 
   console.log('state', products);
 
-  const { data, error, isLoading } = useGetProductsQuery({products});
+  const { data, error, isLoading } = useGetProductsQuery();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;

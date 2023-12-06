@@ -16,7 +16,7 @@ const FilteredProducts = () => {
   let { category } = useParams();
 
   const { data, error, isLoading } = useGetProductsQuery();
-  console.log('data t', data);
+  
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
   if (!data) return <div>No data Found</div>;
