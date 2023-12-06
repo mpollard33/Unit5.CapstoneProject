@@ -13,9 +13,7 @@ const productSlice = createSlice({
     setCategory: (state, { payload }) => {
       state.selectedCategory = payload;
     },
-    getSort: (state, action) => {
-      return state.products.sort.sortType;
-    },
+
     // addToCart: (state, action) => {
     //   return state.concat({cart: payload, isEmpty: false})
     //   state.cart = action.payload; // tentative, .push? .concat
@@ -23,7 +21,7 @@ const productSlice = createSlice({
   },
 });
 
-export const { setSort, setCategory, getSort } = productSlice.actions;
+export const { setSort, setCategory,  } = productSlice.actions;
 export const selectSort = (state) => state.products.sort;
 export const selectCategory = (state) => state.products.selectedCategory;
 export default productSlice.reducer;

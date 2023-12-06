@@ -1,43 +1,22 @@
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import { useGetProductsQuery } from './productsApi';
 import ProductCard from './ProductCard';
-import './index.css';
 import VerticalNav from '../VerticalNav';
-import { useEffect, useState } from 'react';
+import sortData from './sortUtil';
+import { useSelector } from 'react-redux';
 
-const Products = () => {
+const ProductsList = () => {
+  const [sortedData, setSortedData] = useState([]);
   const sortType = useSelector((state) => state.products.sort.sortType);
   const sortOrder = useSelector((state) => state.products.sort.order);
-  const [sortedData, setSortedData] = useState([]);
 
   const { data, error, isLoading } = useGetProductsQuery();
 
-  const sortData = () => {
-    return (data || []).slice().sort((a, b) => {
-      switch (sortType) {
-        case 'price':
-          return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
-        case 'rating':
-          return sortOrder === 'asc'
-            ? a.rating.rate - b.rating.rate
-            : b.rating.rate - a.rating.rate;
-        case 'rating count':
-          console.log('Sorting by count');
-          console.log('Count for a:', a.rating.count);
-          console.log('Count for b:', b.rating.count);
-          return sortOrder === 'asc'
-            ? a.rating.count - b.rating.count
-            : b.rating.count - a.rating.count;
-        default:
-          console.log('Reached default case');
-          return 0;
-      }
-    });
-  };
-
   useEffect(() => {
-    const newData = sortData();
-    setSortedData(newData);
+    if (data) {
+      const newData = sortData(data, sortType, sortOrder);
+      setSortedData(newData);
+    }
   }, [data, sortType, sortOrder]);
 
   if (isLoading) return <div>Loading...</div>;
@@ -48,7 +27,7 @@ const Products = () => {
       <div className="page-container">
         <VerticalNav />
         <ul className="product-container">
-          {data.length > 0 ? (
+          {sortedData && sortedData.length > 0 ? (
             sortedData.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))
@@ -62,4 +41,5 @@ const Products = () => {
     </main>
   );
 };
-export default Products;
+
+export default ProductsList;
