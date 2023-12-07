@@ -24,8 +24,8 @@ const HorizontalNav = () => {
             </label>
           </form>
         </li>
-        <li><Link to='/users/account' className="nav-link">Log In</Link></li>
-        <li><Link to='/users/register' className="nav-link">Register</Link></li>
+        <li><Link to='/users/account' className="nav-link">Account</Link></li>
+        <li><Link to='/auth/login' className="nav-link">Register</Link></li>
         <li><Link to='/users/cart' className="nav-link">Cart</Link></li>
       </ul>
     </nav>

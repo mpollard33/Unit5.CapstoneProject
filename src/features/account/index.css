@@ -24,3 +24,17 @@
 .register-text {
   font-size: 3em;
 }
+
+.register-button {
+  margin-top: 0.7em;
+  border-radius: 4px;
+  height: 2em;
+  width: 6em;
+}
+
+form input {
+  width: 16em;
+  height: 2em;
+  border-radius: 2px;
+  border-style:
+}

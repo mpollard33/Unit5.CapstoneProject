@@ -3,13 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCategory, setSort } from '../store/productSlice';
 import { useNavigate } from 'react-router-dom';
 
-const categories = [
-  'jewelery',
-  'electronics',
-  "men's clothing",
-  "women's clothing",
-];
-
 const VerticalNav = () => {
   const currentCategory = useSelector(
     (state) => state.products.selectedCategory,
@@ -25,7 +18,7 @@ const VerticalNav = () => {
 
   const handleSortChange = (sortType, orderType) => {
     const newSortState = {
-      sortType: sortType.toLowerCase(),
+      sortType: sortType,
       order: orderType,
     };
     dispatch(setSort(newSortState));
@@ -48,7 +41,12 @@ const VerticalNav = () => {
               value={currentCategory}
             >
               <option value=""> -- All Categories --</option>
-              {categories.map((category) => (
+              {[
+                'jewelery',
+                'electronics',
+                "men's clothing",
+                "women's clothing",
+              ].map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
