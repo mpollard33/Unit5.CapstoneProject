@@ -8,6 +8,8 @@ const authApi = api.injectEndpoints({
         method: 'POST',
         body: { user },
       }),
+      transformResponse: (response) => response.data,
+      transformErrorResponse: (response) => response.data.error.message,
     }),
     login: builder.mutation({
       query: (user) => ({
@@ -15,8 +17,18 @@ const authApi = api.injectEndpoints({
         method: 'POST',
         body: { user },
       }),
+      transformResponse: (response) => response.data.token,
+      transformErrorResponse: (response) => response.data.error.message,
+    }),
+    logout: builder.mutation({
+      query: () => ({
+        url: '/users',
+        method: 'DELETE',
+      }),
+      transformResponse: (response) => response.data,
     }),
   }),
 });
 
-export const { useRegisterMutation } = authApi;
+export const { useRegisterMutation, useLoginMutation, useLogoutMutation } =
+  authApi;
