@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRegisterMutation } from './authApi';
 import './index.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Registration = () => {
   const {
@@ -15,19 +15,31 @@ const Registration = () => {
   const [] = useRegisterMutation();
 
   const [registerMutation, { data, error }] = useRegisterMutation();
+  const [registrationComplete, setRegistrationComplete] = useState('false');
 
   const onSubmit = async (formData) => {
     try {
       const attemptRegister = await registerMutation(formData);
 
       console.log('Form submitted:', attemptRegister);
-      // navigate('/auth/login');
+      if (attemptRegister.data) setRegistrationComplete(true);
     } catch (error) {
       console.log('Error during registration', error);
     }
   };
 
-  return (
+  return setRegistrationComplete ? (
+    <div className="registration-container">
+      <div className="registration-success">
+        <header>
+          <h2>Success!!!</h2>
+          <div className="success-text">
+            <Link to="/">Browse our Products!</Link>
+          </div>
+        </header>
+      </div>
+    </div>
+  ) : (
     <div className="registration-container">
       <h2 className="register-text">Register</h2>
       <form onSubmit={handleSubmit(onSubmit)}>
