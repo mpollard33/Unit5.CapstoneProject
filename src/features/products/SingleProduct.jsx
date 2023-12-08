@@ -1,16 +1,53 @@
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductsByIdQuery } from './productsApi';
+import { useGetCartQuery, useAddToCartMutation } from '../cart/cartApi';
 import './productCard.css';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
+  const addToCartMutation = useAddToCartMutation();
+  const getCartQuery = useGetCartQuery(id);
+
+  useEffect(() => {
+    getCartQuery.refetch();
+  }, [id, getCartQuery.refetch]);
+
+  const handleAddToCart = () => {
+    if (!getCartQuery.data) {
+      const newCart = {
+        userId: id,
+        date: new Date().toISOString(),
+        products: [
+          {
+            productId: data.id,
+            quantity: 1,
+          },
+        ],
+      };
+
+      addToCartMutation.mutate(newCart);
+    } else {
+      const existingCart = getCartQuery.data;
+      const updatedCart = {
+        ...existingCart,
+        products: [
+          ...existingCart.products,
+          {
+            productId: data.id,
+            quantity: 1,
+          },
+        ],
+      };
+
+      addToCartMutation.mutate(updatedCart);
+    }
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!data) return <div>No data found</div>;
-
-  console.log('Product Details: ', data);
 
   const generateStars = (rating) => {
     const numberOfStars = Math.round(rating);
@@ -39,7 +76,13 @@ const ProductDetails = () => {
           <p className="single-product-price">${data.price.toFixed(2)}</p>
           <p className="single-product-description">{data.description}</p>
           <form>
-            <button className="single-product-button">Add to Cart</button>
+            <button
+              className="single-product-button"
+              type="button"
+              onClick={handleAddToCart}
+            >
+              Add to Cart
+            </button>
           </form>
         </div>
       </div>

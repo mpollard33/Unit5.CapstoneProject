@@ -5,6 +5,8 @@ import ProductsList from './features/products/ProductsList';
 import ProductDetails from './features/products/SingleProduct';
 import FilteredProducts from './features/products/FilteredProducts';
 import Registration from './features/account/Register';
+import Cart from './features/cart/Cart';
+import Account from './features/account/Account';
 
 function App() {
   return (
@@ -17,9 +19,9 @@ function App() {
         <Route path="/:category" element={<FilteredProducts />} />
         <Route path="/auth/login" element={<Registration />} />
         <Route path="/auth/logout" element={<ProductsList /> } />
-        {/* <Route path="/auth/register" element={<Registration /> } /> */}
-        <Route path="/users/account" element={<h2>/account</h2>} />
-        <Route path="/users/cart" element={<h2>/cart</h2>} />
+        <Route path="/auth/register" element={<Registration /> } /> 
+        <Route path="/users/account" element={<Account />} />
+        <Route path="/users/cart" element={<Cart />} />
       </Routes>
     </>
   );

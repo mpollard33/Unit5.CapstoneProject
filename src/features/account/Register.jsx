@@ -110,20 +110,6 @@ const Registration = () => {
               {...register('address.zipcode', { required: true })}
             />
 
-            <label htmlFor="lat">Latitude:</label>
-            <input
-              type="text"
-              id="lat"
-              {...register('address.geolocation.lat', { required: true })}
-            />
-
-            <label htmlFor="long">Longitude:</label>
-            <input
-              type="text"
-              id="long"
-              {...register('address.geolocation.long', { required: true })}
-            />
-
             <label htmlFor="phone">Phone:</label>
             <input
               type="text"
