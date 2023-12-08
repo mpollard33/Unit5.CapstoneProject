@@ -7,17 +7,15 @@ import { useSelector } from 'react-redux';
 
 const ProductsList = () => {
   const [sortedData, setSortedData] = useState([]);
-  const sortType = useSelector((state) => state.products.sort.sortType);
-  const sortOrder = useSelector((state) => state.products.sort.order);
-
+  const { sortType, order } = useSelector((state) => state.products.sort);
   const { data, error, isLoading } = useGetProductsQuery();
 
   useEffect(() => {
     if (data) {
-      const newData = sortData(data, sortType, sortOrder);
+      const newData = sortData(data, sortType, order);
       setSortedData(newData);
     }
-  }, [data, sortType, sortOrder]);
+  }, [data, sortType, order]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -26,17 +24,17 @@ const ProductsList = () => {
     <main className="main-container">
       <div className="page-container">
         <VerticalNav />
-        <ul className="product-container">
-          {sortedData && sortedData.length > 0 ? (
-            sortedData.map((product) => (
+        {sortedData.length > 0 ? (
+          <ul className="product-container">
+            {sortedData.map((product) => (
               <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <div className="no-products-message">
-              <p>Sorry, there are no products for the selected category.</p>
-            </div>
-          )}
-        </ul>
+            ))}
+          </ul>
+        ) : (
+          <div className="no-products-message">
+            <p>Sorry, there are no products for the selected category.</p>
+          </div>
+        )}
       </div>
     </main>
   );

@@ -4,24 +4,26 @@ import { setCategory, setSort } from '../store/productSlice';
 import { useNavigate } from 'react-router-dom';
 
 const VerticalNav = () => {
-  const currentCategory = useSelector(
-    (state) => state.products.selectedCategory,
-  );
-  const currentSort = useSelector((state) => state.products.sort.sortType);
+  const {
+    selectedCategory,
+    sort: { sortType },
+  } = useSelector((state) => state.products);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleCategoryChange = (categoryType) => {
-    dispatch(setCategory(categoryType));
-    navigate(`/${categoryType}`);
+    const newCategory = categoryType === '' ? '' : categoryType.trim();
+    dispatch(setCategory(newCategory));
+    navigate(`/${newCategory}`);
   };
 
-  const handleSortChange = (sortType, orderType) => {
-    const newSortState = {
-      sortType: sortType,
-      order: orderType,
-    };
-    dispatch(setSort(newSortState));
+  const handleSortChange = (option, order) => {
+    if (option === '') {
+      dispatch(setSort({ sortType: '', order: '' }));
+    } else {
+      const newSortType = option.trim;
+      dispatch(setSort({ sortType: newSortType, order }));
+    }
   };
 
   return (
@@ -35,10 +37,8 @@ const VerticalNav = () => {
           <label>
             Sort by Category:
             <select
-              onChange={(e) => {
-                handleCategoryChange(e.target.value);
-              }}
-              value={currentCategory}
+              onChange={(e) => handleCategoryChange(e.target.value)}
+              value={selectedCategory}
             >
               <option value=""> -- All Categories --</option>
               {[
@@ -61,10 +61,8 @@ const VerticalNav = () => {
           <label className="single-filter">
             Sort by {option}:{' '}
             <select
-              onChange={(e) => {
-                handleSortChange(option, e.target.value);
-              }}
-              value={currentSort}
+              onChange={(e) => handleSortChange(option, e.target.value)}
+              value={sortType}
             >
               <option value="">-- Select --</option>
               <option value="asc">Low to High</option>

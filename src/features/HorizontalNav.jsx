@@ -10,29 +10,21 @@ const HorizontalNav = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  const handleMenuToggle = () => {
-    setMenuOpen(!isMenuOpen);
-  };
-  
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
-  }
+  };
 
   return (
     <nav className={`horizontal-nav ${isMenuOpen ? 'menu-open' : ''}`}>
-      <button className="pullout-button" onClick={handleMenuToggle}>
+      <button className="pullout-button" onClick={() => setMenuOpen(!isMenuOpen)}>
         ☰
       </button>
       <ul className="nav-bar">
         <li><Link to='/' className="nav-link">Home</Link></li>
         <li><Link to='/products' className="nav-link">Products</Link></li>
-        <li className="search-bar">
-          <form>
-            <label>
-              <input type="text" className="search-input" placeholder="Search Products" />
-            </label>
-          </form>
+        <li className="search-input">
+          <input type="text" placeholder="Search Products" />
         </li>
         {token ? (
           <>
@@ -41,9 +33,7 @@ const HorizontalNav = () => {
             <li><Link to='/users/cart' className="nav-link">Cart</Link></li>
           </>
         ) : (
-          <>
-            <li><Link to='/auth/login' className="nav-link">Login</Link></li>
-          </>
+          <li><Link to='/auth/login' className="nav-link">Login</Link></li>
         )}
       </ul>
     </nav>

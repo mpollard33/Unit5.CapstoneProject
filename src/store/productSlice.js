@@ -8,10 +8,19 @@ const productSlice = createSlice({
   },
   reducers: {
     setSort: (state, { payload }) => {
-      state.sort = payload;
+      return {
+        ...state,
+        sort: {
+          sortType: payload.sortType.trim(),
+          order: payload.order,
+        },
+      };
     },
     setCategory: (state, { payload }) => {
-      state.selectedCategory = payload;
+      return {
+        ...state,
+        selectedCategory: payload,
+      };
     },
   },
 });

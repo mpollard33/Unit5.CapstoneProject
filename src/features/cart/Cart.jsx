@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
 import { format } from 'date-fns';
 import {
   useRemoveFromCartMutation,
@@ -8,15 +7,12 @@ import {
 } from '../account/authApi';
 
 const Cart = () => {
-  const { id } = useParams();
   const currentDate = new Date();
   const formattedDate = format(currentDate, 'yyyy-MM-dd');
-  const { data: cart, error, isLoading } = useGetCartQuery(id);
+  const { data: cart, error, isLoading } = useGetCartQuery();
 
   const removeFromCartMutation = useRemoveFromCartMutation();
   const updateCartQuantityMutation = useUpdateCartQuantityMutation();
-
-  useEffect(() => {}, [id]);
 
   const handleQuantityChange = async (productId, newQuantity) => {
     try {
@@ -37,13 +33,8 @@ const Cart = () => {
     }
   };
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (error) {
-    return <p>Error loading cart data: {error.message}</p>;
-  }
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="cart-container">
@@ -54,17 +45,14 @@ const Cart = () => {
       <p>User ID: {cart.userId}</p>
       <p>Date: {formattedDate}</p>
       <ul>
-        {cart.products.map((product, index) => (
-          <li key={index}>
+        {cart.products.map((product) => (
+          <li key={product.productId}>
             Product ID: {product.productId}, Quantity: {product.quantity}
             <input
               type="number"
               value={product.quantity}
               onChange={(e) =>
-                handleQuantityChange(
-                  product.productId,
-                  parseInt(e.target.value, 10),
-                )
+                handleQuantityChange(product.productId, parseInt(e.target.value, 10))
               }
               min="1"
             />

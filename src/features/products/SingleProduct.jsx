@@ -1,89 +1,71 @@
-import { useEffect } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductsByIdQuery } from './productsApi';
-import { useAddToCartMutation, useGetCartQuery } from '../account/authApi';
+import { useGetCartQuery, useAddToCartMutation } from '../account/authApi';
+import { useDispatch } from 'react-redux';
+import { setCart } from '../../store/authSlice';
 import './productCard.css';
 
-const ProductDetails = () => {
+const SingleProduct = () => {
   const { id } = useParams();
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
-  const addToCartMutation = useAddToCartMutation();
   const getCartQuery = useGetCartQuery(id);
+  const dispatch = useDispatch();
 
   const handleAddToCart = () => {
-    if (!getCartQuery.data) {
-      const newCart = {
-        userId: id,
-        date: new Date().toISOString(),
-        products: [
-          {
-            productId: data.id,
-            quantity: 1,
-          },
-        ],
-      };
+    const productId = data?.id;
 
-      addToCartMutation.mutate(newCart);
-    } else {
-      const existingCart = getCartQuery.data;
-      const updatedCart = {
-        ...existingCart,
-        products: [
-          ...existingCart.products,
-          {
-            productId: data.id,
-            quantity: 1,
-          },
-        ],
-      };
+    if (!productId) return;
 
-      addToCartMutation.mutate(updatedCart);
-    }
+    const existingCart = getCartQuery.data || { products: [] };
+    const updatedCart = {
+      ...existingCart,
+      products: [
+        ...existingCart.products,
+        {
+          productId,
+          quantity: 1,
+        },
+      ],
+    };
+    dispatch(setCart(updatedCart));
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <div>{error}</div>;
   if (!data) return <div>No data found</div>;
 
-  const generateStars = (rating) => {
-    const numberOfStars = Math.round(rating);
-    return '★'.repeat(numberOfStars) + '☆'.repeat(5 - numberOfStars);
-  };
+  const { title, image, rating, price, description } = data;
 
   return (
-    <>
-      <div className="product-card-container">
-        <img
-          src={data.image}
-          alt={data.title}
-          className="single-product-image"
-        />
-        <div className="product-info">
-          <header>
-            <h2 className="single-product-title">{data.title}</h2>
-          </header>
-          <section className="rating-container">
-            <div className="yellow-stars">
-              {generateStars(data.rating.rate)}
-            </div>
-            <div className="rating">{data.rating.rate}</div>
-            <div className="rating-count">{data.rating.count} reviews</div>
-          </section>
-          <p className="single-product-price">${data.price.toFixed(2)}</p>
-          <p className="single-product-description">{data.description}</p>
-          <form>
-            <button
-              className="single-product-button"
-              type="button"
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </button>
-          </form>
-        </div>
+    <div className="product-card-container">
+      <img src={image} alt={title} className="single-product-image" />
+      <div className="product-info">
+        <header>
+          <h2 className="single-product-title">{title}</h2>
+        </header>
+        <section className="rating-container">
+          <div className="yellow-stars">{generateStars(rating.rate)}</div>
+          <div className="rating">{rating.rate}</div>
+          <div className="rating-count">{rating.count} reviews</div>
+        </section>
+        <p className="single-product-price">${price.toFixed(2)}</p>
+        <p className="single-product-description">{description}</p>
+        <form>
+          <button
+            className="single-product-button"
+            type="button"
+            onClick={handleAddToCart}
+          >
+            Add to Cart
+          </button>
+        </form>
       </div>
-    </>
+    </div>
   );
 };
 
-export default ProductDetails;
+const generateStars = (rating) =>
+  '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
+
+export default SingleProduct;
