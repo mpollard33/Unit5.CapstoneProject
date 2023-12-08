@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductsByIdQuery } from './productsApi';
-import { useGetCartQuery, useAddToCartMutation } from '../cart/cartApi';
+import { useAddToCartMutation, useGetCartQuery } from '../account/authApi';
 import './productCard.css';
 
 const ProductDetails = () => {
@@ -9,10 +9,6 @@ const ProductDetails = () => {
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
   const addToCartMutation = useAddToCartMutation();
   const getCartQuery = useGetCartQuery(id);
-
-  useEffect(() => {
-    getCartQuery.refetch();
-  }, [id, getCartQuery.refetch]);
 
   const handleAddToCart = () => {
     if (!getCartQuery.data) {

@@ -5,7 +5,7 @@ import {
   useRemoveFromCartMutation,
   useUpdateCartQuantityMutation,
   useGetCartQuery,
-} from './cartApi';
+} from '../account/authApi';
 
 const Cart = () => {
   const { id } = useParams();
