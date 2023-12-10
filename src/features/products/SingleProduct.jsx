@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductsByIdQuery } from './productsApi';
-import { useGetCartQuery, useAddToCartMutation } from '../account/authApi';
+import { useGetCartQuery } from '../account/authApi';
 import { useDispatch } from 'react-redux';
 import { setCart } from '../../store/authSlice';
 import './productCard.css';
@@ -32,7 +32,7 @@ const SingleProduct = () => {
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) return <div>error</div>;
   if (!data) return <div>No data found</div>;
 
   const { title, image, rating, price, description } = data;

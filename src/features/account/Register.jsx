@@ -1,49 +1,54 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRegisterMutation } from './authApi';
+import { useAddUserCartMutation, useRegisterMutation } from './authApi';
 import './index.css';
-import { Link } from 'react-router-dom';
-import { selectToken } from '../../store/authSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  selectToken,
+  setUserId,
+  selectUserId,
+  setCart,
+} from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Registration = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm();
+  const { register, handleSubmit } = useForm();
 
   const token = useSelector(selectToken);
-  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  const [] = useRegisterMutation();
+  const dispatch = useDispatch();
+  const userId = useSelector(selectUserId);
+  const navigate = useNavigate();
 
-  const [registerMutation, { data, error }] = useRegisterMutation();
+  const [addUserCart, { isLoading: isAdding }] = useAddUserCartMutation();
+  const [registerUser, { error: registerError }] = useRegisterMutation();
 
   const onSubmit = async (formData) => {
     try {
-      const attemptRegister = await registerMutation(formData);
+      const { data, error } = await registerUser(formData);
 
-      console.log('State: ', token, isLoggedIn);
+      if (data) {
+        const registeredUserId = data.id;
+        dispatch(setUserId({ id: registeredUserId }));
+        // dispatch(setCart({ userId: registeredUserId }));
+
+        console.log('responseID: ', registeredUserId);
+        console.log('User ID set to: ', useSelector(userId));
+
+        if (registeredUserId) await addUserCart({ registeredUserId });
+      }
     } catch (error) {
       console.log('Error during registration', error);
     }
   };
 
-  useEffect(() => {}, [isLoggedIn]);
-  console.log('isLoggedIn: ', isLoggedIn);
+  useEffect(() => {
+    if (!token) {
+    }
+  }, [token]);
 
   return (
     <div className="registration-container">
-      {token ? (
-        <div className="registration-success">
-          <header>
-            <h2>Success!!!</h2>
-            <div className="success-text">
-              <Link to="/">Browse our Products!</Link>
-            </div>
-          </header>
-        </div>
-      ) : (
+      {!token ? (
         <div className="registration-container">
           <h2 className="register-text">Register</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -116,16 +121,19 @@ const Registration = () => {
               id="phone"
               {...register('phone', { required: true })}
             />
-
-            <button
-              className="register-button"
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Registering...' : 'Register'}
+            <button className="register-button" type="submit">
+              Register
             </button>
-            {error && <div>Error: {error.message}</div>}
           </form>
+        </div>
+      ) : (
+        <div className="registration-success">
+          <header>
+            <h2>Success!!!</h2>
+            <div className="success-text">
+              <Link to="/">Browse our Products!</Link>
+            </div>
+          </header>
         </div>
       )}
     </div>

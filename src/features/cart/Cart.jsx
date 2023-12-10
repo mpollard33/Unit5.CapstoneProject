@@ -1,25 +1,22 @@
 import React from 'react';
 import { format } from 'date-fns';
-import {
-  useRemoveFromCartMutation,
-  useUpdateCartQuantityMutation,
-  useGetCartQuery,
-} from '../account/authApi';
+import { useUpdateCartMutation, useGetCartQuery } from '../account/authApi';
 
 const Cart = () => {
   const currentDate = new Date();
   const formattedDate = format(currentDate, 'yyyy-MM-dd');
-  const { data: cart, error, isLoading } = useGetCartQuery();
-
-  const removeFromCartMutation = useRemoveFromCartMutation();
-  const updateCartQuantityMutation = useUpdateCartQuantityMutation();
+  // const {
+  //   data: cart,
+  //   error,
+  //   isLoading,
+  // } = useGetCartQuery({
+  // });
+  // change to updateCart
+  // const removeFromCartMutation = useRemoveFromCartMutation();
+  // const useUpdateCartMutation = useUpdateCartMutation();
 
   const handleQuantityChange = async (productId, newQuantity) => {
     try {
-      await updateCartQuantityMutation.mutateAsync({
-        productId,
-        quantity: newQuantity,
-      });
     } catch (error) {
       console.error('Failed to update quantity:', error);
     }
@@ -27,14 +24,12 @@ const Cart = () => {
 
   const handleRemoveProduct = async (productId) => {
     try {
-      await removeFromCartMutation.mutateAsync({ productId });
-    } catch (error) {
-      console.error('Failed to remove product:', error);
-    }
+    } catch (error) {}
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  // if (isLoading) return <div>Loading...</div>;
+  // if (error) return <div>error</div>;
+  // if (!data) return <div>No data found</div>;
 
   return (
     <div className="cart-container">
@@ -42,28 +37,42 @@ const Cart = () => {
         <h2>Cart</h2>
       </header>
       <h3>Contents: </h3>
-      <p>User ID: {cart.userId}</p>
+      <p>User ID: id </p>
       <p>Date: {formattedDate}</p>
       <ul>
-        {cart.products.map((product) => (
-          <li key={product.productId}>
-            Product ID: {product.productId}, Quantity: {product.quantity}
+        {/* {cart.products.map((product) => (
+          <li>
+            Product ID: id, Quantity: quantity
             <input
               type="number"
               value={product.quantity}
-              onChange={(e) =>
-                handleQuantityChange(product.productId, parseInt(e.target.value, 10))
-              }
+              onChange={(e) => {}}
               min="1"
             />
-            <button onClick={() => handleRemoveProduct(product.productId)}>
-              Remove Product
-            </button>
+            Remove Product
           </li>
-        ))}
+        ))} */}
+        CART PLACEHOLDER
       </ul>
     </div>
   );
 };
 
 export default Cart;
+
+/*
+add user cart
+/POST /carts
+
+get user Cart
+/GET /carts/user/:id
+
+get single cart
+/GET /carts/:id
+
+update user cart
+/PUT /carts/:id
+
+get a user
+/GET /users/:id
+*/

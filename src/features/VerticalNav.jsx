@@ -21,7 +21,7 @@ const VerticalNav = () => {
     if (option === '') {
       dispatch(setSort({ sortType: '', order: '' }));
     } else {
-      const newSortType = option.trim;
+      const newSortType = option.trim();
       dispatch(setSort({ sortType: newSortType, order }));
     }
   };

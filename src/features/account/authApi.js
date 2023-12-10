@@ -2,56 +2,41 @@ import api from '../../store/api';
 
 const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    me: builder.query({
+      query: () => 'users/me',
+    }),
     register: builder.mutation({
       query: (user) => ({
-        url: '/users',
+        url: 'users',
         method: 'POST',
         body: { user },
       }),
-      transformResponse: (response) => response.data,
-      transformErrorResponse: (response) => response.data.error.message,
     }),
     login: builder.mutation({
       query: (user) => ({
-        url: '/auth/login',
+        url: 'auth/login',
         method: 'POST',
         body: { user },
       }),
-      transformResponse: (response) => response.data.token,
-      transformErrorResponse: (response) => response.data.error.message,
-    }),
-    logout: builder.mutation({
-      query: () => ({
-        url: '/users',
-        method: 'DELETE',
-      }),
-      transformResponse: (response) => response.data,
+      transformResponse: (response) => response.data.message,
     }),
     getCart: builder.query({
-      query: (id) => `carts/${id}`,
+      query: (id) => `carts/user/${id}`,
     }),
-    addToCart: builder.mutation({
-      query: (product) => ({
-        url: '/carts',
+    addUserCart: builder.mutation({
+      query: (user) => ({
+        url: '/carts/',
         method: 'POST',
-        body: { product },
+        body: { user },
       }),
       transformResponse: (response) => response.data,
       transformErrorResponse: (response) => response.data.error.message,
     }),
-    removeFromCart: builder.mutation({
-      query: (productId) => ({
-        url: `/carts/${productId}`,
-        method: 'DELETE',
-      }),
-      transformResponse: (response) => response.data,
-      transformErrorResponse: (response) => response.data.error.message,
-    }),
-    updateCartQuantity: builder.mutation({
-      query: ({ productId, quantity }) => ({
-        url: `/carts/${productId}`,
+    updateCart: builder.mutation({
+      query: ({ id, action }) => ({
+        url: `/carts/${id}`,
         method: 'PATCH',
-        body: { quantity },
+        body: { action },
       }),
       transformResponse: (response) => response.data,
       transformErrorResponse: (response) => response.data.error.message,
@@ -60,11 +45,11 @@ const authApi = api.injectEndpoints({
 });
 
 export const {
+  useMeQuery,
   useRegisterMutation,
   useLoginMutation,
   useLogoutMutation,
   useGetCartQuery,
-  useAddToCartMutation,
-  useRemoveFromCartMutation,
-  useUpdateCartQuantityMutation,
+  useAddUserCartMutation,
+  useUpdateCartMutation,
 } = authApi;

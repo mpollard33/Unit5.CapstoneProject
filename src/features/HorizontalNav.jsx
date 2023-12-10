@@ -30,7 +30,7 @@ const HorizontalNav = () => {
           <>
             <li><Link to='/users/account' className="nav-link">Account</Link></li>
             <li onClick={handleLogout} className="nav-link">Logout</li>
-            <li><Link to='/users/cart' className="nav-link">Cart</Link></li>
+            <li><Link to='/carts/user/' className="nav-link">Cart</Link></li>
           </>
         ) : (
           <li><Link to='/auth/login' className="nav-link">Login</Link></li>

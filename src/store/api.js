@@ -7,9 +7,10 @@ const api = createApi({
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.token;
       token && headers.set('authorization', `Bearer ${token}`);
+      return headers;
     },
   }),
-  endpoints: (builder) => ({}),
+  endpoints: () => ({}),
 });
 
 export default api;

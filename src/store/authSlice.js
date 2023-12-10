@@ -8,6 +8,7 @@ const authSlice = createSlice({
   initialState: {
     token: window.sessionStorage.getItem(TOKEN_KEY),
     isLoggedIn: 'false',
+    id: '',
     cart: {
       userId: '',
       date: '',
@@ -16,9 +17,14 @@ const authSlice = createSlice({
     },
   },
   reducers: {
+    setUserId: (state, { payload }) => {
+      state.id = payload.id || 'no userID';
+      state.cart.userId = payload.id;
+    },
     logout: (state) => {
       state.token = null;
       state.isLoggedIn = 'false';
+      state.id = '';
       state.cart = {
         userId: '',
         date: '',
@@ -27,7 +33,12 @@ const authSlice = createSlice({
       };
       window.sessionStorage.removeItem(TOKEN_KEY);
     },
-    setCart: (state, { payload }) => (state.cart = payload),
+    setCart: (state, { payload }) => {
+      state.cart = {
+        ...payload,
+        userId: state.id,
+      };
+    },
 
     updateProductQuantity: (state, { payload }) => {
       const { productId, quantity } = payload;
@@ -58,28 +69,32 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addMatcher(api.endpoints.register.matchFulfilled, storeToken)
-      .addMatcher(api.endpoints.login.matchFulfilled, storeToken)
-      .addMatcher(
-        (action) => action.type === 'api/config/middlewareRegistered',
-        (state, { payload }) => {
+    builder.addMatcher(
+      (action) => action.type === 'api/config/middlewareRegistered',
+      (state, { payload }) => {
+        console.log('Middleware Registered!!!', payload);
+
+        if (payload) {
           state.token = payload;
+          state.id = payload.id || '';
           state.isLoggedIn = 'true';
           window.sessionStorage.setItem(TOKEN_KEY, payload);
-        },
-      );
+        }
+      },
+    );
   },
 });
 
-function storeToken(state, { payload }) {
-  state.token = payload.token;
-  window.sessionStorage.setItem(TOKEN_KEY, payload.token);
-}
-
-export const { logout, setCart, updateProductQuantity, removeProduct } =
-  authSlice.actions;
-export const selectToken = (state) => state?.auth?.token;
+export const {
+  logout,
+  setCart,
+  updateProductQuantity,
+  removeProduct,
+  setUserId,
+} = authSlice.actions;
+export const selectToken = (state) => state.auth.token;
 export const selectCart = (state) => state?.auth?.cart;
+export const selectUserId = (state) => state?.auth?.userId;
+export const selectState = (state) => state?.auth;
 
 export default authSlice.reducer;
