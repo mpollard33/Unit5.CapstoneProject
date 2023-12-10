@@ -36,7 +36,6 @@ const authSlice = createSlice({
     setCart: (state, { payload }) => {
       state.cart = {
         ...payload,
-        userId: state.id,
       };
     },
 

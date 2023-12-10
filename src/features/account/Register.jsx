@@ -31,9 +31,6 @@ const Registration = () => {
         dispatch(setUserId({ id: registeredUserId }));
         // dispatch(setCart({ userId: registeredUserId }));
 
-        console.log('responseID: ', registeredUserId);
-        console.log('User ID set to: ', useSelector(userId));
-
         if (registeredUserId) await addUserCart({ registeredUserId });
       }
     } catch (error) {

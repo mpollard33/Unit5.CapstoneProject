@@ -9,21 +9,23 @@ import './productCard.css';
 const SingleProduct = () => {
   const { id } = useParams();
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
-  const getCartQuery = useGetCartQuery(id);
+  const cart = useGetCartQuery(id);
   const dispatch = useDispatch();
 
   const handleAddToCart = () => {
-    const productId = data?.id;
+    const productId = data.id;
 
     if (!productId) return;
+    const existingCart = cart ? cart.data : [];
 
-    const existingCart = getCartQuery.data || { products: [] };
+    console.log('cart data', existingCart);
+
     const updatedCart = {
-      ...existingCart,
+      ...cart.data,
       products: [
-        ...existingCart.products,
+        ...existingCart,
         {
-          productId,
+          product: data,
           quantity: 1,
         },
       ],
