@@ -9,7 +9,7 @@ import './productCard.css';
 const SingleProduct = () => {
   const { id } = useParams();
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
-  const cart = useGetCartQuery(id);
+  const cart = useGetCartQuery(id); // modify cartQuery, no params?
   const dispatch = useDispatch();
 
   const handleAddToCart = () => {
@@ -22,14 +22,12 @@ const SingleProduct = () => {
 
     const updatedCart = {
       ...cart.data,
-      products: [
-        ...existingCart,
-        {
-          product: data,
-          quantity: 1,
-        },
-      ],
+      products: [...cart.products],
     };
+    updatedCart.products.push({
+      product: data,
+      quantity: 1,
+    });
     dispatch(setCart(updatedCart));
   };
 

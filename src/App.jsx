@@ -24,7 +24,7 @@ function App() {
         <Route path="/auth/logout" element={<ProductsList />} />
         <Route path="/auth/register" element={<Registration />} />
         <Route path="/users/account" element={<Account />} />
-        <Route path="/carts/user" element={<CartWrapper />} />
+        <Route path="/carts/" element={<CartWrapper />} />
       </Routes>
     </>
   );
@@ -34,16 +34,13 @@ const CartWrapper = () => {
   const id = useSelector(selectUserId);
   const authState = useSelector(selectState);
 
-  useEffect(() => {
     if (id) {
       navigate(`/carts/user/${id}`);
+      console.log(`navigate to carts/user/${id}`);
     } else {
-      console.log('No userId found');
+      console.log('No userId found', id || null);
       console.log('auth state', authState);
-      navigate(`/carts/`);
-      return <Cart />;
     }
-  }, [id, navigate]);
 
   return <Cart />;
 };

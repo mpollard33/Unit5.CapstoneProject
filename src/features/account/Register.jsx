@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAddUserCartMutation, useRegisterMutation } from './authApi';
 import './index.css';
@@ -7,29 +7,34 @@ import {
   selectToken,
   setUserId,
   selectUserId,
+  selectIsLoggedIn,
   setCart,
+  getToken,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Registration = () => {
   const { register, handleSubmit } = useForm();
 
-  const token = useSelector(selectToken);
+  const currentToken = useSelector(selectToken);
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
-  const navigate = useNavigate();
 
+  let currentId = null;
   const [addUserCart, { isLoading: isAdding }] = useAddUserCartMutation();
   const [registerUser, { error: registerError }] = useRegisterMutation();
 
   const onSubmit = async (formData) => {
     try {
-      const { data, error } = await registerUser(formData);
+      const { data } = await registerUser(formData);
+      console.log('Submit data', data);
 
       if (data) {
+        currentId = data.id;
         const registeredUserId = data.id;
+        console.log("data", data)
+        
         dispatch(setUserId({ id: registeredUserId }));
-        // dispatch(setCart({ userId: registeredUserId }));
 
         if (registeredUserId) await addUserCart({ registeredUserId });
       }
@@ -39,13 +44,13 @@ const Registration = () => {
   };
 
   useEffect(() => {
-    if (!token) {
-    }
-  }, [token]);
+    if (userId) console.log('Use Effect -> UserId changed', userId);
+    if (currentToken) console.log('Use Effect -> Token changed', currentToken);
+  }, [userId, currentToken]);
 
   return (
     <div className="registration-container">
-      {!token ? (
+      {!currentToken ? (
         <div className="registration-container">
           <h2 className="register-text">Register</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
