@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 const Registration = () => {
   const { register, handleSubmit } = useForm();
-
+  const navigate = useNavigate();
   const currentToken = useSelector(selectToken);
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
@@ -32,11 +32,12 @@ const Registration = () => {
       if (data) {
         currentId = data.id;
         const registeredUserId = data.id;
-        console.log("data", data)
-        
+        console.log('data', data);
+
         dispatch(setUserId({ id: registeredUserId }));
 
         if (registeredUserId) await addUserCart({ registeredUserId });
+        navigate('/');
       }
     } catch (error) {
       console.log('Error during registration', error);

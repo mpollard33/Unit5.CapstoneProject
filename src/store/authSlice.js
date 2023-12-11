@@ -7,7 +7,7 @@ const TOKEN_KEY = 'token';
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    token: window.sessionStorage.getItem(TOKEN_KEY),
+    token: window.localStorage.getItem(TOKEN_KEY),
     isLoggedIn: 'false',
     id: '',
     cart: {
@@ -33,13 +33,16 @@ const authSlice = createSlice({
         products: [],
         itemCount: 0,
       };
-      window.sessionStorage.removeItem(TOKEN_KEY);
+      window.localStorage.removeItem(TOKEN_KEY);
     },
     getToken: (state) => state.token,
     setCart: (state, { payload }) => {
       state.cart = {
         ...payload,
       };
+    },
+    addProductToCart: (state, { payload }) => {
+      state.cart.products = [...payload.products];
     },
     removeProduct: (state, { payload }) => {},
   },
@@ -51,7 +54,7 @@ const authSlice = createSlice({
           console.log('User Registered', payload);
           state.token = payload;
           state.isLoggedIn = 'true';
-          window.sessionStorage.setItem(TOKEN_KEY, payload);
+          window.localStorage.setItem(TOKEN_KEY, payload);
         }
       },
     );
@@ -62,6 +65,7 @@ export const {
   logout,
   getToken,
   setCart,
+  addProductToCart,
   updateProductQuantity,
   removeProduct,
   setUserId,

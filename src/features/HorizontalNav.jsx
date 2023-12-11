@@ -15,7 +15,7 @@ const HorizontalNav = () => {
     console.log("before logout", state );
     dispatch(logout());
     console.log("after logout", state);
-    navigate('/');
+    navigate('/home');
   };
 
   useEffect(() => {

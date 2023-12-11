@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useGetProductsByIdQuery } from './productsApi';
 import { useGetCartQuery } from '../account/authApi';
 import { useDispatch } from 'react-redux';
-import { setCart } from '../../store/authSlice';
+import { addProductToCart, setCart } from '../../store/authSlice';
 import './productCard.css';
 
 const SingleProduct = () => {
@@ -14,22 +14,23 @@ const SingleProduct = () => {
 
   const handleAddToCart = () => {
     const productId = data.id;
-
+  
     if (!productId) return;
-    const existingCart = cart ? cart.data : [];
-
+    const existingCart = cart ? cart.data : {};
+  
     console.log('cart data', existingCart);
-
+  
     const updatedCart = {
       ...cart.data,
-      products: [...cart.products],
+      products: [...(cart.data ? cart.data.products : [])],
     };
     updatedCart.products.push({
       product: data,
       quantity: 1,
     });
-    dispatch(setCart(updatedCart));
+    dispatch(addProductToCart({products: updatedCart.products}));
   };
+  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>error</div>;
