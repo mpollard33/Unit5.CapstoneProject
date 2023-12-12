@@ -13,17 +13,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
 
-// Simplified useFetchAllUsers hook
-const useFetchAllUsers = () => {
-  const { data, error } = useGetAllUsersQuery();
-
-  if (error) {
-    console.error(error);
-    return [];
-  }
-  return data ? data.users : [];
-};
-
 const Registration = () => {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
@@ -31,31 +20,29 @@ const Registration = () => {
   const dispatch = useDispatch();
   const loggedIn = useSelector(selectIsLoggedIn);
   const userId = useSelector(selectUserId);
-  const [registerUser] = useRegisterMutation();
+  const [registerUser, {data} ] = useRegisterMutation();
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
-
-  const allUsers = useFetchAllUsers();
 
   const onSubmit = async (formData) => {
     try {
       const { data } = await registerUser(formData);
 
       if (data) {
-        console.log('data', data);
+        console.log('id -> ', data);
         const registeredUserId = data.id;
         dispatch(setId({ id: registeredUserId }));
         dispatch(setLoggedIn(true));
+        const currentUsers = JSON.parse(localStorage.getItem('users')) || [];
+        const updatedUsers = [...currentUsers, formData];
+
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        setRegistrationSuccess(true);
       }
-
-      const updatedUsers = allUsers ? [...allUsers, formData] : [formData];
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-
-      setRegistrationSuccess(true);
     } catch (error) {
       console.log('Error during registration', error);
     }
   };
-
+  
   useEffect(() => {
     if (userId) {
       console.log('UseEffect -> userId: ', userId);

@@ -15,7 +15,6 @@ const HorizontalNav = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const state = useSelector(selectState);
-
   const { data: users } = useGetAllUsersQuery();
 
   const handleLogout = () => {
@@ -37,8 +36,10 @@ const HorizontalNav = () => {
   };
 
   useEffect(() => {
-    console.log('Use Effect -> User changed', userId);
-  }, [userId]);
+    if (users && !localStorage.getItem('users')) {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+  }, [users]);
 
   return (
     <nav className={'horizontal-nav'}>
