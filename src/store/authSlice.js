@@ -1,14 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const TOKEN_KEY = 'token';
-const USER_KEY = 'user';
+const USER_KEY = 'users';
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
     token: '',
     isLoggedIn: false,
-    user: null,
     id: null,
     cart: {
       userId: '',
@@ -22,19 +21,15 @@ const authSlice = createSlice({
       state.id = payload;
       state.cart.userId = payload;
     },
-    setUser: (state, { payload }) => {
-      state.user = payload;
-    },
     setLoggedIn: (state, { payload }) => {
       state.isLoggedIn = payload;
     },
     logout: (state) => {
       state.token = null;
       state.isLoggedIn = false;
-      state.user = null;
       state.id = null;
       state.cart = {
-        userId: '',
+        userId: null,
         date: '',
         products: [],
         itemCount: 0,
@@ -87,7 +82,7 @@ export const {
 
 export const selectToken = (state) => state.auth.token;
 export const selectCart = (state) => state?.auth?.cart;
-export const selectUserId = (state) => state?.auth?.user?.id;
+export const selectUserId = (state) => state.auth.id;
 export const selectState = (state) => state?.auth;
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
 

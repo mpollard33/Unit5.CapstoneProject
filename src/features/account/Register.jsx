@@ -1,52 +1,70 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRegisterMutation } from './authApi';
+import { useGetAllUsersQuery, useRegisterMutation } from './authApi';
 import { Link, useNavigate } from 'react-router-dom';
-import { setId, setLoggedIn, selectToken } from '../../store/authSlice';
+import {
+  setId,
+  setLoggedIn,
+  selectToken,
+  selectIsLoggedIn,
+  selectUserId,
+  initializeUser,
+} from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
+
+// Simplified useFetchAllUsers hook
+const useFetchAllUsers = () => {
+  const { data, error } = useGetAllUsersQuery();
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+  return data ? data.users : [];
+};
 
 const Registration = () => {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
   const currentToken = useSelector(selectToken);
   const dispatch = useDispatch();
-
+  const loggedIn = useSelector(selectIsLoggedIn);
+  const userId = useSelector(selectUserId);
   const [registerUser] = useRegisterMutation();
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+  const allUsers = useFetchAllUsers();
 
   const onSubmit = async (formData) => {
     try {
       const { data } = await registerUser(formData);
 
       if (data) {
+        console.log('data', data);
         const registeredUserId = data.id;
         dispatch(setId({ id: registeredUserId }));
         dispatch(setLoggedIn(true));
-
-        const existingUsers = JSON.parse(localStorage.getItem('users') || []);
-
-        const updatedUsers = [...existingUsers, formData];
-
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
-        localStorage.setItem('token', data.token);
-
-        setRegistrationSuccess(true);
       }
+
+      const updatedUsers = allUsers ? [...allUsers, formData] : [formData];
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+
+      setRegistrationSuccess(true);
     } catch (error) {
-      console.error('Error during registration', error);
+      console.log('Error during registration', error);
     }
   };
 
   useEffect(() => {
-    if (currentToken) {
-      console.log('Token changed', currentToken);
+    if (userId) {
+      console.log('UseEffect -> userId: ', userId);
     }
-  }, [currentToken]);
+  }, [userId]);
 
   return (
     <div className="registration-container">
-      {registrationSuccess ? (
+      {userId ? (
         <div className="registration-success">
           <header>
             <h2>Success!!!</h2>
@@ -59,7 +77,6 @@ const Registration = () => {
         <div className="registration-container">
           <h2 className="register-text">Register</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Add other registration form fields as needed */}
             <label htmlFor="username">Username:</label>
             <input
               type="text"
