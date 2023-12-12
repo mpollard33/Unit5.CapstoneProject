@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout, selectState, selectToken } from '../store/authSlice';
 
 const HorizontalNav = () => {
-  const [isMenuOpen, setMenuOpen] = useState(false);
   const currentToken = useSelector(selectToken);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -15,7 +14,7 @@ const HorizontalNav = () => {
     console.log("before logout", state );
     dispatch(logout());
     console.log("after logout", state);
-    navigate('/home');
+    navigate('/products');
   };
 
   useEffect(() => {
@@ -23,7 +22,7 @@ const HorizontalNav = () => {
   }, [currentToken]);
 
   return (
-    <nav className={`horizontal-nav ${isMenuOpen ? 'menu-open' : ''}`}>
+    <nav className={"horizontal-nav"}>
       <ul className="nav-bar">
         <li><Link to='/' className="nav-link">Home</Link></li>
         <li><Link to='/products' className="nav-link">Products</Link></li>
@@ -37,7 +36,10 @@ const HorizontalNav = () => {
             <li><Link to='/carts/' className="nav-link">Cart</Link></li>
           </>
         ) : (
+          <>
           <li><Link to='/auth/login' className="nav-link">Login</Link></li>
+          <li><Link to='auth/register' className="nav-link">Register</Link></li>
+          </>
         )}
       </ul>
     </nav>

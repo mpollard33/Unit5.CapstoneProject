@@ -1,15 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
-import api from './api';
-import { useRegisterMutation } from '../features/account/authApi';
 
 const TOKEN_KEY = 'token';
+const USER_KEY = 'user';
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    token: window.localStorage.getItem(TOKEN_KEY),
-    isLoggedIn: 'false',
-    id: '',
+    token: '',
+    isLoggedIn: false,
+    user: null,
+    id: null,
     cart: {
       userId: '',
       date: '',
@@ -18,22 +18,27 @@ const authSlice = createSlice({
     },
   },
   reducers: {
-    setUserId: (state, { payload }) => {
-      state.id = payload.id;
-      state.cart.userId = payload.id;
-      state.isLoggedIn = true;
+    setId: (state, { payload }) => {
+      state.id = payload;
+      state.cart.userId = payload;
+    },
+    setUser: (state, { payload }) => {
+      state.user = payload;
+    },
+    setLoggedIn: (state, { payload }) => {
+      state.isLoggedIn = payload;
     },
     logout: (state) => {
       state.token = null;
-      state.isLoggedIn = 'false';
-      state.id = '';
+      state.isLoggedIn = false;
+      state.user = null;
+      state.id = null;
       state.cart = {
         userId: '',
         date: '',
         products: [],
         itemCount: 0,
       };
-      window.localStorage.removeItem(TOKEN_KEY);
     },
     getToken: (state) => state.token,
     setCart: (state, { payload }) => {
@@ -44,7 +49,13 @@ const authSlice = createSlice({
     addProductToCart: (state, { payload }) => {
       state.cart.products = [...payload.products];
     },
-    removeProduct: (state, { payload }) => {},
+    initializeUser: (state) => {
+      const storedUser = localStorage.getItem(USER_KEY);
+      if (storedUser) {
+        state.user = JSON.parse(storedUser);
+        state.isLoggedIn = true;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -54,7 +65,7 @@ const authSlice = createSlice({
           console.log('User Registered', payload);
           state.token = payload;
           state.isLoggedIn = 'true';
-          window.localStorage.setItem(TOKEN_KEY, payload);
+          localStorage.setItem(TOKEN_KEY, payload);
         }
       },
     );
@@ -65,14 +76,18 @@ export const {
   logout,
   getToken,
   setCart,
+  initializeUser,
   addProductToCart,
   updateProductQuantity,
   removeProduct,
-  setUserId,
+  setId,
+  setUser,
+  setLoggedIn,
 } = authSlice.actions;
+
 export const selectToken = (state) => state.auth.token;
 export const selectCart = (state) => state?.auth?.cart;
-export const selectUserId = (state) => state?.auth?.id;
+export const selectUserId = (state) => state?.auth?.user?.id;
 export const selectState = (state) => state?.auth;
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
 

@@ -1,4 +1,7 @@
 import api from '../../store/api';
+import { initializeUser } from '../../store/authSlice';
+
+const TOKEN_KEY = 'token';
 
 const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -12,13 +15,8 @@ const authApi = api.injectEndpoints({
         body: { user },
       }),
     }),
-    login: builder.mutation({
-      query: (user) => ({
-        url: 'auth/login',
-        method: 'POST',
-        body: { user },
-      }),
-      transformResponse: (response) => response.data.message,
+    getAllUsers: builder.query({
+      query: () => `/users`,
     }),
     getCart: builder.query({
       query: (id) => `carts/user/${id}`,
@@ -42,12 +40,19 @@ const authApi = api.injectEndpoints({
       transformErrorResponse: (response) => response.data.error.message,
     }),
   }),
+  overrideExisting: true,
+  afterAuthCheck: ({ dispatch, getState }) => {
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    if (storedToken) {
+      dispatch(initializeUser());
+    }
+  },
 });
 
 export const {
   useMeQuery,
+  useGetAllUsersQuery,
   useRegisterMutation,
-  useLoginMutation,
   useLogoutMutation,
   useGetCartQuery,
   useAddUserCartMutation,

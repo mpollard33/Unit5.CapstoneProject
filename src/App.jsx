@@ -10,6 +10,7 @@ import Account from './features/account/Account';
 import { selectState, selectUserId } from './store/authSlice';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
+import Login from './features/account/Login';
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
         <Route path="/products" element={<ProductsList />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/:category" element={<FilteredProducts />} />
-        <Route path="/auth/login" element={<Registration />} />
+        <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/logout" element={<ProductsList />} />
         <Route path="/auth/register" element={<Registration />} />
         <Route path="/users/account" element={<Account />} />

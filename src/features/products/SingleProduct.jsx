@@ -14,23 +14,31 @@ const SingleProduct = () => {
 
   const handleAddToCart = () => {
     const productId = data.id;
-  
+
     if (!productId) return;
-    const existingCart = cart ? cart.data : {};
-  
-    console.log('cart data', existingCart);
-  
-    const updatedCart = {
-      ...cart.data,
-      products: [...(cart.data ? cart.data.products : [])],
-    };
-    updatedCart.products.push({
-      product: data,
-      quantity: 1,
-    });
-    dispatch(addProductToCart({products: updatedCart.products}));
+
+    try {
+      const existingCart = JSON.parse(localStorage.getItem('userCart')) || {
+        products: [],
+      };
+
+      const existingProduct = existingCart.products.find(
+        (product) => product.productId === productId,
+      );
+
+      if (existingProduct) {
+        existingProduct.quantity += 1;
+      } else {
+        existingCart.products.push({ productId, quantity: 1 });
+      }
+
+      localStorage.setItem('userCart', JSON.stringify(existingCart));
+
+      dispatch(addProductToCart({ products: existingCart.products }));
+    } catch (error) {
+      console.error('Error while updating cart:', error);
+    }
   };
-  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>error</div>;

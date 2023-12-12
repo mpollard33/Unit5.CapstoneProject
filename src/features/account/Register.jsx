@@ -1,123 +1,119 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAddUserCartMutation, useRegisterMutation } from './authApi';
-import './index.css';
+import { useRegisterMutation } from './authApi';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  selectToken,
-  setUserId,
-  selectUserId,
-  selectIsLoggedIn,
-  setCart,
-  getToken,
-} from '../../store/authSlice';
+import { setId, setLoggedIn, selectToken } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import './index.css';
 
 const Registration = () => {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
   const currentToken = useSelector(selectToken);
   const dispatch = useDispatch();
-  const userId = useSelector(selectUserId);
 
-  let currentId = null;
-  const [addUserCart, { isLoading: isAdding }] = useAddUserCartMutation();
-  const [registerUser, { error: registerError }] = useRegisterMutation();
+  const [registerUser] = useRegisterMutation();
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const onSubmit = async (formData) => {
     try {
       const { data } = await registerUser(formData);
-      console.log('Submit data', data);
 
       if (data) {
-        currentId = data.id;
         const registeredUserId = data.id;
-        console.log('data', data);
+        dispatch(setId({ id: registeredUserId }));
+        dispatch(setLoggedIn(true));
 
-        dispatch(setUserId({ id: registeredUserId }));
+        const existingUsers = JSON.parse(localStorage.getItem('users') || []);
 
-        if (registeredUserId) await addUserCart({ registeredUserId });
-        navigate('/');
+        const updatedUsers = [...existingUsers, formData];
+
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        localStorage.setItem('token', data.token);
+
+        setRegistrationSuccess(true);
       }
     } catch (error) {
-      console.log('Error during registration', error);
+      console.error('Error during registration', error);
     }
   };
 
   useEffect(() => {
-    if (userId) console.log('Use Effect -> UserId changed', userId);
-    if (currentToken) console.log('Use Effect -> Token changed', currentToken);
-  }, [userId, currentToken]);
+    if (currentToken) {
+      console.log('Token changed', currentToken);
+    }
+  }, [currentToken]);
 
   return (
     <div className="registration-container">
-      {!currentToken ? (
+      {registrationSuccess ? (
+        <div className="registration-success">
+          <header>
+            <h2>Success!!!</h2>
+            <div className="success-text">
+              <Link to="/">Browse our Products!</Link>
+            </div>
+          </header>
+        </div>
+      ) : (
         <div className="registration-container">
           <h2 className="register-text">Register</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
+            {/* Add other registration form fields as needed */}
             <label htmlFor="username">Username:</label>
             <input
               type="text"
               id="username"
               {...register('username', { required: true })}
             />
-
             <label htmlFor="email">Email:</label>
             <input
               type="email"
               id="email"
               {...register('email', { required: true })}
             />
-
             <label htmlFor="password">Password:</label>
             <input
               type="password"
               id="password"
               {...register('password', { required: true })}
             />
-
             <label htmlFor="firstname">First Name:</label>
             <input
               type="text"
               id="firstname"
               {...register('name.firstname', { required: true })}
             />
-
             <label htmlFor="lastname">Last Name:</label>
             <input
               type="text"
               id="lastname"
               {...register('name.lastname', { required: true })}
             />
-
             <label htmlFor="city">City:</label>
             <input
               type="text"
               id="city"
               {...register('address.city', { required: true })}
             />
-
             <label htmlFor="street">Street:</label>
             <input
               type="text"
               id="street"
               {...register('address.street', { required: true })}
             />
-
             <label htmlFor="number">Number:</label>
             <input
               type="number"
               id="number"
               {...register('address.number', { required: true })}
             />
-
             <label htmlFor="zipcode">Zip Code:</label>
             <input
               type="text"
               id="zipcode"
               {...register('address.zipcode', { required: true })}
             />
-
             <label htmlFor="phone">Phone:</label>
             <input
               type="text"
@@ -128,15 +124,6 @@ const Registration = () => {
               Register
             </button>
           </form>
-        </div>
-      ) : (
-        <div className="registration-success">
-          <header>
-            <h2>Success!!!</h2>
-            <div className="success-text">
-              <Link to="/">Browse our Products!</Link>
-            </div>
-          </header>
         </div>
       )}
     </div>
