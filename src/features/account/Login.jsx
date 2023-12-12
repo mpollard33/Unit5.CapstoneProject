@@ -1,37 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setUser, setLoggedIn, initializeUser } from '../../store/authSlice';
+import {
+  setCurrentUser,
+  setLoggedIn,
+  initializeUser,
+  setId,
+} from '../../store/authSlice';
 import { useGetAllUsersQuery } from './authApi';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
   const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { data: users } = useGetAllUsersQuery();
 
   useEffect(() => {
-    if (users) {
-      if (!localStorage.getItem('users')) {
-        localStorage.setItem('users', JSON.stringify(users));
-      }
+    if (users && !localStorage.getItem('users')) {
+      localStorage.setItem('users', JSON.stringify(users));
     }
   }, [users]);
-  
 
-  const handleLogin = () => {
+  const handleLogin = (e) => {
+    e.preventDefault();
     try {
       const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
       const matchedUser = storedUsers.find(
-        (user) => user.username === username && user.password === password
+        (user) =>
+          user.username === formData.username &&
+          user.password === formData.password,
       );
 
       if (matchedUser) {
-        dispatch(setUser(matchedUser));
+        dispatch(setCurrentUser(matchedUser.username));
         dispatch(setLoggedIn(true));
-        dispatch(initializeUser());
+        dispatch(setId(matchedUser.id));
         navigate('/users/account');
       } else {
         setError('Invalid username or password');
@@ -42,26 +49,36 @@ const Login = () => {
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   return (
     <div className="login-container">
       <h2 className="login-text">Login</h2>
-      <form className="login-container">
+      <form onSubmit={handleLogin} className="login-form">
         <label htmlFor="username">Username:</label>
         <input
           type="text"
           id="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          name="username"
+          value={formData.username}
+          onChange={handleInputChange}
         />
         <label htmlFor="password">Password:</label>
         <input
           type="password"
           id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          name="password"
+          value={formData.password}
+          onChange={handleInputChange}
         />
         {error && <div className="error-message">{error}</div>}
-        <button className="login-button" type="button" onClick={handleLogin}>
+        <button className="login-button" type="submit">
           Login
         </button>
       </form>

@@ -38,12 +38,14 @@ form input {
   border-radius: 2px;
 }
 
-.login-container {
+.login-form {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 2em;
+}
+.login-text{
+  margin: 1em 0;
 }
 
 .login-button {

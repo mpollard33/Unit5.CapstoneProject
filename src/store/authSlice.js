@@ -21,7 +21,10 @@ const authSlice = createSlice({
   reducers: {
     setId: (state, { payload }) => {
       state.id = payload;
-      state.cart.userId = payload;
+      state.cart = {
+        ...state.cart,
+        userId: payload,
+      };
     },
     setLoggedIn: (state, { payload }) => {
       state.isLoggedIn = payload;
@@ -37,6 +40,7 @@ const authSlice = createSlice({
         products: [],
         itemCount: 0,
       };
+      localStorage.setItem('currentUser', null);
     },
     setCart: (state, { payload }) => {
       state.cart = {
@@ -52,6 +56,7 @@ const authSlice = createSlice({
       // get currentUser obj from local storage
       //payload: JSON.parse(localStorage.getItem(currentUser));
       // set state
+      // can be combined with setLogin
       state.currentUser = payload;
     },
   },
@@ -83,7 +88,7 @@ export const {
   updateProductQuantity,
   removeProduct,
   setId,
-  setUser,
+  setCurrentUser,
   setLoggedIn,
 } = authSlice.actions;
 

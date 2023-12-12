@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useGetAllUsersQuery, useRegisterMutation } from './authApi';
-import { Link, useNavigate } from 'react-router-dom';
+import { useRegisterMutation } from './authApi';
+import { Link } from 'react-router-dom';
 import {
   setId,
   setLoggedIn,
-  selectToken,
-  selectIsLoggedIn,
   selectUserId,
   initializeUser,
   selectCurrentUser,
@@ -37,7 +35,6 @@ const Registration = () => {
 
         localStorage.setItem('users', JSON.stringify(updatedUsers));
         localStorage.setItem('currentUser', JSON.stringify(formData));
-
       }
     } catch (error) {
       console.log('Error during registration', error);
