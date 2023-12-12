@@ -57,7 +57,7 @@ const authSlice = createSlice({
   },
   initializeUser: (state, { payload }) => {
     // payload: JSON.parse(localStorage.getItem(CURR_USER));
-    state.user = payload || null;
+    state.currentUser = payload || null;
     state.isLoggedIn = true;
   },
   extraReducers: (builder) => {
