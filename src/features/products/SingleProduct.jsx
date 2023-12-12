@@ -9,14 +9,16 @@ import './productCard.css';
 const SingleProduct = () => {
   const { id } = useParams();
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
-  const cart = useGetCartQuery(id); // modify cartQuery, no params?
   const dispatch = useDispatch();
 
   const handleAddToCart = () => {
     const productId = data.id;
+    console.log('The product to add: ', data);
 
     if (!productId) return;
 
+    // SEND THE PAYLOAD LIKE THIS:
+    // JSON.parse(localStorage.getItem(CURR_USER)
     try {
       const existingCart = JSON.parse(localStorage.getItem('userCart')) || {
         products: [],

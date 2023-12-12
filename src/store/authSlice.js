@@ -2,12 +2,14 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const TOKEN_KEY = 'token';
 const USER_KEY = 'users';
+const CURR_USER = 'currentUser';
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
     token: '',
     isLoggedIn: false,
+    currentUser: null,
     id: null,
     cart: {
       userId: '',
@@ -27,6 +29,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.token = null;
       state.isLoggedIn = false;
+      state.currentUser = null;
       state.id = null;
       state.cart = {
         userId: null,
@@ -35,22 +38,27 @@ const authSlice = createSlice({
         itemCount: 0,
       };
     },
-    getToken: (state) => state.token,
     setCart: (state, { payload }) => {
       state.cart = {
-        ...payload,
+        ...state.cart,
+        payload,
+        // payload:  userId, date, products:[{productId, quantity}], itemCount, ...additional,
       };
     },
     addProductToCart: (state, { payload }) => {
       state.cart.products = [...payload.products];
     },
-    initializeUser: (state) => {
-      const storedUser = localStorage.getItem(USER_KEY);
-      if (storedUser) {
-        state.user = JSON.parse(storedUser);
-        state.isLoggedIn = true;
-      }
+    setCurrentUser: (state, { payload }) => {
+      // get currentUser obj from local storage
+      //payload: JSON.parse(localStorage.getItem(currentUser));
+      // set state
+      state.currentUser = payload;
     },
+  },
+  initializeUser: (state, { payload }) => {
+    // payload: JSON.parse(localStorage.getItem(CURR_USER));
+    state.user = payload || null;
+    state.isLoggedIn = true;
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -66,7 +74,6 @@ const authSlice = createSlice({
     );
   },
 });
-
 export const {
   logout,
   getToken,
@@ -81,9 +88,10 @@ export const {
 } = authSlice.actions;
 
 export const selectToken = (state) => state.auth.token;
-export const selectCart = (state) => state?.auth?.cart;
+export const selectCart = (state) => state.auth.cart;
 export const selectUserId = (state) => state.auth.id;
-export const selectState = (state) => state?.auth;
+export const selectState = (state) => state.auth;
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
+export const selectCurrentUser = (state) => state.auth.user;
 
 export default authSlice.reducer;

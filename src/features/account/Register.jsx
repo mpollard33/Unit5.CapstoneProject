@@ -9,45 +9,46 @@ import {
   selectIsLoggedIn,
   selectUserId,
   initializeUser,
+  selectCurrentUser,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
 
 const Registration = () => {
   const { register, handleSubmit } = useForm();
-  const navigate = useNavigate();
-  const currentToken = useSelector(selectToken);
   const dispatch = useDispatch();
-  const loggedIn = useSelector(selectIsLoggedIn);
+  const activeUser = useSelector(selectCurrentUser);
   const userId = useSelector(selectUserId);
-  const [registerUser, {data} ] = useRegisterMutation();
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registerUser] = useRegisterMutation();
 
   const onSubmit = async (formData) => {
     try {
       const { data } = await registerUser(formData);
 
       if (data) {
-        console.log('id -> ', data);
+        console.log('data -> ', data);
+
         const registeredUserId = data.id;
         dispatch(setId({ id: registeredUserId }));
         dispatch(setLoggedIn(true));
+
         const currentUsers = JSON.parse(localStorage.getItem('users')) || [];
         const updatedUsers = [...currentUsers, formData];
 
         localStorage.setItem('users', JSON.stringify(updatedUsers));
-        setRegistrationSuccess(true);
+        localStorage.setItem('currentUser', JSON.stringify(formData));
+
       }
     } catch (error) {
       console.log('Error during registration', error);
     }
   };
-  
+
   useEffect(() => {
-    if (userId) {
-      console.log('UseEffect -> userId: ', userId);
+    if (activeUser) {
+      console.log('UseEffect -> Active User ', activeUser);
     }
-  }, [userId]);
+  }, [activeUser]);
 
   return (
     <div className="registration-container">
