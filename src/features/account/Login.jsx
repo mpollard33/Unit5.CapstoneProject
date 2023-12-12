@@ -20,15 +20,15 @@ const Login = () => {
   const { data: users } = useGetAllUsersQuery();
 
   useEffect(() => {
-    if (users && !localStorage.getItem('users')) {
-      localStorage.setItem('users', JSON.stringify(users));
+    if (users && !sessionStorage.getItem('users')) {
+      sessionStorage.setItem('users', JSON.stringify(users));
     }
   }, [users]);
 
   const handleLogin = (e) => {
     e.preventDefault();
     try {
-      const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+      const storedUsers = JSON.parse(sessionStorage.getItem('users')) || [];
       const matchedUser = storedUsers.find(
         (user) =>
           user.username === formData.username &&

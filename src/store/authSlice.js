@@ -40,7 +40,7 @@ const authSlice = createSlice({
         products: [],
         itemCount: 0,
       };
-      localStorage.setItem('currentUser', null);
+      sessionStorage.setItem('currentUser', null);
     },
     setCart: (state, { payload }) => {
       state.cart = {
@@ -53,15 +53,15 @@ const authSlice = createSlice({
       state.cart.products = [...payload.products];
     },
     setCurrentUser: (state, { payload }) => {
-      // get currentUser obj from local storage
-      //payload: JSON.parse(localStorage.getItem(currentUser));
+      // get currentUser obj from session storage
+      //payload: JSON.parse(sessionStorage.getItem(currentUser));
       // set state
       // can be combined with setLogin
       state.currentUser = payload;
     },
   },
   initializeUser: (state, { payload }) => {
-    // payload: JSON.parse(localStorage.getItem(CURR_USER));
+    // payload: JSON.parse(sessionStorage.getItem(CURR_USER));
     state.currentUser = payload || null;
     state.isLoggedIn = true;
   },
@@ -73,7 +73,7 @@ const authSlice = createSlice({
           console.log('User Registered', payload);
           state.token = payload;
           state.isLoggedIn = 'true';
-          localStorage.setItem(TOKEN_KEY, payload);
+          sessionStorage.setItem(TOKEN_KEY, payload);
         }
       },
     );

@@ -30,11 +30,11 @@ const Registration = () => {
         dispatch(setId({ id: registeredUserId }));
         dispatch(setLoggedIn(true));
 
-        const currentUsers = JSON.parse(localStorage.getItem('users')) || [];
+        const currentUsers = JSON.parse(sessionStorage.getItem('users')) || [];
         const updatedUsers = [...currentUsers, formData];
 
-        localStorage.setItem('users', JSON.stringify(updatedUsers));
-        localStorage.setItem('currentUser', JSON.stringify(formData));
+        sessionStorage.setItem('users', JSON.stringify(updatedUsers));
+        sessionStorage.setItem('currentUser', JSON.stringify(formData));
       }
     } catch (error) {
       console.log('Error during registration', error);
