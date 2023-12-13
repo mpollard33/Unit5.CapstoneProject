@@ -7,6 +7,7 @@ import {
   selectState,
   selectToken,
   selectUserId,
+  setLoggedIn,
 } from '../store/authSlice';
 import { useGetAllUsersQuery } from './account/authApi';
 
@@ -20,15 +21,16 @@ const HorizontalNav = () => {
   const handleLogout = () => {
     console.log('before logout', state);
     dispatch(logout());
-    console.log('after logout', state);
     navigate('/products');
+    console.log('after logout', state);
+
   };
   const handleRegister = async () => {
     try {
       console.log('getUsersQuery', users);
 
-      if (!localStorage.getItem('users')) {
-        localStorage.setItem('users', JSON.stringify(users));
+      if (!sessionStorage.getItem('users')) {
+        sessionStorage.setItem('users', JSON.stringify(users));
       }
     } catch (error) {
       console.error(error);
@@ -36,8 +38,8 @@ const HorizontalNav = () => {
   };
 
   useEffect(() => {
-    if (users && !localStorage.getItem('users')) {
-      localStorage.setItem('users', JSON.stringify(users));
+    if (users && !sessionStorage.getItem('users')) {
+      sessionStorage.setItem('users', JSON.stringify(users));
     }
   }, [users]);
 

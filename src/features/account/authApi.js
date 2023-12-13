@@ -6,20 +6,44 @@ const TOKEN_KEY = 'token';
 const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     me: builder.query({
-      query: () => 'users/me',
+      query: () => '/users/me',
     }),
     register: builder.mutation({
       query: (user) => ({
-        url: 'users',
+        url: '/users',
         method: 'POST',
         body: { user },
       }),
     }),
-    getAllUsers: builder.query({
-      query: () => `/users`,
+    getSingleUser: builder.query({
+      query: (id) => ({
+        url: `/users/${id}`,
+        method: 'GET',
+      }),
     }),
-    getCart: builder.query({
-      query: (id) => `carts/user/${id}`,
+    getAllUsers: builder.query({
+      query: () => ({
+        url: `/users`,
+        method: 'GET',
+      }),
+    }),
+    getSingleCart: builder.query({
+      query: (id) => ({
+        url: `carts/${id}`,
+        method: 'GET',
+      }),
+    }),
+    getUserCart: builder.query({
+      query: (id) => ({
+        url: `/carts/user/${id}`,
+        method: 'GET',
+      }),
+    }),
+    getAllCarts: builder.query({
+      query: () => ({
+        url: '/carts/',
+        method: 'GET',
+      }),
     }),
     addUserCart: builder.mutation({
       query: (user) => ({
@@ -28,7 +52,6 @@ const authApi = api.injectEndpoints({
         body: { user },
       }),
       transformResponse: (response) => response.data,
-      transformErrorResponse: (response) => response.data.error.message,
     }),
     updateCart: builder.mutation({
       query: ({ id, action }) => ({
@@ -57,4 +80,8 @@ export const {
   useGetCartQuery,
   useAddUserCartMutation,
   useUpdateCartMutation,
+  useGetSingleUserQuery,
+  useGetSingleCartQuery,
+  useGetUserCartQuery,
+  useGetAllCartsQuery,
 } = authApi;

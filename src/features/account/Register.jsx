@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRegisterMutation } from './authApi';
+import { useAddUserCartMutation, useRegisterMutation } from './authApi';
 import { Link } from 'react-router-dom';
 import {
   setId,
@@ -8,6 +8,7 @@ import {
   selectUserId,
   initializeUser,
   selectCurrentUser,
+  setCurrentUser,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
@@ -24,17 +25,29 @@ const Registration = () => {
       const { data } = await registerUser(formData);
 
       if (data) {
-        console.log('data -> ', data);
+        console.log('On submit -> if data -> ', data);
 
         const registeredUserId = data.id;
-        dispatch(setId({ id: registeredUserId }));
-        dispatch(setLoggedIn(true));
 
         const currentUsers = JSON.parse(sessionStorage.getItem('users')) || [];
-        const updatedUsers = [...currentUsers, formData];
+        const isDuplicateId = currentUsers.some(
+          (user) => user.id === registeredUserId,
+        );
 
+        const updatedUserId = isDuplicateId
+          ? currentUsers.length + 1
+          : registeredUserId;
+
+        const updatedUser = { ...formData, id: updatedUserId };
+
+        dispatch(setCurrentUser(updatedUser));
+        dispatch(setId({ id: updatedUserId }));
+        dispatch(setLoggedIn(true));
+        console.log('currentUser -> ', updatedUser);
+
+        const updatedUsers = [...currentUsers, updatedUser];
         sessionStorage.setItem('users', JSON.stringify(updatedUsers));
-        sessionStorage.setItem('currentUser', JSON.stringify(formData));
+        sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
       }
     } catch (error) {
       console.log('Error during registration', error);

@@ -29,6 +29,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const storedUsers = JSON.parse(sessionStorage.getItem('users')) || [];
+      console.log("storedUsers -> ", storedUsers);
       const matchedUser = storedUsers.find(
         (user) =>
           user.username === formData.username &&
@@ -36,11 +37,14 @@ const Login = () => {
       );
 
       if (matchedUser) {
+        console.log("matchedUser found -> " , matchedUser.username);
+        console.log("matchedUser Id -> ", matchedUser.id)
         dispatch(setCurrentUser(matchedUser.username));
         dispatch(setLoggedIn(true));
         dispatch(setId(matchedUser.id));
         navigate('/users/account');
       } else {
+        console.log("No matchedUser found", matchedUser);
         setError('Invalid username or password');
       }
     } catch (error) {

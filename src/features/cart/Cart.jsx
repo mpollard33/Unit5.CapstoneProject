@@ -1,78 +1,67 @@
-import React from 'react';
-import { format } from 'date-fns';
-import { useUpdateCartMutation, useGetCartQuery } from '../account/authApi';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  selectCart,
+  addProductToCart,
+} from '../../store/authSlice';
+import {useUpdateCartMutation } from '../account/authApi'
 
 const Cart = () => {
-  const currentDate = new Date();
-  const formattedDate = format(currentDate, 'yyyy-MM-dd');
-  // const {
-  //   data: cart,
-  //   error,
-  //   isLoading,
-  // } = useGetCartQuery({
-  // });
-  // change to updateCart
-  // const removeFromCartMutation = useRemoveFromCartMutation();
-  // const useUpdateCartMutation = useUpdateCartMutation();
+  const dispatch = useDispatch();
+  const cart = useSelector(selectCart);
+  const [selectedProduct, setSelectedProduct] = useState({
+    productId: '',
+    quantity: 1,
+  });
 
-  const handleQuantityChange = async (productId, newQuantity) => {
-    try {
-    } catch (error) {
-      console.error('Failed to update quantity:', error);
-    }
+  // Mutation hook for updating the cart in the API
+  const [updateCart] = useUpdateCartMutation();
+
+  const handleAddToCart = () => {
+    // Update the local cart state
+    dispatch(addProductToCart({ products: [...cart.products, selectedProduct] }));
+
+    // Update the cart in the API
+    updateCart({ id: cart.userId, action: { products: [...cart.products, selectedProduct] } });
   };
 
-  const handleRemoveProduct = async (productId) => {
-    try {
-    } catch (error) {}
-  };
-
-  // if (isLoading) return <div>Loading...</div>;
-  // if (error) return <div>error</div>;
-  // if (!data) return <div>No data found</div>;
+  useEffect(() => {
+    // Handle any additional logic when the cart state changes
+    // For example, you might want to update the UI or perform calculations
+  }, [cart]);
 
   return (
-    <div className="cart-container">
-      <header>
-        <h2>Cart</h2>
-      </header>
-      <h3>Contents: </h3>
-      <p>User ID: id </p>
-      <p>Date: {formattedDate}</p>
+    <div>
+      <h2>Your Cart</h2>
       <ul>
-        {/* {cart.products.map((product) => (
-          <li>
-            Product ID: id, Quantity: quantity
-            <input
-              type="number"
-              value={product.quantity}
-              onChange={(e) => {}}
-              min="1"
-            />
-            Remove Product
+        {cart.products.map((product, index) => (
+          <li key={index}>
+            Product ID: {product.productId}, Quantity: {product.quantity}
           </li>
-        ))} */}
-        CART PLACEHOLDER
+        ))}
       </ul>
+      <select
+        value={selectedProduct.productId}
+        onChange={(e) =>
+          setSelectedProduct({ ...selectedProduct, productId: e.target.value })
+        }
+      >
+        {/* Populate the dropdown with product options */}
+        {/* You might fetch this list from your API or define it locally */}
+        <option value="product1">Product 1</option>
+        <option value="product2">Product 2</option>
+        {/* Add more product options as needed */}
+      </select>
+      <input
+        type="number"
+        value={selectedProduct.quantity}
+        onChange={(e) =>
+          setSelectedProduct({ ...selectedProduct, quantity: e.target.value })
+        }
+      />
+      <button onClick={handleAddToCart}>Add to Cart</button>
     </div>
   );
 };
 
 export default Cart;
-
-/*
-add user cart
-/POST /carts
-
-get user Cart
-/GET /carts/user/:id
-
-get single cart
-/GET /carts/:id
-
-update user cart
-/PUT /carts/:id
-
-get a user
-/GET /users/:id
-*/
