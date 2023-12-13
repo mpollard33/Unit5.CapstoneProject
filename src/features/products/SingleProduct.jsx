@@ -1,49 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductsByIdQuery } from './productsApi';
-import { useGetCartQuery } from '../account/authApi';
-import { useDispatch } from 'react-redux';
-import { addProductToCart, setCart } from '../../store/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addProductToCart,
+  selectCart,
+  setCurrentUser,
+} from '../../store/authSlice';
 import './productCard.css';
 
 const SingleProduct = () => {
   const { id } = useParams();
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
   const dispatch = useDispatch();
+  const cart = useSelector(selectCart);
+  const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = () => {
     const productId = data.id;
-    console.log('The product to add: ', data);
 
     if (!productId) return;
 
-    // SEND THE PAYLOAD LIKE THIS:
-    // JSON.parse(localStorage.getItem(CURR_USER)
     try {
-      const existingCart = JSON.parse(localStorage.getItem('userCart')) || {
-        products: [],
-      };
-
-      const existingProduct = existingCart.products.find(
+      const existingProduct = cart.products.find(
         (product) => product.productId === productId,
       );
 
-      if (existingProduct) {
-        existingProduct.quantity += 1;
-      } else {
-        existingCart.products.push({ productId, quantity: 1 });
-      }
+      const newQuantity = existingProduct
+        ? existingProduct.quantity + quantity
+        : quantity;
 
-      localStorage.setItem('userCart', JSON.stringify(existingCart));
+      const updatedCart = {
+        products: [
+          ...cart.products.filter((product) => product.productId !== productId),
+          { productId, quantity: newQuantity },
+        ],
+      };
 
-      dispatch(addProductToCart({ products: existingCart.products }));
+      dispatch(addProductToCart(updatedCart));
+
+      const currentUser =
+        JSON.parse(sessionStorage.getItem('currentUser'));
+      sessionStorage.setItem(
+        'userCart',
+        JSON.stringify({ [currentUser.id]: updatedCart }),
+      );
     } catch (error) {
       console.error('Error while updating cart:', error);
     }
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>error</div>;
+  if (error) return <div>Error</div>;
   if (!data) return <div>No data found</div>;
 
   const { title, image, rating, price, description } = data;
@@ -63,6 +71,13 @@ const SingleProduct = () => {
         <p className="single-product-price">${price.toFixed(2)}</p>
         <p className="single-product-description">{description}</p>
         <form>
+          <label htmlFor="quantity">Quantity:</label>
+          <input
+            type="number"
+            id="quantity"
+            value={quantity}
+            onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 1)}
+          />
           <button
             className="single-product-button"
             type="button"

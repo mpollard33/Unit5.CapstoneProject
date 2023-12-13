@@ -33,14 +33,12 @@ function App() {
 const CartWrapper = () => {
   const navigate = useNavigate();
   const id = useSelector(selectUserId);
-  const authState = useSelector(selectState);
 
     if (id) {
       navigate(`/carts/user/${id}`);
       console.log(`navigate to carts/user/${id}`);
     } else {
       console.log('No userId found', id || null);
-      console.log('auth state', authState);
     }
 
   return <Cart />;
