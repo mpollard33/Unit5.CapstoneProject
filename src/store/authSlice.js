@@ -23,19 +23,15 @@ const authSlice = createSlice({
     setId: (state, { payload }) => {
       state.id = payload;
       state.cart.userId = payload;
-
     },
     setCart: (state, { payload }) => {
       state.cart = {
         ...state.cart,
         ...payload,
-        // payload:  userId, date, products:[{productId, quantity}], itemCount, ...additional,
       };
     },
     setCartId: (state, { payload }) => {
-      state.cart.userId = payload;
-   
-      
+      // state.cart.userId = payload;
     },
     setLoggedIn: (state, { payload }) => {
       state.isLoggedIn = payload;
@@ -46,7 +42,6 @@ const authSlice = createSlice({
       state.currentUser = null;
       state.id = null;
       state.cart = {
-        // TODO: when logout is clicked, sessionStorage.setItem(currentUserCart) Then delete this
         userId: null,
         date: '',
         products: [],
@@ -58,15 +53,13 @@ const authSlice = createSlice({
       state.cart.products = [...payload.products];
     },
     setCurrentUser: (state, { payload }) => {
-      // get currentUser obj from session storage
-      //payload: JSON.parse(sessionStorage.getItem(currentUser));
-      // set state
-      // can be combined with setLogin
       state.currentUser = payload;
+    },
+    removeProduct: (state, { payload }) => {
+      state.cart.products = [...payload.products];
     },
   },
   initializeUser: (state, { payload }) => {
-    // payload: JSON.parse(sessionStorage.getItem(CURR_USER));
     state.currentUser = payload || null;
     state.isLoggedIn = true;
   },
@@ -84,6 +77,14 @@ const authSlice = createSlice({
     );
   },
 });
+
+export const selectCartItemCount = (state) => {
+  return state.auth.cart.products.reduce(
+    (total, product) => total + product.quantity,
+    0,
+  );
+};
+
 export const {
   logout,
   getToken,
@@ -91,7 +92,6 @@ export const {
   setCartId,
   initializeUser,
   addProductToCart,
-  updateProductQuantity,
   removeProduct,
   setId,
   setCurrentUser,
@@ -103,6 +103,6 @@ export const selectCart = (state) => state.auth.cart;
 export const selectUserId = (state) => state.auth.id;
 export const selectState = (state) => state.auth;
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
-export const selectCurrentUser = (state) => state.auth.user;
+export const selectCurrentUser = (state) => state.auth.currentUser;
 
 export default authSlice.reducer;

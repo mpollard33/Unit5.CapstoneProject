@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './products/index.css';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   logout,
@@ -8,6 +7,7 @@ import {
   selectToken,
   selectUserId,
   setLoggedIn,
+  selectCartItemCount,
 } from '../store/authSlice';
 import { useGetAllUsersQuery } from './account/authApi';
 
@@ -19,16 +19,12 @@ const HorizontalNav = () => {
   const { data: users } = useGetAllUsersQuery();
 
   const handleLogout = () => {
-    console.log('before logout', state);
     dispatch(logout());
     navigate('/products');
-    console.log('after logout', state);
-
   };
+
   const handleRegister = async () => {
     try {
-      console.log('getUsersQuery', users);
-
       if (!sessionStorage.getItem('users')) {
         sessionStorage.setItem('users', JSON.stringify(users));
       }
@@ -42,6 +38,8 @@ const HorizontalNav = () => {
       sessionStorage.setItem('users', JSON.stringify(users));
     }
   }, [users]);
+
+  const cartItemCount = useSelector(selectCartItemCount);
 
   return (
     <nav className={'horizontal-nav'}>
@@ -71,7 +69,7 @@ const HorizontalNav = () => {
             </li>
             <li>
               <Link to="/carts/" className="nav-link">
-                Cart
+                Cart {cartItemCount > 0 && `(${cartItemCount})`}
               </Link>
             </li>
           </>

@@ -60,7 +60,6 @@ const authApi = api.injectEndpoints({
         body: { action },
       }),
       transformResponse: (response) => response.data,
-      transformErrorResponse: (response) => response.data.error.message,
     }),
   }),
   overrideExisting: true,

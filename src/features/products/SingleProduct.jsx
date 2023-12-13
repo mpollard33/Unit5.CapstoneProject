@@ -4,8 +4,8 @@ import { useGetProductsByIdQuery } from './productsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   addProductToCart,
+  removeProduct,
   selectCart,
-  setCurrentUser,
 } from '../../store/authSlice';
 import './productCard.css';
 
@@ -18,36 +18,54 @@ const SingleProduct = () => {
 
   const handleAddToCart = () => {
     const productId = data.id;
-
     if (!productId) return;
 
-    try {
-      const existingProduct = cart.products.find(
-        (product) => product.productId === productId,
-      );
+    const updatedCart = getUpdatedCart(productId);
+    dispatch(addProductToCart(updatedCart));
+    updateSessionStorage(updatedCart);
+  };
 
-      const newQuantity = existingProduct
-        ? existingProduct.quantity + quantity
-        : quantity;
+  const handleRemoveFromCart = () => {
+    const productId = data.id;
+    if (!productId) return;
 
-      const updatedCart = {
-        products: [
-          ...cart.products.filter((product) => product.productId !== productId),
-          { productId, quantity: newQuantity },
-        ],
-      };
+    const updatedCart = getUpdatedCart(productId, true);
+    dispatch(removeProduct(updatedCart));
+    updateSessionStorage(updatedCart);
+  };
 
-      dispatch(addProductToCart(updatedCart));
+  const getUpdatedCart = (productId, remove = false) => {
+    const existingProduct = cart.products.find(
+      (product) => product.productId === productId,
+    );
 
-      const currentUser =
-        JSON.parse(sessionStorage.getItem('currentUser'));
-      sessionStorage.setItem(
-        'userCart',
-        JSON.stringify({ [currentUser.id]: updatedCart }),
-      );
-    } catch (error) {
-      console.error('Error while updating cart:', error);
-    }
+    const newQuantity = existingProduct
+      ? remove
+        ? Math.max(existingProduct.quantity - quantity, 0)
+        : existingProduct.quantity + quantity
+      : quantity;
+
+    const updatedProducts =
+      newQuantity > 0
+        ? [
+            ...cart.products.filter(
+              (product) => product.productId !== productId,
+            ),
+            { productId, quantity: newQuantity },
+          ]
+        : cart.products.filter((product) => product.productId !== productId);
+
+    return {
+      products: updatedProducts,
+    };
+  };
+
+  const updateSessionStorage = (updatedCart) => {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    sessionStorage.setItem(
+      'userCart',
+      JSON.stringify({ [currentUser.id]: updatedCart }),
+    );
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -84,6 +102,13 @@ const SingleProduct = () => {
             onClick={handleAddToCart}
           >
             Add to Cart
+          </button>
+          <button
+            className="single-product-button"
+            type="button"
+            onClick={handleRemoveFromCart}
+          >
+            Remove from Cart
           </button>
         </form>
       </div>
