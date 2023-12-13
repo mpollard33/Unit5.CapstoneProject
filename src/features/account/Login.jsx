@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   setCurrentUser,
   setLoggedIn,
   initializeUser,
   setId,
+  selectUserId,
+  selectIsLoggedIn,
 } from '../../store/authSlice';
 import { useGetAllUsersQuery } from './authApi';
 
@@ -17,6 +19,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const userId = useSelector(selectUserId);
+  const isLoggedIn = useSelector(selectIsLoggedIn);
   const { data: users } = useGetAllUsersQuery();
 
   useEffect(() => {
@@ -24,12 +28,17 @@ const Login = () => {
       sessionStorage.setItem('users', JSON.stringify(users));
     }
   }, [users]);
+  useEffect(() => {
+    if (!userId) {
+      dispatch(setLoggedIn(false));
+    }
+  }, [userId]);
 
   const handleLogin = (e) => {
     e.preventDefault();
     try {
       const storedUsers = JSON.parse(sessionStorage.getItem('users')) || [];
-      console.log("storedUsers -> ", storedUsers);
+      console.log('storedUsers -> ', storedUsers);
       const matchedUser = storedUsers.find(
         (user) =>
           user.username === formData.username &&
@@ -37,14 +46,14 @@ const Login = () => {
       );
 
       if (matchedUser) {
-        console.log("matchedUser found -> " , matchedUser.username);
-        console.log("matchedUser Id -> ", matchedUser.id)
-        dispatch(setCurrentUser(matchedUser.username));
+        console.log('matchedUser found -> ', matchedUser.username);
+        console.log('matchedUser Id -> ', matchedUser.id);
+        dispatch(setCurrentUser(matchedUser));
         dispatch(setLoggedIn(true));
         dispatch(setId(matchedUser.id));
         navigate('/users/account');
       } else {
-        console.log("No matchedUser found", matchedUser);
+        console.log('No matchedUser found', matchedUser);
         setError('Invalid username or password');
       }
     } catch (error) {
