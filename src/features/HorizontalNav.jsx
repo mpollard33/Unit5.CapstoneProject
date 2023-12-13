@@ -32,14 +32,17 @@ const HorizontalNav = () => {
       console.error(error);
     }
   };
+  const cartItemCount = useSelector(selectCartItemCount);
 
   useEffect(() => {
     if (users && !sessionStorage.getItem('users')) {
       sessionStorage.setItem('users', JSON.stringify(users));
     }
   }, [users]);
-
-  const cartItemCount = useSelector(selectCartItemCount);
+  useEffect(() => {
+    console.log('UserId:', userId);
+    console.log('Cart Item Count:', cartItemCount);
+  }, [userId, cartItemCount]);
 
   return (
     <nav className={'horizontal-nav'}>

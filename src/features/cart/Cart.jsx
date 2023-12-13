@@ -1,65 +1,68 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  selectCart,
-  addProductToCart,
-} from '../../store/authSlice';
-import {useUpdateCartMutation } from '../account/authApi'
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { removeProduct, setCart, selectUserId } from '../../store/authSlice';
+import CartProductCard from './CartProductCard';
 
 const Cart = () => {
   const dispatch = useDispatch();
-  const cart = useSelector(selectCart);
-  const [selectedProduct, setSelectedProduct] = useState({
-    productId: '',
-    quantity: 1,
-  });
-
-  // Mutation hook for updating the cart in the API
-  const [updateCart] = useUpdateCartMutation();
-
-  const handleAddToCart = () => {
-    // Update the local cart state
-    dispatch(addProductToCart({ products: [...cart.products, selectedProduct] }));
-
-    // Update the cart in the API
-    updateCart({ id: cart.userId, action: { products: [...cart.products, selectedProduct] } });
-  };
+  const userId = useSelector(selectUserId);
 
   useEffect(() => {
-    // Handle any additional logic when the cart state changes
-    // For example, you might want to update the UI or perform calculations
-  }, [cart]);
+    const storedCart = JSON.parse(sessionStorage.getItem('userCart')) || {};
+    const userCart = storedCart[userId] || { products: [] };
+
+    dispatch(setCart({ products: userCart.products }));
+  }, [userId, dispatch]);
+
+  const handleUpdateQuantity = (productId, newQuantity) => {
+    const storedCart = JSON.parse(sessionStorage.getItem('userCart')) || {};
+    const userCart = storedCart[userId] || { products: [] };
+
+    const updatedCart = {
+      ...userCart,
+      products: userCart.products.map((product) =>
+        product.productId === productId
+          ? { ...product, quantity: newQuantity }
+          : product,
+      ),
+    };
+
+    storedCart[userId] = updatedCart;
+    sessionStorage.setItem('userCart', JSON.stringify(storedCart));
+
+    dispatch(setCart({ products: updatedCart.products }));
+  };
+
+  const handleRemoveProduct = (productId) => {
+    const storedCart = JSON.parse(sessionStorage.getItem('userCart')) || {};
+    const userCart = storedCart[userId] || { products: [] };
+
+    const updatedCart = {
+      ...userCart,
+      products: userCart.products.filter(
+        (product) => product.productId !== productId,
+      ),
+    };
+
+    storedCart[userId] = updatedCart;
+    sessionStorage.setItem('userCart', JSON.stringify(storedCart));
+
+    dispatch(removeProduct({ products: updatedCart.products }));
+  };
+
+  const userCart = useSelector((state) => state.auth.cart);
 
   return (
     <div>
       <h2>Your Cart</h2>
-      <ul>
-        {cart.products.map((product, index) => (
-          <li key={index}>
-            Product ID: {product.productId}, Quantity: {product.quantity}
-          </li>
-        ))}
-      </ul>
-      <select
-        value={selectedProduct.productId}
-        onChange={(e) =>
-          setSelectedProduct({ ...selectedProduct, productId: e.target.value })
-        }
-      >
-        {/* Populate the dropdown with product options */}
-        {/* You might fetch this list from your API or define it locally */}
-        <option value="product1">Product 1</option>
-        <option value="product2">Product 2</option>
-        {/* Add more product options as needed */}
-      </select>
-      <input
-        type="number"
-        value={selectedProduct.quantity}
-        onChange={(e) =>
-          setSelectedProduct({ ...selectedProduct, quantity: e.target.value })
-        }
-      />
-      <button onClick={handleAddToCart}>Add to Cart</button>
+      {userCart.products.map((product) => (
+        <CartProductCard
+          key={product.productId}
+          product={product}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveProduct={handleRemoveProduct}
+        />
+      ))}
     </div>
   );
 };

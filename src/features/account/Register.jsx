@@ -30,6 +30,14 @@ const Registration = () => {
   const allCarts = useGetAllCartsQuery();
   const [createUserCart, { data: cartId }] = useAddUserCartMutation();
 
+  useEffect(() => {
+    if (!activeUser) {
+      const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+      if (storedUser) {
+        dispatch(setCurrentUser(storedUser));
+      }
+    }
+  }, [activeUser, dispatch]);
   const onSubmit = async (formData) => {
     try {
       const { data } = await registerUser(formData);
@@ -70,12 +78,12 @@ const Registration = () => {
         const getCartId = async (cartData) => {
           try {
             const { data: cartId } = await createUserCart(cartData);
-            console.log('CartId', cartId); // Ensure you see the resolved cartId in the console
+            console.log('CartId', cartId);
             if (cartId) return cartId;
             return 55;
           } catch (error) {
             console.error('Error during registration', error);
-            throw error; // Rethrow the error to be caught in the outer catch block
+            throw error;
           }
         };
         const userId = await getCartId(userCartData);

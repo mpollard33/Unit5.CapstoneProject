@@ -52,16 +52,19 @@ const authSlice = createSlice({
     addProductToCart: (state, { payload }) => {
       state.cart.products = [...payload.products];
     },
-    setCurrentUser: (state, { payload }) => {
-      state.currentUser = payload;
+    setCurrentUser: (state, action) => {
+      const { currentUser, id } = action.payload;
+      state.currentUser = { ...currentUser, id };
+      state.id = id;
+      state.isLoggedIn = true;
     },
     removeProduct: (state, { payload }) => {
       state.cart.products = [...payload.products];
     },
-  },
-  initializeUser: (state, { payload }) => {
-    state.currentUser = payload || null;
-    state.isLoggedIn = true;
+    initializeUser: (state, { payload }) => {
+      state.currentUser = payload || null;
+      state.isLoggedIn = true;
+    },
   },
   extraReducers: (builder) => {
     builder.addMatcher(
@@ -70,7 +73,7 @@ const authSlice = createSlice({
         if (payload) {
           console.log('User Registered', payload);
           state.token = payload;
-          state.isLoggedIn = 'true';
+          state.isLoggedIn = true;
           sessionStorage.setItem(TOKEN_KEY, payload);
         }
       },
@@ -87,15 +90,14 @@ export const selectCartItemCount = (state) => {
 
 export const {
   logout,
-  getToken,
   setCart,
   setCartId,
-  initializeUser,
+  setLoggedIn,
   addProductToCart,
   removeProduct,
   setId,
   setCurrentUser,
-  setLoggedIn,
+  initializeUser,
 } = authSlice.actions;
 
 export const selectToken = (state) => state.auth.token;

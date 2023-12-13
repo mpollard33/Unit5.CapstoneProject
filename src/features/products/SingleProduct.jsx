@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductsByIdQuery } from './productsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  selectIsLoggedIn,
   addProductToCart,
   removeProduct,
   selectCart,
+  selectUserId,
+  setLoggedIn,
 } from '../../store/authSlice';
 import './productCard.css';
 
@@ -15,11 +18,30 @@ const SingleProduct = () => {
   const dispatch = useDispatch();
   const cart = useSelector(selectCart);
   const [quantity, setQuantity] = useState(1);
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+  const userId = useSelector(selectUserId);
+
+  const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
+
+  useEffect(() => {
+    if (!userId) {
+      dispatch(setLoggedIn(false));
+    }
+  }, [userId, dispatch]);
+
+  const renderLoginMessage = () => (
+    <p className="login-message">
+      You must be logged in to add items to your cart.
+    </p>
+  );
 
   const handleAddToCart = () => {
+    if (!isLoggedIn) {
+      setDisplayLoginMessage(true);
+      return;
+    }
+    
     const productId = data.id;
-    if (!productId) return;
-
     const updatedCart = getUpdatedCart(productId);
     dispatch(addProductToCart(updatedCart));
     updateSessionStorage(updatedCart);
@@ -34,16 +56,27 @@ const SingleProduct = () => {
     updateSessionStorage(updatedCart);
   };
 
+  const isProductInCart = () => {
+    return cart.products.some((product) => product.productId === data.id);
+  };
+
+  const getProductQuantityInCart = () => {
+    const productInCart = cart.products.find(
+      (product) => product.productId === data.id,
+    );
+    return productInCart ? productInCart.quantity : 0;
+  };
+
   const getUpdatedCart = (productId, remove = false) => {
     const existingProduct = cart.products.find(
       (product) => product.productId === productId,
     );
 
-    const newQuantity = existingProduct
-      ? remove
-        ? Math.max(existingProduct.quantity - quantity, 0)
-        : existingProduct.quantity + quantity
-      : quantity;
+    const existingQuantity = existingProduct ? existingProduct.quantity : 0;
+
+    const newQuantity = remove
+      ? Math.max(existingQuantity - quantity, 0)
+      : existingQuantity + quantity;
 
     const updatedProducts =
       newQuantity > 0
@@ -62,10 +95,24 @@ const SingleProduct = () => {
 
   const updateSessionStorage = (updatedCart) => {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-    sessionStorage.setItem(
-      'userCart',
-      JSON.stringify({ [currentUser.id]: updatedCart }),
+
+    const existingCarts = JSON.parse(sessionStorage.getItem('carts')) || [];
+
+    const userCartIndex = existingCarts.findIndex(
+      (cart) => cart[currentUser.id] !== undefined,
     );
+
+    const updatedCarts =
+      userCartIndex !== -1
+        ? [
+            ...existingCarts.slice(0, userCartIndex),
+            { [currentUser.id]: updatedCart },
+            ...existingCarts.slice(userCartIndex + 1),
+          ]
+        : [...existingCarts, { [currentUser.id]: updatedCart }];
+
+    sessionStorage.setItem('carts', JSON.stringify(updatedCarts));
+    sessionStorage.setItem('userCart', JSON.stringify(updatedCart));
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -103,13 +150,32 @@ const SingleProduct = () => {
           >
             Add to Cart
           </button>
-          <button
-            className="single-product-button"
-            type="button"
-            onClick={handleRemoveFromCart}
-          >
-            Remove from Cart
-          </button>
+          {displayLoginMessage && renderLoginMessage()}
+          {isProductInCart() && (
+            <>
+              {getProductQuantityInCart() > 0 && (
+                <>
+                  {isLoggedIn ? (
+                    <>
+                      <button
+                        className="single-product-button"
+                        type="button"
+                        onClick={handleRemoveFromCart}
+                      >
+                        Remove from Cart
+                      </button>
+                      <p>
+                        You have {getProductQuantityInCart()} of this product in
+                        your cart!
+                      </p>
+                    </>
+                  ) : (
+                    <p>You must be logged in to add items to the cart.</p>
+                  )}
+                </>
+              )}
+            </>
+          )}
         </form>
       </div>
     </div>

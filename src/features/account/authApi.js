@@ -64,7 +64,7 @@ const authApi = api.injectEndpoints({
   }),
   overrideExisting: true,
   afterAuthCheck: ({ dispatch, getState }) => {
-    const storedToken = localStorage.getItem(TOKEN_KEY);
+    const storedToken = sessionStorage.getItem(TOKEN_KEY);
     if (storedToken) {
       dispatch(initializeUser());
     }
