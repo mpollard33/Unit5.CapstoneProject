@@ -9,7 +9,8 @@ import {
   selectUserId,
   selectIsLoggedIn,
 } from '../../store/authSlice';
-import { useGetAllUsersQuery } from './authApi';
+import { useGetAllCartsQuery, useGetAllUsersQuery } from './authApi';
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,8 @@ const Login = () => {
   const userId = useSelector(selectUserId);
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const { data: users } = useGetAllUsersQuery();
+  const allCarts = useGetAllCartsQuery();
+
 
   useEffect(() => {
     if (users && !sessionStorage.getItem('users')) {
@@ -38,7 +41,6 @@ const Login = () => {
     e.preventDefault();
     try {
       const storedUsers = JSON.parse(sessionStorage.getItem('users')) || [];
-      console.log('storedUsers -> ', storedUsers);
       const matchedUser = storedUsers.find(
         (user) =>
           user.username === formData.username &&
@@ -46,14 +48,21 @@ const Login = () => {
       );
 
       if (matchedUser) {
-        console.log('matchedUser found -> ', matchedUser.username);
-        console.log('matchedUser Id -> ', matchedUser.id);
+        // Set the current user and login state
         dispatch(setCurrentUser(matchedUser));
         dispatch(setLoggedIn(true));
         dispatch(setId(matchedUser.id));
+
+        // Check if carts data exists in session storage
+        if (!sessionStorage.getItem('carts')) {
+          const storedCarts = JSON.stringify(allCarts.data);
+          sessionStorage.setItem('carts', storedCarts);
+        }
+
+
+        // Redirect to the user's account page
         navigate('/users/account');
       } else {
-        console.log('No matchedUser found', matchedUser);
         setError('Invalid username or password');
       }
     } catch (error) {

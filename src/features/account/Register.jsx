@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useAddUserCartMutation, useRegisterMutation } from './authApi';
+import { useGetAllCartsQuery, useRegisterMutation } from './authApi';
 import { Link } from 'react-router-dom';
 import {
   setId,
@@ -19,12 +19,18 @@ const Registration = () => {
   const activeUser = useSelector(selectCurrentUser);
   const userId = useSelector(selectUserId);
   const [registerUser] = useRegisterMutation();
+  const allCarts = useGetAllCartsQuery();
 
   const onSubmit = async (formData) => {
     try {
       const { data } = await registerUser(formData);
 
       if (data) {
+        // Check if carts data exists in session storage // add to initalize userlater
+        if (!sessionStorage.getItem('carts')) {
+          const storedCarts = JSON.stringify(allCarts.data);
+          sessionStorage.setItem('carts', storedCarts);
+        }
         console.log('On submit -> if data -> ', data);
 
         const registeredUserId = data.id;
