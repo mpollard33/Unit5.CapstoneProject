@@ -46,10 +46,10 @@ const authApi = api.injectEndpoints({
       }),
     }),
     addUserCart: builder.mutation({
-      query: (user) => ({
+      query: (cart) => ({
         url: '/carts/',
         method: 'POST',
-        body: { user },
+        body: { cart },
       }),
       transformResponse: (response) => response.data,
     }),

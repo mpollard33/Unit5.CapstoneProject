@@ -1,14 +1,22 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useGetAllCartsQuery, useRegisterMutation } from './authApi';
+import {
+  useAddUserCartMutation,
+  useGetAllCartsQuery,
+  useRegisterMutation,
+} from './authApi';
 import { Link } from 'react-router-dom';
 import {
   setId,
+  setCart,
+  setCartId,
   setLoggedIn,
   selectUserId,
   initializeUser,
   selectCurrentUser,
+  selectCart,
   setCurrentUser,
+  selectIsLoggedIn,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
@@ -20,40 +28,59 @@ const Registration = () => {
   const userId = useSelector(selectUserId);
   const [registerUser] = useRegisterMutation();
   const allCarts = useGetAllCartsQuery();
+  const [createUserCart, { data: cartId }] = useAddUserCartMutation();
 
   const onSubmit = async (formData) => {
     try {
       const { data } = await registerUser(formData);
 
       if (data) {
-        // Check if carts data exists in session storage // add to initalize userlater
+        const apiCarts = JSON.stringify(allCarts.data);
         if (!sessionStorage.getItem('carts')) {
-          const storedCarts = JSON.stringify(allCarts.data);
-          sessionStorage.setItem('carts', storedCarts);
+          sessionStorage.setItem('carts', apiCarts);
         }
-        console.log('On submit -> if data -> ', data);
 
         const registeredUserId = data.id;
 
         const currentUsers = JSON.parse(sessionStorage.getItem('users')) || [];
+
         const isDuplicateId = currentUsers.some(
           (user) => user.id === registeredUserId,
         );
-
         const updatedUserId = isDuplicateId
           ? currentUsers.length + 1
           : registeredUserId;
-
         const updatedUser = { ...formData, id: updatedUserId };
 
         dispatch(setCurrentUser(updatedUser));
-        dispatch(setId({ id: updatedUserId }));
         dispatch(setLoggedIn(true));
-        console.log('currentUser -> ', updatedUser);
+        dispatch(setId(updatedUserId));
 
         const updatedUsers = [...currentUsers, updatedUser];
         sessionStorage.setItem('users', JSON.stringify(updatedUsers));
         sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
+        const userCartData = {
+          id: registeredUserId,
+          userId: 5,
+          date: new Date().toISOString(),
+          products: [],
+        };
+
+        const getCartId = async (cartData) => {
+          try {
+            const { data: cartId } = await createUserCart(cartData);
+            console.log('CartId', cartId); // Ensure you see the resolved cartId in the console
+            if (cartId) return cartId;
+            return 55;
+          } catch (error) {
+            console.error('Error during registration', error);
+            throw error; // Rethrow the error to be caught in the outer catch block
+          }
+        };
+        const userId = await getCartId(userCartData);
+        // debug
+        console.log('Before');
       }
     } catch (error) {
       console.log('Error during registration', error);

@@ -16,15 +16,26 @@ const authSlice = createSlice({
       date: '',
       products: [],
       itemCount: 0,
+      total: 0,
     },
   },
   reducers: {
     setId: (state, { payload }) => {
       state.id = payload;
+      state.cart.userId = payload;
+
+    },
+    setCart: (state, { payload }) => {
       state.cart = {
         ...state.cart,
-        userId: payload,
+        ...payload,
+        // payload:  userId, date, products:[{productId, quantity}], itemCount, ...additional,
       };
+    },
+    setCartId: (state, { payload }) => {
+      state.cart.userId = payload;
+   
+      
     },
     setLoggedIn: (state, { payload }) => {
       state.isLoggedIn = payload;
@@ -35,19 +46,13 @@ const authSlice = createSlice({
       state.currentUser = null;
       state.id = null;
       state.cart = {
+        // TODO: when logout is clicked, sessionStorage.setItem(currentUserCart) Then delete this
         userId: null,
         date: '',
         products: [],
         itemCount: 0,
       };
       sessionStorage.setItem('currentUser', null);
-    },
-    setCart: (state, { payload }) => {
-      state.cart = {
-        ...state.cart,
-        payload,
-        // payload:  userId, date, products:[{productId, quantity}], itemCount, ...additional,
-      };
     },
     addProductToCart: (state, { payload }) => {
       state.cart.products = [...payload.products];
@@ -83,6 +88,7 @@ export const {
   logout,
   getToken,
   setCart,
+  setCartId,
   initializeUser,
   addProductToCart,
   updateProductQuantity,
