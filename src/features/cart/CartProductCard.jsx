@@ -1,52 +1,37 @@
 import React from 'react';
-import { useGetProductsQuery } from '../products/productsApi';
+import './index.css';
 
-const CartProductCard = ({ product, onUpdateQuantity, onRemoveProduct }) => {
-  const { productId, quantity } = product;
+const CartProductCard = ({ product }) => {
+  const { title, image, price, description, rating } = product.product;
 
-  const {
-    data: productData,
-    isLoading,
-    isError,
-  } = useGetProductsQuery(productId);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError || !productData) {
-    return <div>Error loading product information</div>;
-  }
-
-  const { title, image, price } = productData;
-  console.log("product")
-  console.log("title")
+  const generateStars = (rate) =>
+    '★'.repeat(Math.round(rate)) + '☆'.repeat(5 - Math.round(rate));
 
   return (
-    <div className="cart-product-card">
-      <img src={image} alt={title} className="cart-product-image" />
-      <div className="cart-product-info">
-        <h3 className="cart-product-title">{title}</h3>
-        <p className="cart-product-price">${price}</p>
-        <div className="cart-product-quantity">
-          <label htmlFor={`quantity-${productId}`}>Quantity:</label>
-          <input
-            type="number"
-            id={`quantity-${productId}`}
-            value={quantity}
-            onChange={(e) =>
-              onUpdateQuantity(productId, parseInt(e.target.value, 10) || 1)
-            }
-          />
+    <li className="cart-product-container">
+      <div className="cart-product">
+        <div className="cart-title-container">
+          <img className="cart-product-image"src={image} alt={title} />
+        </div>
+        <div className="cart-description-container">
+          <div className="cart-description">
+            <p>{description}</p>
+            <section className="rating-container">
+              <div className="yellow-stars">{generateStars(rating.rate)}</div>
+              <div className="rating-count">{rating.count} reviews</div>
+            </section>
+          </div>
+        </div>
+        <div className="cart-user-action-container">
+          <header>
+            <h2>{title}</h2>
+          </header>
+          <p className="cart-price">${price}</p>
+          <button>Update Quantity</button>
+          <button>Remove from Cart</button>
         </div>
       </div>
-      <div className="cart-product-actions">
-        <p className="cart-product-subtotal">Subtotal: ${price * quantity}</p>
-        <button onClick={() => onRemoveProduct(productId)}>
-          Remove from Cart
-        </button>
-      </div>
-    </div>
+    </li>
   );
 };
 
