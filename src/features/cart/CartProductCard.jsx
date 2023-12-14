@@ -19,7 +19,8 @@ const CartProductCard = ({ product, onUpdateQuantity, onRemoveProduct }) => {
   }
 
   const { title, image, price } = productData;
-  console.log("productData" , productData)
+  console.log("product")
+  console.log("title")
 
   return (
     <div className="cart-product-card">

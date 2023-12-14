@@ -1,3 +1,4 @@
+User;
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useGetProductsByIdQuery } from './productsApi';
@@ -74,7 +75,9 @@ const SingleProduct = () => {
   const getUpdatedCart = (productId, product, remove = false) => {
     const updatedProducts = cart.products.reduce((acc, p) => {
       if (p.productId === productId) {
-        const existingQuantity = remove ? Math.max(p.quantity - 1, 0) : 1;
+        const existingQuantity = remove
+          ? Math.max(p.quantity - 1, 0)
+          : p.quantity + 1;
         if (existingQuantity > 0) {
           acc.push({ ...p, quantity: existingQuantity });
         }
@@ -90,7 +93,14 @@ const SingleProduct = () => {
     );
 
     if (!remove && product) {
-      updatedProducts.push({ productId, product, quantity: 1 });
+      const existingProductIndex = updatedProducts.findIndex(
+        (p) => p.productId === productId,
+      );
+      if (existingProductIndex !== -1) {
+        updatedProducts[existingProductIndex].quantity += 1;
+      } else {
+        updatedProducts.push({ productId, product, quantity: 1 });
+      }
       updatedItemCount += 1;
     }
 

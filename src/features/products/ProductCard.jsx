@@ -2,11 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './productCard.css';
 
-const generateStars = (rating) => {
-  const numberOfStars = Math.round(rating);
 
-  return '★'.repeat(numberOfStars) + '☆'.repeat(5 - numberOfStars);
-};
 
 const ProductCard = ({ product }) => {
   return (
@@ -31,4 +27,11 @@ const ProductCard = ({ product }) => {
   );
 };
 
+const generateStars = (rating) => {
+  const numberOfStars = Math.round(rating);
+
+  return '★'.repeat(numberOfStars) + '☆'.repeat(5 - numberOfStars);
+};
+
 export default ProductCard;
+
