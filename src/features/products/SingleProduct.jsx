@@ -20,7 +20,6 @@ const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const userId = useSelector(selectUserId);
-
   const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
 
   useEffect(() => {
@@ -40,76 +39,86 @@ const SingleProduct = () => {
       setDisplayLoginMessage(true);
       return;
     }
-    
-    const productId = data.id;
-    const updatedCart = getUpdatedCart(productId);
+
+    if (!data || !data.id) {
+      console.error('Product data is not available.');
+      return;
+    }
+
+    const product = data;
+    const productId = product.id;
+    const updatedCart = getUpdatedCart(productId, product);
     dispatch(addProductToCart(updatedCart));
     updateSessionStorage(updatedCart);
   };
 
   const handleRemoveFromCart = () => {
-    const productId = data.id;
+    const productId = data?.id;
     if (!productId) return;
 
-    const updatedCart = getUpdatedCart(productId, true);
+    const updatedCart = getUpdatedCart(productId, null, true);
     dispatch(removeProduct(updatedCart));
     updateSessionStorage(updatedCart);
   };
 
   const isProductInCart = () => {
-    return cart.products.some((product) => product.productId === data.id);
+    return cart.products.some((product) => product.productId === data?.id);
   };
 
   const getProductQuantityInCart = () => {
     const productInCart = cart.products.find(
-      (product) => product.productId === data.id,
+      (product) => product.productId === data?.id,
     );
     return productInCart ? productInCart.quantity : 0;
   };
 
-  const getUpdatedCart = (productId, remove = false) => {
-    const existingProduct = cart.products.find(
-      (product) => product.productId === productId,
+  const getUpdatedCart = (productId, product, remove = false) => {
+    const updatedProducts = cart.products.reduce((acc, p) => {
+      if (p.productId === productId) {
+        const existingQuantity = remove
+          ? Math.max(p.quantity - 1, 0)
+          : p.quantity + 1;
+        if (existingQuantity > 0) {
+          acc.push({ ...p, quantity: existingQuantity });
+        }
+      } else {
+        acc.push(p);
+      }
+      return acc;
+    }, []);
+
+    let updatedItemCount = updatedProducts.reduce(
+      (total, product) => total + product.quantity,
+      0,
     );
 
-    const existingQuantity = existingProduct ? existingProduct.quantity : 0;
-
-    const newQuantity = remove
-      ? Math.max(existingQuantity - quantity, 0)
-      : existingQuantity + quantity;
-
-    const updatedProducts =
-      newQuantity > 0
-        ? [
-            ...cart.products.filter(
-              (product) => product.productId !== productId,
-            ),
-            { productId, quantity: newQuantity },
-          ]
-        : cart.products.filter((product) => product.productId !== productId);
+    if (!remove && product) {
+      updatedProducts.push({ productId, product, quantity: 1 });
+      updatedItemCount += 1;
+    }
 
     return {
       products: updatedProducts,
+      itemCount: updatedItemCount,
     };
   };
 
   const updateSessionStorage = (updatedCart) => {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-
     const existingCarts = JSON.parse(sessionStorage.getItem('carts')) || [];
 
     const userCartIndex = existingCarts.findIndex(
-      (cart) => cart[currentUser.id] !== undefined,
+      (cart) => cart[currentUser?.id] !== undefined,
     );
 
     const updatedCarts =
       userCartIndex !== -1
         ? [
             ...existingCarts.slice(0, userCartIndex),
-            { [currentUser.id]: updatedCart },
+            { [currentUser?.id]: updatedCart },
             ...existingCarts.slice(userCartIndex + 1),
           ]
-        : [...existingCarts, { [currentUser.id]: updatedCart }];
+        : [...existingCarts, { [currentUser?.id]: updatedCart }];
 
     sessionStorage.setItem('carts', JSON.stringify(updatedCarts));
     sessionStorage.setItem('userCart', JSON.stringify(updatedCart));

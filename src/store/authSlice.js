@@ -25,33 +25,48 @@ const authSlice = createSlice({
       state.cart.userId = payload;
     },
     setCart: (state, { payload }) => {
-      state.cart = {
-        ...state.cart,
-        ...payload,
-      };
+      state.cart = { ...state.cart, ...payload };
     },
     setCartId: (state, { payload }) => {
-      // state.cart.userId = payload;
+      state.cart.userId = payload;
     },
     setLoggedIn: (state, { payload }) => {
       state.isLoggedIn = payload;
     },
     logout: (state) => {
-      state.token = null;
+      state.token = '';
       state.isLoggedIn = false;
       state.currentUser = null;
       state.id = null;
       state.cart = {
-        userId: null,
+        userId: '',
         date: '',
         products: [],
         itemCount: 0,
+        total: 0,
       };
-      sessionStorage.setItem('currentUser', null);
+      sessionStorage.setItem(TOKEN_KEY, '');
+      sessionStorage.setItem(CURR_USER, '');
     },
     addProductToCart: (state, { payload }) => {
-      state.cart.products = [...payload.products];
+      const { productId, quantity, product } = payload.products[0];
+
+      const existingProductIndex = state.cart.products.findIndex(
+        (p) => p.productId === productId,
+      );
+
+      if (existingProductIndex !== -1) {
+        state.cart.products[existingProductIndex].quantity += 1;
+      } else {
+        state.cart.products.push({ productId, product, quantity: 1 });
+      }
+
+      state.cart.itemCount = state.cart.products.reduce(
+        (total, product) => total + product.quantity,
+        0,
+      );
     },
+
     setCurrentUser: (state, action) => {
       const { currentUser, id } = action.payload;
       state.currentUser = { ...currentUser, id };
@@ -59,7 +74,16 @@ const authSlice = createSlice({
       state.isLoggedIn = true;
     },
     removeProduct: (state, { payload }) => {
-      state.cart.products = [...payload.products];
+      const updatedProducts = payload.products;
+      const updatedItemCount = updatedProducts.reduce(
+        (total, product) => total + product.quantity,
+        0,
+      );
+      state.cart = {
+        ...state.cart,
+        products: updatedProducts,
+        itemCount: updatedItemCount,
+      };
     },
     initializeUser: (state, { payload }) => {
       state.currentUser = payload || null;

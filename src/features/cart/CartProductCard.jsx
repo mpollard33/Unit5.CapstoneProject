@@ -1,7 +1,25 @@
 import React from 'react';
+import { useGetProductsQuery } from '../products/productsApi';
 
 const CartProductCard = ({ product, onUpdateQuantity, onRemoveProduct }) => {
-  const { productId, title, image, price, quantity } = product;
+  const { productId, quantity } = product;
+
+  const {
+    data: productData,
+    isLoading,
+    isError,
+  } = useGetProductsQuery(productId);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError || !productData) {
+    return <div>Error loading product information</div>;
+  }
+
+  const { title, image, price } = productData;
+  console.log("productData" , productData)
 
   return (
     <div className="cart-product-card">
