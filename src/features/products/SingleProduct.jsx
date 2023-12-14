@@ -9,18 +9,20 @@ import {
   selectCart,
   selectUserId,
   setLoggedIn,
+  setCart,
 } from '../../store/authSlice';
 import './productCard.css';
 
 const SingleProduct = () => {
   const { id } = useParams();
-  const { data, error, isLoading } = useGetProductsByIdQuery(id);
   const dispatch = useDispatch();
-  const cart = useSelector(selectCart);
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const userId = useSelector(selectUserId);
+  const cart = useSelector(selectCart);
   const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
+  const { data, error, isLoading } = useGetProductsByIdQuery(id);
 
+  console.log('THE DATA', data);
   useEffect(() => {
     if (!userId) {
       dispatch(setLoggedIn(false));
@@ -45,69 +47,73 @@ const SingleProduct = () => {
     }
 
     const product = data;
-    const productId = product.id;
+    const productId = id;
     const updatedCart = getUpdatedCart(productId, product);
-    dispatch(addProductToCart(updatedCart));
+
+    console.log('Dispatching addProductToCart:', {
+      productId,
+      quantity: 1,
+      product,
+    });
+    console.log('Updated Cart:', updatedCart);
+
+    dispatch(
+      addProductToCart({ products: [{ productId, quantity: 1, product }] }),
+    );
     updateSessionStorage(updatedCart);
   };
 
   const handleRemoveFromCart = () => {
-    const productId = data?.id;
+    const productId = id;
     if (!productId) return;
-
-    const updatedCart = getUpdatedCart(productId, null, true);
+  
+    const updatedCart = getUpdatedCart(productId, true);
+    console.log('HandleRemoveFromCart updatedCart', updatedCart);
+  
     dispatch(removeProduct(updatedCart));
     updateSessionStorage(updatedCart);
+  
+    console.log('end, handleRemoveFromCart');
   };
+  
 
   const isProductInCart = () => {
-    return cart.products.some((product) => product.productId === data?.id);
+    const productId = id;
+
+    if (!productId) {
+      console.error('Product ID is not available.');
+      return false;
+    }
+
+    return cart.products.some((product) => product.productId === productId);
   };
 
-  const getProductQuantityInCart = () => {
-    const productInCart = cart.products.find(
-      (product) => product.productId === data?.id,
-    );
-    return productInCart ? productInCart.quantity : 0;
-  };
+  console.log('isProductInCart result', isProductInCart());
 
-  const getUpdatedCart = (productId, product, remove = false) => {
-    const updatedProducts = cart.products.reduce((acc, p) => {
+  const getUpdatedCart = (productId, remove = false) => {
+    const updatedProducts = cart.products.map((p) => {
       if (p.productId === productId) {
         const existingQuantity = remove
           ? Math.max(p.quantity - 1, 0)
           : p.quantity + 1;
+  
         if (existingQuantity > 0) {
-          acc.push({ ...p, quantity: existingQuantity });
+          return { ...p, quantity: existingQuantity };
+        } else {
+          return null;
         }
-      } else {
-        acc.push(p);
       }
-      return acc;
-    }, []);
-
-    let updatedItemCount = updatedProducts.reduce(
-      (total, product) => total + product.quantity,
-      0,
-    );
-
-    if (!remove && product) {
-      const existingProductIndex = updatedProducts.findIndex(
-        (p) => p.productId === productId,
-      );
-      if (existingProductIndex !== -1) {
-        updatedProducts[existingProductIndex].quantity += 1;
-      } else {
-        updatedProducts.push({ productId, product, quantity: 1 });
-      }
-      updatedItemCount += 1;
-    }
-
-    return {
+      return p;
+    }).filter(Boolean);
+  
+    const updatedCart = {
       products: updatedProducts,
-      itemCount: updatedItemCount,
+      itemCount: updatedProducts.reduce((total, p) => total + p.quantity, 0),
     };
+  
+    return updatedCart;
   };
+  
 
   const updateSessionStorage = (updatedCart) => {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -150,41 +156,28 @@ const SingleProduct = () => {
         </section>
         <p className="single-product-price">${price.toFixed(2)}</p>
         <p className="single-product-description">{description}</p>
-        <form>
-          <button
-            className="single-product-button"
-            type="button"
-            onClick={handleAddToCart}
-          >
-            Add to Cart
-          </button>
-          {displayLoginMessage && renderLoginMessage()}
-          {isProductInCart() && (
-            <>
-              {getProductQuantityInCart() > 0 && (
-                <>
-                  {isLoggedIn ? (
-                    <>
-                      <button
-                        className="single-product-button"
-                        type="button"
-                        onClick={handleRemoveFromCart}
-                      >
-                        Remove from Cart
-                      </button>
-                      <p>
-                        You have {getProductQuantityInCart()} of this product in
-                        your cart!
-                      </p>
-                    </>
-                  ) : (
-                    <p>You must be logged in to add items to the cart.</p>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </form>
+        {isLoggedIn ? (
+          <form>
+            <button
+              className="single-product-button"
+              type="button"
+              onClick={handleAddToCart}
+            >
+              Add to Cart
+            </button>
+            {
+              <button
+                className="single-product-button"
+                type="button"
+                onClick={handleRemoveFromCart}
+              >
+                Remove from Cart
+              </button>
+            }
+          </form>
+        ) : (
+          <p>You must be logged in to add items to your cart</p>
+        )}
       </div>
     </div>
   );

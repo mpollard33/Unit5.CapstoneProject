@@ -26,7 +26,7 @@ const CartProductCard = ({ product }) => {
           <header>
             <h2>{title}</h2>
           </header>
-          <p className="cart-price">${price}</p>
+          <p className="cart-price">${price.toFixed(2)}</p>
           <button>Update Quantity</button>
           <button>Remove from Cart</button>
         </div>

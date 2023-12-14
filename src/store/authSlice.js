@@ -21,73 +21,109 @@ const authSlice = createSlice({
   },
   reducers: {
     setId: (state, { payload }) => {
-      state.id = payload;
-      state.cart.userId = payload;
+      return {
+        ...state,
+        id: payload,
+        cart: { ...state.cart, userId: payload },
+      };
     },
     setCart: (state, { payload }) => {
-      state.cart = { ...state.cart, ...payload };
+      return { ...state, cart: { ...state.cart, ...payload } };
     },
     setCartId: (state, { payload }) => {
-      state.cart.userId = payload;
+      return { ...state, cart: { ...state.cart, userId: payload } };
     },
     setLoggedIn: (state, { payload }) => {
       state.isLoggedIn = payload;
     },
     logout: (state) => {
-      state.token = '';
-      state.isLoggedIn = false;
-      state.currentUser = null;
-      state.id = null;
-      state.cart = {
-        userId: '',
-        date: '',
-        products: [],
-        itemCount: 0,
-        total: 0,
-      };
       sessionStorage.setItem(TOKEN_KEY, '');
       sessionStorage.setItem(CURR_USER, '');
+      return initialState;
     },
     addProductToCart: (state, { payload }) => {
-      const { productId, quantity, product } = payload.products[0];
+      if (payload.products && payload.products.length > 0) {
+        const { productId, quantity, product } = payload.products[0];
 
-      const existingProductIndex = state.cart.products.findIndex(
-        (p) => p.productId === productId,
-      );
+        const existingProduct = state.cart.products.find(
+          (p) => p.productId === productId,
+        );
 
-      if (existingProductIndex !== -1) {
-        state.cart.products[existingProductIndex].quantity += 1;
-      } else {
-        state.cart.products.push({ productId, product, quantity: 1 });
+        let updatedProducts;
+
+        if (existingProduct) {
+          updatedProducts = state.cart.products.map((p) => {
+            if (p.productId === productId) {
+              return { ...p, quantity: p.quantity + 1 };
+            }
+            return p;
+          });
+        } else {
+          updatedProducts = state.cart.products.concat({
+            productId,
+            product,
+            quantity: 1,
+          });
+        }
+
+        const updatedItemCount = updatedProducts.reduce(
+          (total, product) => total + product.quantity,
+          0,
+        );
+
+        const updatedTotal = updatedProducts.reduce(
+          (total, product) => total + product.quantity * product.product.price,
+          0,
+        );
+
+        return {
+          ...state,
+          cart: {
+            ...state.cart,
+            products: updatedProducts,
+            itemCount: updatedItemCount,
+            total: updatedTotal,
+          },
+        };
       }
-
-      state.cart.itemCount = state.cart.products.reduce(
-        (total, product) => total + product.quantity,
-        0,
-      );
-    },
-
-    setCurrentUser: (state, action) => {
-      const { currentUser, id } = action.payload;
-      state.currentUser = { ...currentUser, id };
-      state.id = id;
-      state.isLoggedIn = true;
+      return state;
     },
     removeProduct: (state, { payload }) => {
       const updatedProducts = payload.products;
+      if (updatedProducts.length === 0) {
+        return {
+          ...state,
+          cart: {
+            products: [],
+            itemCount: 0,
+          },
+        };
+      }
       const updatedItemCount = updatedProducts.reduce(
         (total, product) => total + product.quantity,
         0,
       );
-      state.cart = {
-        ...state.cart,
-        products: updatedProducts,
-        itemCount: updatedItemCount,
+      return {
+        ...state,
+        cart: {
+          ...state.cart,
+          products: updatedProducts,
+          itemCount: updatedItemCount,
+        },
+      };
+    },
+
+    setCurrentUser: (state, action) => {
+      const { currentUser, id } = action.payload;
+      return {
+        ...state,
+        currentUser: { ...currentUser, id },
+        id,
+        isLoggedIn: true,
       };
     },
     initializeUser: (state, { payload }) => {
-      state.currentUser = payload || null;
-      state.isLoggedIn = true;
+      return { ...state, currentUser: payload || null, isLoggedIn: true };
     },
   },
   extraReducers: (builder) => {

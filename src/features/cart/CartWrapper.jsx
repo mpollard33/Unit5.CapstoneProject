@@ -9,10 +9,8 @@ const CartWrapper = () => {
   const id = useSelector(selectUserId);
 
   useEffect(() => {
-    console.log('User ID:', id);
     if (id) {
       navigate(`/carts/user/${id}`);
-      console.log(`Navigate to carts/user/${id}`);
     } else {
       console.log('No userId found', id || null);
     }

@@ -40,7 +40,6 @@ const HorizontalNav = () => {
     }
   }, [users]);
   useEffect(() => {
-    console.log('UserId:', userId);
     console.log('Cart Item Count:', cartItemCount);
   }, [userId, cartItemCount]);
 
