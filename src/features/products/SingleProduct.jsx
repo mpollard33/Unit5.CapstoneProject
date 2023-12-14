@@ -17,7 +17,6 @@ const SingleProduct = () => {
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
   const dispatch = useDispatch();
   const cart = useSelector(selectCart);
-  const [quantity, setQuantity] = useState(1);
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const userId = useSelector(selectUserId);
   const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
@@ -75,9 +74,7 @@ const SingleProduct = () => {
   const getUpdatedCart = (productId, product, remove = false) => {
     const updatedProducts = cart.products.reduce((acc, p) => {
       if (p.productId === productId) {
-        const existingQuantity = remove
-          ? Math.max(p.quantity - 1, 0)
-          : p.quantity + 1;
+        const existingQuantity = remove ? Math.max(p.quantity - 1, 0) : 1;
         if (existingQuantity > 0) {
           acc.push({ ...p, quantity: existingQuantity });
         }
@@ -145,13 +142,6 @@ const SingleProduct = () => {
         <p className="single-product-price">${price.toFixed(2)}</p>
         <p className="single-product-description">{description}</p>
         <form>
-          <label htmlFor="quantity">Quantity:</label>
-          <input
-            type="number"
-            id="quantity"
-            value={quantity}
-            onChange={(e) => setQuantity(parseInt(e.target.value, 10) || 1)}
-          />
           <button
             className="single-product-button"
             type="button"
