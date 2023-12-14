@@ -22,7 +22,6 @@ const SingleProduct = () => {
   const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
 
-  console.log('THE DATA', data);
   useEffect(() => {
     if (!userId) {
       dispatch(setLoggedIn(false));
@@ -66,16 +65,13 @@ const SingleProduct = () => {
   const handleRemoveFromCart = () => {
     const productId = id;
     if (!productId) return;
-  
+
     const updatedCart = getUpdatedCart(productId, true);
     console.log('HandleRemoveFromCart updatedCart', updatedCart);
-  
+
     dispatch(removeProduct(updatedCart));
     updateSessionStorage(updatedCart);
-  
-    console.log('end, handleRemoveFromCart');
   };
-  
 
   const isProductInCart = () => {
     const productId = id;
@@ -91,29 +87,30 @@ const SingleProduct = () => {
   console.log('isProductInCart result', isProductInCart());
 
   const getUpdatedCart = (productId, remove = false) => {
-    const updatedProducts = cart.products.map((p) => {
-      if (p.productId === productId) {
-        const existingQuantity = remove
-          ? Math.max(p.quantity - 1, 0)
-          : p.quantity + 1;
-  
-        if (existingQuantity > 0) {
-          return { ...p, quantity: existingQuantity };
-        } else {
-          return null;
+    const updatedProducts = cart.products
+      .map((p) => {
+        if (p.productId === productId) {
+          const existingQuantity = remove
+            ? Math.max(p.quantity - 1, 0)
+            : p.quantity + 1;
+
+          if (existingQuantity > 0) {
+            return { ...p, quantity: existingQuantity };
+          } else {
+            return null;
+          }
         }
-      }
-      return p;
-    }).filter(Boolean);
-  
+        return p;
+      })
+      .filter(Boolean);
+
     const updatedCart = {
       products: updatedProducts,
       itemCount: updatedProducts.reduce((total, p) => total + p.quantity, 0),
     };
-  
+
     return updatedCart;
   };
-  
 
   const updateSessionStorage = (updatedCart) => {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));

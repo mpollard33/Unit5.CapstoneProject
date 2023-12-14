@@ -58,7 +58,7 @@ const Registration = () => {
         const updatedUserId = isDuplicateId
           ? currentUsers.length + 1
           : registeredUserId;
-        const updatedUser = { ...formData, id: updatedUserId };
+        const updatedUser = { id: updatedUserId, ...formData };
 
         dispatch(setCurrentUser(updatedUser));
         dispatch(setLoggedIn(true));
