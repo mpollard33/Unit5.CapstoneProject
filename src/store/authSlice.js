@@ -4,21 +4,23 @@ const TOKEN_KEY = 'token';
 const USER_KEY = 'users';
 const CURR_USER = 'currentUser';
 
+const initialState = {
+  token: '',
+  isLoggedIn: false,
+  currentUser: null,
+  id: null,
+  cart: {
+    userId: '',
+    date: '',
+    products: [],
+    itemCount: 0,
+    total: 0,
+  },
+};
+
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    token: '',
-    isLoggedIn: false,
-    currentUser: null,
-    id: null,
-    cart: {
-      userId: '',
-      date: '',
-      products: [],
-      itemCount: 0,
-      total: 0,
-    },
-  },
+  initialState: initialState,
   reducers: {
     setId: (state, { payload }) => {
       return {
