@@ -34,14 +34,14 @@ const HorizontalNav = () => {
   };
   const cartItemCount = useSelector(selectCartItemCount);
 
-  useEffect(() => {
-    if (users && !sessionStorage.getItem('users')) {
-      sessionStorage.setItem('users', JSON.stringify(users));
-    }
-  }, [users]);
-  useEffect(() => {
-    console.log('Cart Item Count:', cartItemCount);
-  }, [userId, cartItemCount]);
+  // useEffect(() => {
+  //   if (users && !sessionStorage.getItem('users')) {
+  //     sessionStorage.setItem('users', JSON.stringify(users));
+  //   }
+  // }, [users]);
+  // useEffect(() => {
+  //   console.log('Cart Item Count:', cartItemCount);
+  // }, [userId, cartItemCount]);
 
   return (
     <nav className={'horizontal-nav'}>

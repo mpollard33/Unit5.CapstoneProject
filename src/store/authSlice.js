@@ -35,6 +35,12 @@ const authSlice = createSlice({
     setCartId: (state, { payload }) => {
       return { ...state, cart: { ...state.cart, userId: payload } };
     },
+    alreadyInCart: (state, { payload }) => {
+      // send id as payload
+      if (state.cart.products.some((product) => product.productId === payload))
+        return true;
+      return false;
+    },
     setLoggedIn: (state, { payload }) => {
       state.isLoggedIn = payload;
     },
@@ -45,7 +51,7 @@ const authSlice = createSlice({
     },
     addProductToCart: (state, { payload }) => {
       if (payload.products && payload.products.length > 0) {
-        const { productId, quantity, product } = payload.products[0];
+        const { productId, product } = payload.products[0];
 
         const existingProduct = state.cart.products.find(
           (p) => p.productId === productId,
@@ -91,25 +97,26 @@ const authSlice = createSlice({
       return state;
     },
     removeProduct: (state, { payload }) => {
-      const updatedProducts = payload.products;
-      if (updatedProducts.length === 0) {
-        return {
-          ...state,
-          cart: {
-            products: [],
-            itemCount: 0,
-          },
-        };
-      }
-      const updatedItemCount = updatedProducts.reduce(
-        (total, product) => total + product.quantity,
-        0,
-      );
+      const productData = state.cart.products;
+
+      const filteredData = productData.filter((product) => {
+        product.productId !== payload.id;
+      });
+
+      const updatedItemCount = filteredData.reduce((total, product) => {
+        return total + product.quantity;
+      }, 0);
+
+      console.log('current state count', state.cart.itemCount);
+      console.log('current item count', updatedItemCount);
+      console.log('current state count', state.cart.itemCount);
+
+
       return {
         ...state,
         cart: {
           ...state.cart,
-          products: updatedProducts,
+          products: filteredData,
           itemCount: updatedItemCount,
         },
       };
@@ -156,12 +163,14 @@ export const {
   setCartId,
   setLoggedIn,
   addProductToCart,
+  alreadyInCart,
   removeProduct,
   setId,
   setCurrentUser,
   initializeUser,
 } = authSlice.actions;
 
+export const selectItemCount = (state) => state.auth.cart.itemCount;
 export const selectToken = (state) => state.auth.token;
 export const selectCart = (state) => state.auth.cart;
 export const selectUserId = (state) => state.auth.id;

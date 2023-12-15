@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { selectCart } from '../../store/authSlice';
+import { alreadyInCart, selectCart } from '../../store/authSlice';
 import CartProductCard from './CartProductCard';
 
 const Cart = () => {
@@ -11,7 +11,7 @@ const Cart = () => {
 
   const toProductObject = (cart) => {
     const formattedCart = [];
-  
+
     console.log('userCart', userCart);
 
     for (let i = 0; i < cart.products.length; i++) {
@@ -28,6 +28,7 @@ const Cart = () => {
         },
       };
       console.log('product', product);
+      console.log('In cart?', alreadyInCart);
       formattedCart.push(product);
     }
     console.log('reached push');

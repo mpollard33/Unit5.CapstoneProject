@@ -10,6 +10,7 @@ import {
   selectUserId,
   setLoggedIn,
   setCart,
+  alreadyInCart,
 } from '../../store/authSlice';
 import './productCard.css';
 
@@ -22,112 +23,60 @@ const SingleProduct = () => {
   const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
 
+  console.log('getProductsById', data); // validate query
+
   useEffect(() => {
     if (!userId) {
       dispatch(setLoggedIn(false));
     }
   }, [userId, dispatch]);
 
-  const renderLoginMessage = () => (
+  const renderLoginMessage = (message) => (
     <p className="login-message">
-      You must be logged in to add items to your cart.
+      {message || 'please include login message to render'};
     </p>
   );
 
   const handleAddToCart = () => {
-    if (!isLoggedIn) {
-      setDisplayLoginMessage(true);
-      return;
-    }
+    if (!isLoggedIn) return setDisplayLoginMessage(true); // displays login prompt to user
 
-    if (!data || !data.id) {
-      console.error('Product data is not available.');
-      return;
-    }
+    if (!data || !data.id) throw new Error('Product data is not available.');
 
     const product = data;
-    const productId = id;
-    const updatedCart = getUpdatedCart(productId, product);
+    console.log('Product to add',data);
 
-    console.log('Dispatching addProductToCart:', {
-      productId,
-      quantity: 1,
-      product,
-    });
-    console.log('Updated Cart:', updatedCart);
+    console.log('dispatch addProductToCart', cart);
+    dispatch(addProductToCart({ products: [{ id, quantity: 1, product }] }));
 
-    dispatch(
-      addProductToCart({ products: [{ productId, quantity: 1, product }] }),
-    );
-    updateSessionStorage(updatedCart);
+    console.log("updating storage to ->", cart)
+    updateSessionStorage(cart);
   };
 
   const handleRemoveFromCart = () => {
-    const productId = id;
-    if (!productId) return;
+    if (!id) throw new Error('Product id not found');
+    console.log('dispatch removeProduct', id);
+    dispatch(removeProduct(id));
 
-    const updatedCart = getUpdatedCart(productId, true);
-    console.log('HandleRemoveFromCart updatedCart', updatedCart);
-
-    dispatch(removeProduct(updatedCart));
-    updateSessionStorage(updatedCart);
-  };
-
-  const isProductInCart = () => {
-    const productId = id;
-
-    if (!productId) {
-      console.error('Product ID is not available.');
-      return false;
-    }
-
-    return cart.products.some((product) => product.productId === productId);
-  };
-
-  console.log('isProductInCart result', isProductInCart());
-
-  const getUpdatedCart = (productId, remove = false) => {
-    const updatedProducts = cart.products
-      .map((p) => {
-        if (p.productId === productId) {
-          const existingQuantity = remove
-            ? Math.max(p.quantity - 1, 0)
-            : p.quantity + 1;
-
-          if (existingQuantity > 0) {
-            return { ...p, quantity: existingQuantity };
-          } else {
-            return null;
-          }
-        }
-        return p;
-      })
-      .filter(Boolean);
-
-    const updatedCart = {
-      products: updatedProducts,
-      itemCount: updatedProducts.reduce((total, p) => total + p.quantity, 0),
-    };
-
-    return updatedCart;
+    console.log("updating storage to ->", cart)
+    updateSessionStorage(cart);
   };
 
   const updateSessionStorage = (updatedCart) => {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    const existingUsers = JSON.parse(sessionStorage.getItem('currentUser'));
     const existingCarts = JSON.parse(sessionStorage.getItem('carts')) || [];
 
     const userCartIndex = existingCarts.findIndex(
-      (cart) => cart[currentUser?.id] !== undefined,
+      (cart) => cart[existingUsers?.id] !== undefined,
     );
 
     const updatedCarts =
       userCartIndex !== -1
         ? [
             ...existingCarts.slice(0, userCartIndex),
-            { [currentUser?.id]: updatedCart },
+            { [existingUsers?.id]: updatedCart },
             ...existingCarts.slice(userCartIndex + 1),
           ]
-        : [...existingCarts, { [currentUser?.id]: updatedCart }];
+        : [...existingCarts, { [existingUsers?.id]: updatedCart }];
 
     sessionStorage.setItem('carts', JSON.stringify(updatedCarts));
     sessionStorage.setItem('userCart', JSON.stringify(updatedCart));
