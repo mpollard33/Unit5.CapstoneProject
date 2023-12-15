@@ -53,7 +53,7 @@ const authSlice = createSlice({
     addToCart: (state, { payload }) => {
       const { products } = state.cart;
       const existingProductIndex = products.findIndex(
-        (product) => product.id === payload.id,
+        (product) => product.id === payload,
       );
 
       if (existingProductIndex !== -1) {
@@ -77,7 +77,7 @@ const authSlice = createSlice({
       const { products } = state.cart;
       console.log('products state', products);
 
-      const productIdToRemove = Number(payload.id);
+      const productIdToRemove = payload.id;
 
       console.log('productIdToRemove', productIdToRemove);
 

@@ -2,41 +2,48 @@ import api from '../../store/api';
 
 const cartApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getCart: builder.query({
-      query: (id) => `carts/${id}`,
+    getAllCarts: builder.query({
+      query: () => '/carts',
     }),
-    addToCart: builder.mutation({
-      query: (product) => ({
-        url: '/carts',
-        method: 'POST',
+    getUserCart: builder.query({
+      query: (id) => `carts/user/${id}`,
+    }),
+    updateCart: builder.mutation({
+      query: (id) => ({
+        url: `/carts/${id}`,
+        method: 'PUT',
         body: { product },
       }),
-      transformResponse: (response) => response.data,
-      transformErrorResponse: (response) => response.data.error.message,
-    }),
-    removeFromCart: builder.mutation({
-      query: (productId) => ({
-        url: `/carts/${productId}`,
-        method: 'DELETE',
-      }),
-      transformResponse: (response) => response.data,
-      transformErrorResponse: (response) => response.data.error.message,
     }),
     updateCartQuantity: builder.mutation({
-      query: ({ productId, quantity }) => ({
-        url: `/carts/${productId}`,
+      query: ({ id }) => ({
+        url: `/carts/${id}`,
         method: 'PATCH',
-        body: { quantity },
+        body: {
+          userId: 11,
+          date: new Date().toISOString(),
+          products: [{ id: 1, quantity: 1 }],
+        },
       }),
-      transformResponse: (response) => response.data,
-      transformErrorResponse: (response) => response.data.error.message,
+    }),
+
+    getSort: builder.query({
+      query: (order) => `/carts?sort=${order}`, // 'asc' 'desc'
+    }),
+    updateProduct: builder.mutation({
+      query: (id) => ({
+        url: `/carts/${id}`,
+        method: 'PATCH',
+      }),
     }),
   }),
 });
 
 export const {
-  useGetCartQuery,
-  useAddToCartMutation,
+  useGetAllCartsQuery,
+  useGetUserCartQuery,
+  useUpdateCartMutation,
   useRemoveFromCartMutation,
   useUpdateCartQuantityMutation,
+  useGetSortMutation,
 } = cartApi;

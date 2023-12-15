@@ -1,25 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useGetProductsByIdQuery } from './productsApi';
+import {} from './productsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  useUpdateCartMutation,
+  useUpdateCartQuantityMutation,
+} from '../cart/cartApi';
+import {
   selectIsLoggedIn,
-  addToCart,
   removeFromCart,
   selectCart,
   selectUserId,
   setLoggedIn,
+  addToCart,
 } from '../../store/authSlice';
 import './productCard.css';
+import { useGetSingleUserQuery } from '../account/authApi';
+import { useGetProductsByIdQuery } from './productsApi';
 
 const SingleProduct = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(selectIsLoggedIn);
-  const userId = useSelector(selectUserId);
+  const userId = useGetSingleUserQuery(id);
   const cart = useSelector(selectCart);
   const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
+  const { mutate: product } = useUpdateCartMutation(id);
+  const [createMutation, { mutate: quantityMutation }] =
+    useUpdateCartQuantityMutation(id);
 
   useEffect(() => {
     if (!userId) {
@@ -38,36 +47,23 @@ const SingleProduct = () => {
       setDisplayLoginMessage(true);
       return;
     }
+    if (!data) throw new Error('Product data is not available.');
 
-    if (!data || !data.id) {
-      throw new Error('Product data is not available.');
-    }
+    dispatch(addToCart(product));
 
-    const product = data;
-    console.log('Product to add', data);
-
-    const isInCart = cart.products.some((product) => product.productId === id);
-
-    if (!isInCart) {
-      dispatch(addToCart(product));
-    }
-
-    console.log('SessionStorage updated!', cart);
     updateSessionStorage(cart);
+    console.log('SessionStorage updated!', cart);
   };
-
-  const handleRemoveFromCart = () => {
+  const handleRemoveFromCart = async () => {
     if (!isLoggedIn) {
       setDisplayLoginMessage(true);
       return;
     }
+    if (!data) throw new Error('Product id not found');
 
-    if (!id) {
-      throw new Error('Product id not found');
-    }
-
-    console.log('Dispatch removeFromCart', id);
-    dispatch(removeFromCart({ id }));
+    const response = await createMutation({ id, qty: 1 });
+    dispatch(removeFromCart(response));
+    console.log('response', response);
   };
 
   useEffect(() => {
@@ -100,8 +96,7 @@ const SingleProduct = () => {
   if (error) return <div>Error</div>;
   if (!data) return <div>No data found</div>;
 
-  const { title, image, rating, price, description } = data;
-
+  const { title, image, price, rating, description } = data;
   return (
     <div className="product-card-container">
       <img src={image} alt={title} className="single-product-image" />
@@ -140,7 +135,6 @@ const SingleProduct = () => {
     </div>
   );
 };
-
 const generateStars = (rating) =>
   '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
 

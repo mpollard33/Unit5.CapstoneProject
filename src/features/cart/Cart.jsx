@@ -1,16 +1,13 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import CartProductCard from './CartProductCard';
-import {
-  selectCart,
-  selectTotalInCart,
-  selectCartItemCount,
-} from '../../store/authSlice';
+import { selectCartItemCount, selectTotalInCart } from '../../store/authSlice';
 
 const Cart = () => {
-  const userCart = useSelector(selectCart);
+  const userCart = useSelector((state) => state.auth.cart);
+  const cartItemCount = useSelector(selectCartItemCount);
   const total = useSelector(selectTotalInCart);
-  const itemCount = useSelector(selectCartItemCount);
+  
 
   useEffect(() => {}, [userCart.itemCount]);
 
@@ -21,13 +18,10 @@ const Cart = () => {
         <div>
           <ul>
             {userCart.products.map((product) => (
-              <CartProductCard key={product.productId} product={product} />
+              <CartProductCard key={product.productId} id={product.productId} />
             ))}
           </ul>
-          <div>
-            <p>Total Items: {itemCount}</p>
-            <p>Total Price: ${total.toFixed(2)}</p>
-          </div>
+          <div>{JSON.stringify(userCart)}</div>
         </div>
       ) : (
         <p>Your cart is empty.</p>
