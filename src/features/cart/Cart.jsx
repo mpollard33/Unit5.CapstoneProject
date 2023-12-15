@@ -11,11 +11,10 @@ const Cart = () => {
 
   const toProductObject = (cart) => {
     const formattedCart = [];
-    let i = 0;
-    let userCart = cart.products[i].product;
+  
     console.log('userCart', userCart);
 
-    for (i; i < cart.products.length; i++) {
+    for (let i = 0; i < cart.products.length; i++) {
       let product = {
         id: cart.products[i].product.id,
         title: cart.products[i].product.title,
