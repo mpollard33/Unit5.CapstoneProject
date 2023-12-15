@@ -4,178 +4,138 @@ const TOKEN_KEY = 'token';
 const USER_KEY = 'users';
 const CURR_USER = 'currentUser';
 
-const initialState = {
+const cartInitialState = {
+  userId: '',
+  date: '',
+  products: [],
+  itemCount: 0,
+  total: 0,
+};
+
+const authInitialState = {
   token: '',
   isLoggedIn: false,
   currentUser: null,
   id: null,
-  cart: {
-    userId: '',
-    date: '',
-    products: [],
-    itemCount: 0,
-    total: 0,
-  },
+  cart: { ...cartInitialState },
 };
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: initialState,
+  initialState: authInitialState,
   reducers: {
-    setId: (state, { payload }) => {
-      return {
-        ...state,
-        id: payload,
-        cart: { ...state.cart, userId: payload },
-      };
-    },
-    setCart: (state, { payload }) => {
-      return { ...state, cart: { ...state.cart, ...payload } };
-    },
-    setCartId: (state, { payload }) => {
-      return { ...state, cart: { ...state.cart, userId: payload } };
-    },
-    alreadyInCart: (state, { payload }) => {
-      // send id as payload
-      if (state.cart.products.some((product) => product.productId === payload))
-        return true;
-      return false;
-    },
     setLoggedIn: (state, { payload }) => {
-      state.isLoggedIn = payload;
-    },
-    logout: (state) => {
-      sessionStorage.setItem(TOKEN_KEY, '');
-      sessionStorage.setItem(CURR_USER, '');
-      return initialState;
-    },
-    addProductToCart: (state, { payload }) => {
-      if (payload.products && payload.products.length > 0) {
-        const { productId, product } = payload.products[0];
-
-        const existingProduct = state.cart.products.find(
-          (p) => p.productId === productId,
-        );
-
-        let updatedProducts;
-
-        if (existingProduct) {
-          updatedProducts = state.cart.products.map((p) => {
-            if (p.productId === productId) {
-              return { ...p, quantity: p.quantity + 1 };
-            }
-            return p;
-          });
-        } else {
-          updatedProducts = state.cart.products.concat({
-            productId,
-            product,
-            quantity: 1,
-          });
-        }
-
-        const updatedItemCount = updatedProducts.reduce(
-          (total, product) => total + product.quantity,
-          0,
-        );
-
-        const updatedTotal = updatedProducts.reduce(
-          (total, product) => total + product.quantity * product.product.price,
-          0,
-        );
-
-        return {
-          ...state,
-          cart: {
-            ...state.cart,
-            products: updatedProducts,
-            itemCount: updatedItemCount,
-            total: updatedTotal,
-          },
-        };
-      }
-      return state;
-    },
-    removeProduct: (state, { payload }) => {
-      const productData = state.cart.products;
-
-      const filteredData = productData.filter((product) => {
-        product.productId !== payload.id;
-      });
-
-      const updatedItemCount = filteredData.reduce((total, product) => {
-        return total + product.quantity;
-      }, 0);
-
-      console.log('current state count', state.cart.itemCount);
-      console.log('current item count', updatedItemCount);
-      console.log('current state count', state.cart.itemCount);
-
-
       return {
         ...state,
+        isLoggedIn: true,
+        id: payload.id,
+        currentUser: payload,
         cart: {
           ...state.cart,
-          products: filteredData,
-          itemCount: updatedItemCount,
+          userId: payload.id,
+          id: payload.id,
+          date: new Date().toISOString(),
         },
       };
     },
 
-    setCurrentUser: (state, action) => {
-      const { currentUser, id } = action.payload;
-      return {
-        ...state,
-        currentUser: { ...currentUser, id },
-        id,
-        isLoggedIn: true,
-      };
+    setCart: (state, { payload }) => {
+      state.cart = { ...state.cart, ...payload };
     },
+
     initializeUser: (state, { payload }) => {
-      return { ...state, currentUser: payload || null, isLoggedIn: true };
+      state.currentUser = payload;
+      state.isLoggedIn = true;
     },
-  },
-  extraReducers: (builder) => {
-    builder.addMatcher(
-      (action) => action.type === 'api/config/middlewareRegistered',
-      (state, { payload }) => {
-        if (payload) {
-          console.log('User Registered', payload);
-          state.token = payload;
-          state.isLoggedIn = true;
-          sessionStorage.setItem(TOKEN_KEY, payload);
+
+    logout: () => authInitialState,
+
+    addToCart: (state, { payload }) => {
+      const { products } = state.cart;
+      const existingProductIndex = products.findIndex(
+        (product) => product.id === payload.id,
+      );
+
+      if (existingProductIndex !== -1) {
+        state.cart.products[existingProductIndex].quantity += 1;
+        state.cart.products[existingProductIndex].dateAdded =
+          new Date().toISOString();
+      } else {
+        state.cart.products = [
+          ...products,
+          { ...payload, quantity: 1, dateAdded: new Date().toISOString() },
+        ];
+      }
+
+      state.cart.itemCount = state.cart.products.reduce(
+        (total, product) => total + product.quantity,
+        0,
+      );
+    },
+
+    removeFromCart: (state, { payload }) => {
+      const { products } = state.cart;
+      console.log('products state', products);
+
+      const productIdToRemove = Number(payload.id);
+
+      console.log('productIdToRemove', productIdToRemove);
+
+      const existingProductIndex = products.findIndex(
+        (product) => product.id === productIdToRemove,
+      );
+
+      console.log('existingProductsIndex', existingProductIndex);
+
+      if (existingProductIndex !== -1) {
+        console.log('if != -1');
+        if (state.cart.products[existingProductIndex].quantity > 1) {
+          console.log(
+            'state.cart.products[index].quantity',
+            state.cart.products[existingProductIndex].quantity,
+          );
+          state.cart.products[existingProductIndex].quantity -= 1;
+        } else {
+          console.log('splicing result');
+          state.cart.products.splice(existingProductIndex, 1);
         }
-      },
-    );
+      } else {
+        console.log('Product not in cart');
+      }
+
+      state.cart.itemCount = state.cart.products.reduce(
+        (total, product) => total + product.quantity,
+        0,
+      );
+    },
   },
 });
 
 export const selectCartItemCount = (state) => {
-  return state.auth.cart.products.reduce(
-    (total, product) => total + product.quantity,
-    0,
-  );
+  if (state.auth.cart) {
+    return state.auth.cart.itemCount;
+  }
+  return 0;
 };
 
 export const {
-  logout,
-  setCart,
-  setCartId,
   setLoggedIn,
-  addProductToCart,
-  alreadyInCart,
-  removeProduct,
-  setId,
-  setCurrentUser,
+  setCart,
   initializeUser,
+  logout,
+  addToCart,
+  removeFromCart,
 } = authSlice.actions;
 
-export const selectItemCount = (state) => state.auth.cart.itemCount;
-export const selectToken = (state) => state.auth.token;
 export const selectCart = (state) => state.auth.cart;
-export const selectUserId = (state) => state.auth.id;
-export const selectState = (state) => state.auth;
+export const selectToken = (state) => state.auth.token;
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
 export const selectCurrentUser = (state) => state.auth.currentUser;
+export const selectUserId = (state) => state.auth.id;
+export const selectUserIdInCart = (state) => state.auth.cart.userId;
+export const selectDateInCart = (state) => state.auth.cart.date;
+export const selectProductsInCart = (state) => state.auth.cart.products;
+export const selectTotalInCart = (state) => state.auth.cart.total;
+export const selectCategoriesInCart = (state) => state.auth.cart.categories;
 
 export default authSlice.reducer;

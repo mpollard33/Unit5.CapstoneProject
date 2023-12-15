@@ -1,47 +1,32 @@
-import React, { useEffect, useState } from 'react';
+// HorizontalNav.jsx
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   logout,
-  selectState,
-  selectToken,
   selectUserId,
-  setLoggedIn,
   selectCartItemCount,
+  selectIsLoggedIn,
 } from '../store/authSlice';
 import { useGetAllUsersQuery } from './account/authApi';
 
 const HorizontalNav = () => {
   const userId = useSelector(selectUserId);
+  const cartItemCount = useSelector(selectCartItemCount);
+  const isLoggedIn = useSelector(selectIsLoggedIn);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const state = useSelector(selectState);
   const { data: users } = useGetAllUsersQuery();
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/products');
   };
 
-  const handleRegister = async () => {
-    try {
-      if (!sessionStorage.getItem('users')) {
-        sessionStorage.setItem('users', JSON.stringify(users));
-      }
-    } catch (error) {
-      console.error(error);
+  useEffect(() => {
+    if (users && !sessionStorage.getItem('users')) {
+      sessionStorage.setItem('users', JSON.stringify(users));
     }
-  };
-  const cartItemCount = useSelector(selectCartItemCount);
-
-  // useEffect(() => {
-  //   if (users && !sessionStorage.getItem('users')) {
-  //     sessionStorage.setItem('users', JSON.stringify(users));
-  //   }
-  // }, [users]);
-  // useEffect(() => {
-  //   console.log('Cart Item Count:', cartItemCount);
-  // }, [userId, cartItemCount]);
+  }, [users]);
 
   return (
     <nav className={'horizontal-nav'}>
@@ -59,7 +44,7 @@ const HorizontalNav = () => {
         <li className="search-input">
           <input type="text" placeholder="Search Products" />
         </li>
-        {userId ? (
+        {isLoggedIn ? (
           <>
             <li>
               <Link to="/users/account" className="nav-link">
@@ -83,11 +68,7 @@ const HorizontalNav = () => {
               </Link>
             </li>
             <li>
-              <Link
-                to="auth/register"
-                onClick={handleRegister}
-                className="nav-link"
-              >
+              <Link to="auth/register" className="nav-link">
                 Register
               </Link>
             </li>

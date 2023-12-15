@@ -4,13 +4,11 @@ import { useGetProductsByIdQuery } from './productsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectIsLoggedIn,
-  addProductToCart,
-  removeProduct,
+  addToCart,
+  removeFromCart,
   selectCart,
   selectUserId,
   setLoggedIn,
-  setCart,
-  alreadyInCart,
 } from '../../store/authSlice';
 import './productCard.css';
 
@@ -23,8 +21,6 @@ const SingleProduct = () => {
   const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
   const { data, error, isLoading } = useGetProductsByIdQuery(id);
 
-  console.log('getProductsById', data); // validate query
-
   useEffect(() => {
     if (!userId) {
       dispatch(setLoggedIn(false));
@@ -33,33 +29,51 @@ const SingleProduct = () => {
 
   const renderLoginMessage = (message) => (
     <p className="login-message">
-      {message || 'please include login message to render'};
+      {message || 'Please include a login message to render'}
     </p>
   );
 
   const handleAddToCart = () => {
-    if (!isLoggedIn) return setDisplayLoginMessage(true); // displays login prompt to user
+    if (!isLoggedIn) {
+      setDisplayLoginMessage(true);
+      return;
+    }
 
-    if (!data || !data.id) throw new Error('Product data is not available.');
+    if (!data || !data.id) {
+      throw new Error('Product data is not available.');
+    }
 
     const product = data;
-    console.log('Product to add',data);
+    console.log('Product to add', data);
 
-    console.log('dispatch addProductToCart', cart);
-    dispatch(addProductToCart({ products: [{ id, quantity: 1, product }] }));
+    const isInCart = cart.products.some((product) => product.productId === id);
 
-    console.log("updating storage to ->", cart)
+    if (!isInCart) {
+      dispatch(addToCart(product));
+    }
+
+    console.log('SessionStorage updated!', cart);
     updateSessionStorage(cart);
   };
 
   const handleRemoveFromCart = () => {
-    if (!id) throw new Error('Product id not found');
-    console.log('dispatch removeProduct', id);
-    dispatch(removeProduct(id));
+    if (!isLoggedIn) {
+      setDisplayLoginMessage(true);
+      return;
+    }
 
-    console.log("updating storage to ->", cart)
-    updateSessionStorage(cart);
+    if (!id) {
+      throw new Error('Product id not found');
+    }
+
+    console.log('Dispatch removeFromCart', id);
+    dispatch(removeFromCart({ id }));
   };
+
+  useEffect(() => {
+    console.log('SessionStorage updated!', cart);
+    updateSessionStorage(cart);
+  }, [cart]);
 
   const updateSessionStorage = (updatedCart) => {
     const existingUsers = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -111,15 +125,13 @@ const SingleProduct = () => {
             >
               Add to Cart
             </button>
-            {
-              <button
-                className="single-product-button"
-                type="button"
-                onClick={handleRemoveFromCart}
-              >
-                Remove from Cart
-              </button>
-            }
+            <button
+              className="single-product-button"
+              type="button"
+              onClick={handleRemoveFromCart}
+            >
+              Remove from Cart
+            </button>
           </form>
         ) : (
           <p>You must be logged in to add items to your cart</p>

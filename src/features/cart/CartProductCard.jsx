@@ -3,8 +3,21 @@ import './index.css';
 import { useGetProductsByIdQuery } from '../products/productsApi';
 
 const CartProductCard = ({ id }) => {
-  const { title, image, price, description, rating } =
-    useGetProductsByIdQuery(id);
+  const { data, error, isLoading } = useGetProductsByIdQuery(id);
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error loading product details</p>;
+  }
+
+  if (!data) {
+    return <p>No data found for this product</p>;
+  }
+
+  const { title, image, price, description, rating } = data;
 
   return (
     <li className="cart-product-container">
