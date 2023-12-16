@@ -22,44 +22,34 @@ import {
 import './products/index.css';
 
 const VerticalNav = () => {
-  const { urlOrder } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const category = useSelector(selectCategory);
   const sortType = useSelector(selectSortType);
   const sortOrder = useSelector(selectSortOrder);
-  // const { sortType, order } = useSelector(selectSort); // selectSortOrder + selectSortType
 
-  console.log('sortOrder before queries', sortOrder);
-  const { data: sortOrderQuery, isLoading: isSortOrderQueryLoading } =
-    useGetSortOrderQuery(sortOrder);
+  const { data: sortOrderQuery } = useGetSortOrderQuery(sortOrder);
+  console.log('sortOrderQuery ->', sortOrderQuery);
 
-  console.log('result of sortOrderQuery', sortOrderQuery);
-  const { data: categoryQueryData, isLoading: isCategoryQueryLoading } =
-    useGetProductsByCategoryQuery(category);
-  console.log('result of productsByCategory', categoryQueryData);
+  const { data: categoryQueryData } = useGetProductsByCategoryQuery(category);
+  console.log('categoryQueryData ->', categoryQueryData);
 
   const { data: getCategoriesQuery } = useGetAllCategoriesQuery();
-  console.log('result of getCategoriesQuery', getCategoriesQuery);
-
-  // useEffect(() => {
-  //   if (categoryQueryData) {
-  //     dispatch(setCategory(category));
-  //   }
-  // }, [categoryQueryData, dispatch]);
+  console.log('getCategoriesQuery ->', getCategoriesQuery);
 
   const handleCategoryChange = async (categoryType) => {
-    console.log('current category', selectCategory);
     dispatch(setCategory(categoryType));
-    console.log('Current Category:', selectCategory);
-    const sortedByCategory = await getCategoriesQuery();
+    console.log('new Category:', categoryType);
+
+    const sortedByCategory = await getCategoriesQuery;
+    console.log('sortedByCategory', sortedByCategory);
 
     if (sortedByCategory) {
-      console.log('completed await for categoryQueryData');
       console.log('sortedByCategory', sortedByCategory || sortedByCategory[0]);
-      navigate(`/${categoryType}`);
+      // navigate(`/${categoryType}`);
     }
+    return sortedByCategory;
   };
 
   const handleSortTypeChange = async (type) => {
@@ -70,17 +60,6 @@ const VerticalNav = () => {
   const handleSortOrderChange = async (order) => {
     if (order === '') return dispatch(setSortOrder({ order: '' }));
     dispatch(setSortOrder({ order }));
-  };
-
-  const fetchSortedProducts = async () => {
-    try {
-      const response = await sortOrderQuery(order);
-      console.log('sort RESPONSE', response);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching sorted products', error);
-      return [];
-    }
   };
 
   return (
@@ -98,7 +77,7 @@ const VerticalNav = () => {
               value={category}
             >
               <option value=""> -- All Categories --</option>
-              {getCategoriesQuery.map((category) => (
+              {[...getCategoriesQuery].map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
