@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import {} from './productsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   useUpdateCartMutation,
@@ -17,6 +16,7 @@ import {
 import './productCard.css';
 import { useGetSingleUserQuery } from '../account/authApi';
 import { useGetProductsByIdQuery } from './productsApi';
+import './index.css';
 
 const SingleProduct = () => {
   const { id } = useParams();
@@ -29,6 +29,7 @@ const SingleProduct = () => {
   const { mutate: product } = useUpdateCartMutation(id);
   const [createMutation, { mutate: quantityMutation }] =
     useUpdateCartQuantityMutation(id);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     if (!userId) {
@@ -42,29 +43,39 @@ const SingleProduct = () => {
     </p>
   );
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!isLoggedIn) {
       setDisplayLoginMessage(true);
       return;
     }
     if (!data) throw new Error('Product data is not available.');
 
-    dispatch(addToCart(product));
+    const response = await createMutation({ id, qty: quantity });
+    dispatch(addToCart(response));
 
     updateSessionStorage(cart);
-    console.log('SessionStorage updated!', cart);
   };
+
   const handleRemoveFromCart = async () => {
     if (!isLoggedIn) {
       setDisplayLoginMessage(true);
       return;
     }
     if (!data) throw new Error('Product id not found');
-
-    const response = await createMutation({ id, qty: 1 });
-    dispatch(removeFromCart(response));
-    console.log('response', response);
+    try {
+      const response = await createMutation({ id, qty: 0 })
+      console.log("RESPONSE", response);
+      dispatch(removeFromCart(response));
+    } catch (error) {
+      console.error('Error removing from cart', error);
+    }
   };
+
+  const handleQuantityChange = (e) => {
+    setQuantity(parseInt(e.target.value, 10) || 0);
+  };
+
+  const handlePlaceholder = () => {};
 
   useEffect(() => {
     console.log('SessionStorage updated!', cart);
@@ -112,7 +123,7 @@ const SingleProduct = () => {
         <p className="single-product-price">${price.toFixed(2)}</p>
         <p className="single-product-description">{description}</p>
         {isLoggedIn ? (
-          <form>
+          <form className="single-product-button-container">
             <button
               className="single-product-button"
               type="button"
@@ -120,6 +131,16 @@ const SingleProduct = () => {
             >
               Add to Cart
             </button>
+            <input
+              className="single-product-button"
+              id="quantity"
+              type="number"
+              min="0"
+              value={quantity}
+              step="1"
+              onChange={handleQuantityChange}
+            />
+            <div className="spacer"></div>
             <button
               className="single-product-button"
               type="button"

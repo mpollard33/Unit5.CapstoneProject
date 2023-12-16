@@ -19,9 +19,16 @@
 }
 
 .single-product-button {
-  margin-top: 2em;
+  margin: 2em 0.2em 0 0;
 }
 
+
+.single-product-button-container{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
 .single-product-price {
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   font-weight: 400;
@@ -32,6 +39,10 @@
   font-size: 1.3em;
   width: auto;
   padding: 1em;
+}
+
+#quantity{
+  width: 4em;
 }
 
 .rating-container {

@@ -74,34 +74,10 @@ const authSlice = createSlice({
     },
 
     removeFromCart: (state, { payload }) => {
-      const { products } = state.cart;
-      console.log('products state', products);
-
       const productIdToRemove = payload.id;
-
-      console.log('productIdToRemove', productIdToRemove);
-
-      const existingProductIndex = products.findIndex(
-        (product) => product.id === productIdToRemove,
+      state.cart.products = state.cart.products.filter(
+        (product) => product.id !== productIdToRemove,
       );
-
-      console.log('existingProductsIndex', existingProductIndex);
-
-      if (existingProductIndex !== -1) {
-        console.log('if != -1');
-        if (state.cart.products[existingProductIndex].quantity > 1) {
-          console.log(
-            'state.cart.products[index].quantity',
-            state.cart.products[existingProductIndex].quantity,
-          );
-          state.cart.products[existingProductIndex].quantity -= 1;
-        } else {
-          console.log('splicing result');
-          state.cart.products.splice(existingProductIndex, 1);
-        }
-      } else {
-        console.log('Product not in cart');
-      }
 
       state.cart.itemCount = state.cart.products.reduce(
         (total, product) => total + product.quantity,
@@ -109,6 +85,42 @@ const authSlice = createSlice({
       );
     },
   },
+  // removeFromCart: (state, { payload }) => {
+  //   const { products } = state.cart;
+  //   console.log('products state', products);
+
+  //   const productIdToRemove = payload;
+
+  //   console.log('productIdToRemove', productIdToRemove);
+
+  //   const existingProductIndex = products.findIndex(
+  //     (product) => product.id === productIdToRemove,
+  //   );
+
+  //   console.log('existingProductsIndex', existingProductIndex);
+
+  //   if (existingProductIndex !== -1) {
+  //     console.log('if != -1');
+  //     if (state.cart.products[existingProductIndex].quantity > 1) {
+  //       console.log(
+  //         'state.cart.products[index].quantity',
+  //         state.cart.products[existingProductIndex].quantity,
+  //       );
+  //       state.cart.products[existingProductIndex].quantity -= 1;
+  //     } else {
+  //       console.log('splicing result');
+  //       state.cart.products.splice(existingProductIndex, 1);
+  //     }
+  //   } else {
+  //     console.log('Product not in cart');
+  //   }
+
+  //       state.cart.itemCount = state.cart.products.reduce(
+  //         (total, product) => total + product.quantity,
+  //         0,
+  //       );
+  //     // },
+  // },
 });
 
 export const selectCartItemCount = (state) => {
