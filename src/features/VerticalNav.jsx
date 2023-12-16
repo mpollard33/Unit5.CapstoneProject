@@ -1,28 +1,85 @@
 import '../index.css';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCategory, setSort } from '../store/productSlice';
-import { useNavigate } from 'react-router-dom';
+import {
+  setCategory,
+  setSortType,
+  setSortOrder,
+  setSort,
+} from '../store/productSlice';
+import {
+  selectSortOrder,
+  selectSortType,
+  selectCategory,
+  selectSort,
+} from '../store/productSlice';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useGetSortOrderQuery } from './cart/cartApi';
+import {
+  useGetProductsByCategoryQuery,
+  useGetAllCategoriesQuery,
+} from './products/productsApi';
+import './products/index.css';
 
 const VerticalNav = () => {
-  const {
-    selectedCategory,
-    sort: { sortType },
-  } = useSelector((state) => state.products);
+  const { urlOrder } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleCategoryChange = (categoryType) => {
-    const newCategory = categoryType === '' ? '' : categoryType.trim();
-    dispatch(setCategory(newCategory));
-    navigate(`/${newCategory}`);
+  const category = useSelector(selectCategory);
+  const sortType = useSelector(selectSortType);
+  const sortOrder = useSelector(selectSortOrder);
+  // const { sortType, order } = useSelector(selectSort); // selectSortOrder + selectSortType
+
+  console.log('sortOrder before queries', sortOrder);
+  const { data: sortOrderQuery, isLoading: isSortOrderQueryLoading } =
+    useGetSortOrderQuery(sortOrder);
+
+  console.log('result of sortOrderQuery', sortOrderQuery);
+  const { data: categoryQueryData, isLoading: isCategoryQueryLoading } =
+    useGetProductsByCategoryQuery(category);
+  console.log('result of productsByCategory', categoryQueryData);
+
+  const { data: getCategoriesQuery } = useGetAllCategoriesQuery();
+  console.log('result of getCategoriesQuery', getCategoriesQuery);
+
+  // useEffect(() => {
+  //   if (categoryQueryData) {
+  //     dispatch(setCategory(category));
+  //   }
+  // }, [categoryQueryData, dispatch]);
+
+  const handleCategoryChange = async (categoryType) => {
+    console.log('current category', selectCategory);
+    dispatch(setCategory(categoryType));
+    console.log('Current Category:', selectCategory);
+    const sortedByCategory = await getCategoriesQuery();
+
+    if (sortedByCategory) {
+      console.log('completed await for categoryQueryData');
+      console.log('sortedByCategory', sortedByCategory || sortedByCategory[0]);
+      navigate(`/${categoryType}`);
+    }
   };
 
-  const handleSortChange = (option, order) => {
-    if (option === '') {
-      dispatch(setSort({ sortType: '', order: '' }));
-    } else {
-      const newSortType = option.trim();
-      dispatch(setSort({ sortType: newSortType, order }));
+  const handleSortTypeChange = async (type) => {
+    if (type === '') return dispatch(setSortType({ sortType: '' }));
+    dispatch(setSortType({ type }));
+  };
+
+  const handleSortOrderChange = async (order) => {
+    if (order === '') return dispatch(setSortOrder({ order: '' }));
+    dispatch(setSortOrder({ order }));
+  };
+
+  const fetchSortedProducts = async () => {
+    try {
+      const response = await sortOrderQuery(order);
+      console.log('sort RESPONSE', response);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching sorted products', error);
+      return [];
     }
   };
 
@@ -38,15 +95,10 @@ const VerticalNav = () => {
             Sort by Category:
             <select
               onChange={(e) => handleCategoryChange(e.target.value)}
-              value={selectedCategory}
+              value={category}
             >
               <option value=""> -- All Categories --</option>
-              {[
-                'jewelery',
-                'electronics',
-                "men's clothing",
-                "women's clothing",
-              ].map((category) => (
+              {getCategoriesQuery.map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>
@@ -56,13 +108,27 @@ const VerticalNav = () => {
         </div>
         <div className="bottom-border"></div>
       </div>
-      {['price', 'rating', 'rating count'].map((option) => (
-        <div key={option} className="nav-option">
+      <section className="sort-container">
+        <div className="nav-option">
           <label className="single-filter">
-            Sort by {option}:{' '}
+            Sort By:{' '}
             <select
-              onChange={(e) => handleSortChange(option, e.target.value)}
+              onChange={(e) => handleSortTypeChange(e.target.value)}
               value={sortType}
+            >
+              <option value="">-- Select --</option>
+              <option value="price">Price</option>
+              <option value="rating">Rating</option>
+              <option value="rating count">Rating Count</option>
+            </select>
+          </label>
+        </div>
+        <div className="nav-option">
+          <label className="single-filter">
+            Sort Order:{' '}
+            <select
+              onChange={(e) => handleSortOrderChange(e.target.value)}
+              value={sortOrder}
             >
               <option value="">-- Select --</option>
               <option value="asc">Low to High</option>
@@ -70,7 +136,7 @@ const VerticalNav = () => {
             </select>
           </label>
         </div>
-      ))}
+      </section>
     </ul>
   );
 };

@@ -30,4 +30,7 @@ export const {
   useGetProductsQuery,
   useGetProductsByIdQuery,
   useGetProductsByCategoryQuery,
+  useGetAllCategoriesQuery,
+  useGetOneCategoryQuery,
+  useDeleteProductMutation,
 } = productsApi;

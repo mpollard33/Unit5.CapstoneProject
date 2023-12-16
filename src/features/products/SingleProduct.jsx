@@ -63,8 +63,8 @@ const SingleProduct = () => {
     }
     if (!data) throw new Error('Product id not found');
     try {
-      const response = await createMutation({ id, qty: 0 })
-      console.log("RESPONSE", response);
+      const response = await createMutation({ id, qty: 0 });
+      console.log('RESPONSE', response);
       dispatch(removeFromCart(response));
     } catch (error) {
       console.error('Error removing from cart', error);
