@@ -1,8 +1,16 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector } from '@reduxjs/toolkit';
 
 const TOKEN_KEY = 'token';
 const USER_KEY = 'users';
 const CURR_USER = 'currentUser';
+
+const getAuthInitialState = () => ({
+  token: '',
+  isLoggedIn: false,
+  currentUser: null,
+  id: null,
+  cart: { ...cartInitialState },
+});
 
 const cartInitialState = {
   userId: '',
@@ -48,7 +56,9 @@ const authSlice = createSlice({
       state.isLoggedIn = true;
     },
 
-    logout: () => authInitialState,
+    logout: () => {
+      return { ...getAuthInitialState() };
+    },
 
     addToCart: (state, { payload }) => {
       const { products } = state.cart;
@@ -85,42 +95,6 @@ const authSlice = createSlice({
       );
     },
   },
-  // removeFromCart: (state, { payload }) => {
-  //   const { products } = state.cart;
-  //   console.log('products state', products);
-
-  //   const productIdToRemove = payload;
-
-  //   console.log('productIdToRemove', productIdToRemove);
-
-  //   const existingProductIndex = products.findIndex(
-  //     (product) => product.id === productIdToRemove,
-  //   );
-
-  //   console.log('existingProductsIndex', existingProductIndex);
-
-  //   if (existingProductIndex !== -1) {
-  //     console.log('if != -1');
-  //     if (state.cart.products[existingProductIndex].quantity > 1) {
-  //       console.log(
-  //         'state.cart.products[index].quantity',
-  //         state.cart.products[existingProductIndex].quantity,
-  //       );
-  //       state.cart.products[existingProductIndex].quantity -= 1;
-  //     } else {
-  //       console.log('splicing result');
-  //       state.cart.products.splice(existingProductIndex, 1);
-  //     }
-  //   } else {
-  //     console.log('Product not in cart');
-  //   }
-
-  //       state.cart.itemCount = state.cart.products.reduce(
-  //         (total, product) => total + product.quantity,
-  //         0,
-  //       );
-  //     // },
-  // },
 });
 
 export const selectCartItemCount = (state) => {
@@ -139,15 +113,54 @@ export const {
   removeFromCart,
 } = authSlice.actions;
 
-export const selectCart = (state) => state.auth.cart;
-export const selectToken = (state) => state.auth.token;
-export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
-export const selectCurrentUser = (state) => state.auth.currentUser;
-export const selectUserId = (state) => state.auth.id;
-export const selectUserIdInCart = (state) => state.auth.cart.userId;
-export const selectDateInCart = (state) => state.auth.cart.date;
-export const selectProductsInCart = (state) => state.auth.cart.products;
-export const selectTotalInCart = (state) => state.auth.cart.total;
-export const selectCategoriesInCart = (state) => state.auth.cart.categories;
+export const selectCart = createSelector(
+  (state) => state.auth.cart,
+  (cart) => cart,
+);
+
+export const selectToken = createSelector(
+  (state) => state.auth.token,
+  (token) => token,
+);
+
+export const selectIsLoggedIn = createSelector(
+  (state) => state.auth.isLoggedIn,
+  (isLoggedIn) => isLoggedIn,
+);
+
+export const selectCurrentUser = createSelector(
+  (state) => state.auth.currentUser,
+  (currentUser) => currentUser,
+);
+
+export const selectUserId = createSelector(
+  (state) => state.auth.id,
+  (id) => id,
+);
+
+export const selectUserIdInCart = createSelector(
+  (state) => state.auth.cart.userId,
+  (userId) => userId,
+);
+
+export const selectDateInCart = createSelector(
+  (state) => state.auth.cart.date,
+  (date) => date,
+);
+
+export const selectProductsInCart = createSelector(
+  (state) => state.auth.cart.products,
+  (products) => products,
+);
+
+export const selectTotalInCart = createSelector(
+  (state) => state.auth.cart.total,
+  (total) => total,
+);
+
+export const selectCategoriesInCart = createSelector(
+  (state) => state.auth.cart.categories,
+  (categories) => categories,
+);
 
 export default authSlice.reducer;

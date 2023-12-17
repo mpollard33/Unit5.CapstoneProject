@@ -1,33 +1,58 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createSelector, createAction } from '@reduxjs/toolkit';
+import { logout } from './authSlice';
+
+const initialState = {
+  products: { sortType: '', order: 'asc' },
+  selectedCategory: '',
+};
+
+export const resetProducts = createAction('products/reset');
 
 const productSlice = createSlice({
   name: 'products',
-  initialState: {
-    sort: { sortType: '', order: 'asc' },
-    selectedCategory: '',
-  },
+  initialState,
   reducers: {
     setSortType: (state, { payload }) => {
-      state.sort.sortType = payload;
+      state.products.sortType = payload;
     },
     setSortOrder: (state, { payload }) => {
-      state.sort.order = payload;
+      state.products.order = payload;
     },
     setCategory: (state, { payload }) => {
       state.selectedCategory = payload;
     },
     setSort: (state, { payload }) => {
-      state.sort.order = payload.order;
-      state.sort.sortType = payload.sortType;
+      state.products.order = payload.order;
+      state.products.sortType = payload.sortType;
     },
+  },
+  extraReducers: {
+    [logout]: () => initialState,
+    [resetProducts]: () => initialState,
   },
 });
 
-export const { setCategory, setSortType, setSortOrder, setSort } =
+export const { setSortType, setSortOrder, setCategory, setSort } =
   productSlice.actions;
-export const selectSortOrder = (state) => state.products.sort.order;
-export const selectSortType = (state) => state.products.sort.sortType;
-export const selectCategory = (state) => state.products.selectedCategory;
-export const selectSort = (state) => state.products.sort;
+
+export const selectSortOrder = createSelector(
+  (state) => state.products.order,
+  (order) => order,
+);
+
+export const selectSortType = createSelector(
+  (state) => state.products.sortType,
+  (sortType) => sortType,
+);
+
+export const selectCategory = createSelector(
+  (state) => state.selectedCategory,
+  (selectedCategory) => selectedCategory,
+);
+
+export const selectSort = createSelector(
+  (state) => state.products,
+  (products) => products,
+);
 
 export default productSlice.reducer;

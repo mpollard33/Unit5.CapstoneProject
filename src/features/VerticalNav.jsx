@@ -18,6 +18,7 @@ import { useGetSortOrderQuery } from './cart/cartApi';
 import {
   useGetProductsByCategoryQuery,
   useGetAllCategoriesQuery,
+  useGetProductsQuery,
 } from './products/productsApi';
 import './products/index.css';
 
@@ -29,40 +30,45 @@ const VerticalNav = () => {
   const sortType = useSelector(selectSortType);
   const sortOrder = useSelector(selectSortOrder);
 
-  const { data: sortOrderQuery } = useGetSortOrderQuery(sortOrder);
-  console.log('sortOrderQuery ->', sortOrderQuery);
-
+  const { data: sortOrderQuery, error: orderError } =
+    useGetSortOrderQuery(sortOrder);
+  console.log('Sort Order Query', sortOrderQuery);
 
   const { data: getCategoriesQuery } = useGetAllCategoriesQuery();
 
-  const { data: sortedByCategory, error } =
+  const { data: sortedByCategory, error: categoryError } =
     useGetProductsByCategoryQuery(category);
 
+  const { data: productsQuery, error: productsError } = useGetProductsQuery();
+  console.log('products--query', productsQuery);
+
   const handleCategoryChange = async (categoryType) => {
-    navigate(`/products/category/${categoryType}`);
     try {
       dispatch(setCategory(categoryType));
-      console.log('Category Updated ->', categoryType);
 
-      // Use the correct data variable
-      console.log('sortedByCategory ->', sortedByCategory);
+   
+      navigate(`/products/category/${categoryType}`);
 
       if (sortedByCategory) {
-        console.log('sorted by category', sortedByCategory);
       }
-    } catch (error) {
-      console.error('Error changing category', error);
+    } catch (categoryError) {
+      console.error('Error changing category', categoryError);
     }
   };
 
   const handleSortTypeChange = async (type) => {
     if (type === '') return dispatch(setSortType({ sortType: '' }));
-    dispatch(setSortType({ type }));
+    try {
+      dispatch(setSortType({ type }));
+      navigate(`/products/sorted`);
+    } catch (orderError) {
+      console.error(orderError);
+    }
   };
 
   const handleSortOrderChange = async (order) => {
-    if (order === '') return dispatch(setSortOrder({ order: '' }));
-    dispatch(setSortOrder({ order }));
+    // if (order === '') return dispatch(setSortOrder({ order: '' }));
+    // dispatch(setSortOrder({ order }));
   };
 
   return (

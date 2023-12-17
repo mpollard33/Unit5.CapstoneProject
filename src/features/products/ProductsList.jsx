@@ -5,7 +5,7 @@ import VerticalNav from '../VerticalNav';
 import { useSelector } from 'react-redux';
 
 const ProductsList = () => {
-  const { data, error, isLoading } = useGetProductsQuery();
+  const { data: products, error, isLoading } = useGetProductsQuery();
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -14,9 +14,9 @@ const ProductsList = () => {
     <main className="main-container">
       <div className="page-container">
         <VerticalNav />
-        {data.length > 0 ? (
+        {products.length > 0 ? (
           <ul className="product-container">
-            {data.map((product) => (
+            {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </ul>
