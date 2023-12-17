@@ -1,35 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useGetProductsByIdQuery } from './productsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  useUpdateCartMutation,
-  useUpdateCartQuantityMutation,
-} from '../cart/cartApi';
-import {
   selectIsLoggedIn,
-  removeFromCart,
+  addProductToCart,
+  removeProduct,
   selectCart,
   selectUserId,
   setLoggedIn,
-  addToCart,
 } from '../../store/authSlice';
 import './productCard.css';
-import { useGetSingleUserQuery } from '../account/authApi';
-import { useGetProductsByIdQuery } from './productsApi';
-import './index.css';
 
 const SingleProduct = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const isLoggedIn = useSelector(selectIsLoggedIn);
-  const userId = useGetSingleUserQuery(id);
   const cart = useSelector(selectCart);
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+  const userId = useSelector(selectUserId);
   const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
-  const { data, error, isLoading } = useGetProductsByIdQuery(id);
-  const { mutate: product } = useUpdateCartMutation(id);
-  const [createMutation, { mutate: quantityMutation }] =
-    useUpdateCartQuantityMutation(id);
-  const [quantity, setQuantity] = useState(1);
+
+  const {
+    data: singleProduct,
+    error: singleProductError,
+    isLoading: singleProductIsLoading,
+  } = useGetProductsByIdQuery(id);
 
   useEffect(() => {
     if (!userId) {
@@ -37,77 +32,117 @@ const SingleProduct = () => {
     }
   }, [userId, dispatch]);
 
-  const renderLoginMessage = (message) => (
+  const renderLoginMessage = () => (
     <p className="login-message">
-      {message || 'Please include a login message to render'}
+      You must be logged in to add items to your cart.
     </p>
   );
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!isLoggedIn) {
       setDisplayLoginMessage(true);
       return;
     }
-    if (!data) throw new Error('Product data is not available.');
 
-    const response = await createMutation({ id, qty: quantity });
-    dispatch(addToCart(response));
-
-    updateSessionStorage(cart);
-  };
-
-  const handleRemoveFromCart = async () => {
-    if (!isLoggedIn) {
-      setDisplayLoginMessage(true);
+    if (!singleProduct || !singleProduct.id) {
+      console.error('Product data is not available.');
       return;
     }
-    if (!data) throw new Error('Product id not found');
-    try {
-      const response = await createMutation({ id, qty: 0 });
-      console.log('RESPONSE', response);
-      dispatch(removeFromCart(response));
-    } catch (error) {
-      console.error('Error removing from cart', error);
+
+    const product = singleProduct;
+    const productId = product.id;
+    const updatedCart = getUpdatedCart(productId, product);
+    dispatch(addProductToCart(updatedCart));
+    updateSessionStorage(updatedCart);
+  };
+
+  const handleRemoveFromCart = () => {
+    const productId = singleProduct?.id;
+    if (!productId) return;
+
+    const updatedCart = getUpdatedCart(productId, null, true);
+    dispatch(removeProduct(updatedCart));
+    updateSessionStorage(updatedCart);
+  };
+
+  const isProductInCart = () => {
+    return cart.products.some(
+      (product) => product.productId === singleProduct?.id,
+    );
+  };
+
+  const getProductQuantityInCart = () => {
+    const productInCart = cart.products.find(
+      (product) => product.productId === singleProduct?.id,
+    );
+    return productInCart ? productInCart.quantity : 0;
+  };
+
+  const getUpdatedCart = (productId, product, remove = false) => {
+    const updatedProducts = cart.products.reduce((acc, p) => {
+      if (p.productId === productId) {
+        const existingQuantity = remove
+          ? Math.max(p.quantity - 1, 0)
+          : p.quantity + 1;
+        if (existingQuantity > 0) {
+          acc.push({ ...p, quantity: existingQuantity });
+        }
+      } else {
+        acc.push(p);
+      }
+      return acc;
+    }, []);
+
+    let updatedItemCount = updatedProducts.reduce(
+      (total, product) => total + product.quantity,
+      0,
+    );
+
+    if (!remove && product) {
+      const existingProductIndex = updatedProducts.findIndex(
+        (p) => p.productId === productId,
+      );
+      if (existingProductIndex !== -1) {
+        updatedProducts[existingProductIndex].quantity += 1;
+      } else {
+        updatedProducts.push({ productId, product, quantity: 1 });
+      }
+      updatedItemCount += 1;
     }
+
+    return {
+      products: updatedProducts,
+      itemCount: updatedItemCount,
+    };
   };
-
-  const handleQuantityChange = (e) => {
-    setQuantity(parseInt(e.target.value, 10) || 0);
-  };
-
-  const handlePlaceholder = () => {};
-
-  useEffect(() => {
-    console.log('SessionStorage updated!', cart);
-    updateSessionStorage(cart);
-  }, [cart]);
 
   const updateSessionStorage = (updatedCart) => {
-    const existingUsers = JSON.parse(sessionStorage.getItem('currentUser'));
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
     const existingCarts = JSON.parse(sessionStorage.getItem('carts')) || [];
 
     const userCartIndex = existingCarts.findIndex(
-      (cart) => cart[existingUsers?.id] !== undefined,
+      (cart) => cart[currentUser?.id] !== undefined,
     );
 
     const updatedCarts =
       userCartIndex !== -1
         ? [
             ...existingCarts.slice(0, userCartIndex),
-            { [existingUsers?.id]: updatedCart },
+            { [currentUser?.id]: updatedCart },
             ...existingCarts.slice(userCartIndex + 1),
           ]
-        : [...existingCarts, { [existingUsers?.id]: updatedCart }];
+        : [...existingCarts, { [currentUser?.id]: updatedCart }];
 
     sessionStorage.setItem('carts', JSON.stringify(updatedCarts));
     sessionStorage.setItem('userCart', JSON.stringify(updatedCart));
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error</div>;
-  if (!data) return <div>No data found</div>;
+  if (singleProductIsLoading) return <div>Loading...</div>;
+  if (singleProductError) return <div>Error</div>;
+  if (!singleProduct) return <div>No data found</div>;
 
-  const { title, image, price, rating, description } = data;
+  const { title, image, rating, price, description } = singleProduct;
+
   return (
     <div className="product-card-container">
       <img src={image} alt={title} className="single-product-image" />
@@ -122,40 +157,46 @@ const SingleProduct = () => {
         </section>
         <p className="single-product-price">${price.toFixed(2)}</p>
         <p className="single-product-description">{description}</p>
-        {isLoggedIn ? (
-          <form className="single-product-button-container">
-            <button
-              className="single-product-button"
-              type="button"
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </button>
-            <input
-              className="single-product-button"
-              id="quantity"
-              type="number"
-              min="0"
-              value={quantity}
-              step="1"
-              onChange={handleQuantityChange}
-            />
-            <div className="spacer"></div>
-            <button
-              className="single-product-button"
-              type="button"
-              onClick={handleRemoveFromCart}
-            >
-              Remove from Cart
-            </button>
-          </form>
-        ) : (
-          <p>You must be logged in to add items to your cart</p>
-        )}
+        <form>
+          <button
+            className="single-product-button"
+            type="button"
+            onClick={handleAddToCart}
+          >
+            Add to Cart
+          </button>
+          {displayLoginMessage && renderLoginMessage()}
+          {isProductInCart() && (
+            <>
+              {getProductQuantityInCart() > 0 && (
+                <>
+                  {isLoggedIn ? (
+                    <>
+                      <button
+                        className="single-product-button"
+                        type="button"
+                        onClick={handleRemoveFromCart}
+                      >
+                        Remove from Cart
+                      </button>
+                      <p>
+                        You have {getProductQuantityInCart()} of this product in
+                        your cart!
+                      </p>
+                    </>
+                  ) : (
+                    <p>You must be logged in to add items to the cart.</p>
+                  )}
+                </>
+              )}
+            </>
+          )}
+        </form>
       </div>
     </div>
   );
 };
+
 const generateStars = (rating) =>
   '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
 

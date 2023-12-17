@@ -10,25 +10,24 @@ import Login from './features/account/Login';
 import CartWrapper from './features/cart/CartWrapper';
 import { useSelector } from 'react-redux';
 import { selectUserId } from './store/authSlice';
-import FilteredProducts from './features/products/FilteredProducts';
 
 function App() {
   return (
     <>
       <HorizontalNav />
       <Routes>
-        <Route path="/" element={<ProductsList />} />
-        <Route path="/products" element={<ProductsList />} />
+        <Route path="/products/category/:category" element={<ProductsList />} />
         <Route path="/products/:id" element={<ProductDetails />} />
-        <Route path="/products/category/:category" element={<FilteredProducts />} />
-        <Route path="/products/sorted" element={<FilteredProducts /> } />
-        <Route path="/:category" element={<ProductsList />} />
+        <Route path="/products" element={<ProductsList />} />
+        <Route path="/carts/user/:id" element={<CartWrapper />} />
+        <Route path="/carts/" element={<CartWrapper />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/logout" element={<Login />} />
         <Route path="/auth/register" element={<Registration />} />
         <Route path="/users/account" element={<Account />} />
-        <Route path="/carts/user/:id" element={<CartWrapper />} />{' '}
-        <Route path="/carts/" element={<CartWrapper />} />
+        <Route path="/" element={<ProductsList />}>
+          <Route index element={<ProductDetails />} />
+        </Route>
       </Routes>
     </>
   );

@@ -3,17 +3,20 @@ import { useForm } from 'react-hook-form';
 import {
   useAddUserCartMutation,
   useGetAllCartsQuery,
-  useGetAllUsersQuery,
   useRegisterMutation,
 } from './authApi';
 import { Link } from 'react-router-dom';
 import {
-  setLoggedIn,
+  setId,
   setCart,
-  initializeUser,
+  setCartId,
+  setLoggedIn,
   selectUserId,
+  initializeUser,
   selectCurrentUser,
   selectCart,
+  setCurrentUser,
+  selectIsLoggedIn,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
@@ -26,13 +29,7 @@ const Registration = () => {
   const [registerUser] = useRegisterMutation();
   const allCarts = useGetAllCartsQuery();
   const [createUserCart, { data: cartId }] = useAddUserCartMutation();
-  const { data: users } = useGetAllUsersQuery();
 
-  useEffect(() => {
-    if (users && !sessionStorage.getItem('users')) {
-      sessionStorage.setItem('users', JSON.stringify(users));
-    }
-  }, [users]);
   useEffect(() => {
     if (!activeUser) {
       const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -41,7 +38,6 @@ const Registration = () => {
       }
     }
   }, [activeUser, dispatch]);
-
   const onSubmit = async (formData) => {
     try {
       const { data } = await registerUser(formData);
@@ -62,9 +58,11 @@ const Registration = () => {
         const updatedUserId = isDuplicateId
           ? currentUsers.length + 1
           : registeredUserId;
-        const updatedUser = { id: updatedUserId, ...formData };
+        const updatedUser = { ...formData, id: updatedUserId };
 
-        dispatch(setLoggedIn(updatedUser));
+        dispatch(setCurrentUser(updatedUser));
+        dispatch(setLoggedIn(true));
+        dispatch(setId(updatedUserId));
 
         const updatedUsers = [...currentUsers, updatedUser];
         sessionStorage.setItem('users', JSON.stringify(updatedUsers));
@@ -88,12 +86,8 @@ const Registration = () => {
             throw error;
           }
         };
-
-        const userCartId = await getCartId(userCartData);
-
-        // Dispatch setCart instead of setCartId
-        dispatch(setCart({ id: userCartId }));
-
+        const userId = await getCartId(userCartData);
+        // debug
         console.log('Before');
       }
     } catch (error) {

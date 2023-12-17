@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  setCurrentUser,
   setLoggedIn,
+  setId,
   selectUserId,
   selectIsLoggedIn,
 } from '../../store/authSlice';
@@ -42,9 +44,11 @@ const Login = () => {
           user.username === formData.username &&
           user.password === formData.password,
       );
+
       if (matchedUser) {
-        console.log('matched user -> ', matchedUser);
-        dispatch(setLoggedIn(matchedUser));
+        dispatch(setCurrentUser({ ...matchedUser, id: matchedUser.id }));
+        dispatch(setLoggedIn(true));
+        dispatch(setId(matchedUser.id));
 
         if (!sessionStorage.getItem('carts')) {
           const storedCarts = JSON.stringify(allCarts.data);
@@ -65,10 +69,11 @@ const Login = () => {
       setError('An error occurred during login');
     }
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((prevData) => ({
+      ...prevData,
       [name]: value,
     }));
   };

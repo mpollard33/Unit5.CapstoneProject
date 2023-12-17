@@ -1,58 +1,26 @@
-import { createSlice, createSelector, createAction } from '@reduxjs/toolkit';
-import { logout } from './authSlice';
-
-const initialState = {
-  products: { sortType: '', order: 'asc' },
-  selectedCategory: '',
-};
-
-export const resetProducts = createAction('products/reset');
+import { createSlice } from '@reduxjs/toolkit';
 
 const productSlice = createSlice({
   name: 'products',
-  initialState,
+  initialState: {
+    sort: { sortType: '', order: 'asc' },
+    selectedCategory: '',
+  },
   reducers: {
-    setSortType: (state, { payload }) => {
-      state.products.sortType = payload;
-    },
-    setSortOrder: (state, { payload }) => {
-      state.products.order = payload;
+    setSort: (state, { payload }) => {
+      state.sort = {
+        sortType: payload.sortType.trim(),
+        order: payload.order,
+      };
     },
     setCategory: (state, { payload }) => {
-      state.selectedCategory = payload;
+      state.selectedCategory = payload.trim();
     },
-    setSort: (state, { payload }) => {
-      state.products.order = payload.order;
-      state.products.sortType = payload.sortType;
-    },
-  },
-  extraReducers: {
-    [logout]: () => initialState,
-    [resetProducts]: () => initialState,
   },
 });
 
-export const { setSortType, setSortOrder, setCategory, setSort } =
-  productSlice.actions;
-
-export const selectSortOrder = createSelector(
-  (state) => state.products.order,
-  (order) => order,
-);
-
-export const selectSortType = createSelector(
-  (state) => state.products.sortType,
-  (sortType) => sortType,
-);
-
-export const selectCategory = createSelector(
-  (state) => state.selectedCategory,
-  (selectedCategory) => selectedCategory,
-);
-
-export const selectSort = createSelector(
-  (state) => state.products,
-  (products) => products,
-);
+export const { setSort, setCategory } = productSlice.actions;
+export const selectSort = (state) => state.products.sort;
+export const selectCategory = (state) => state.products.selectedCategory;
 
 export default productSlice.reducer;

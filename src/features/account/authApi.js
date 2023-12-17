@@ -1,8 +1,13 @@
 import api from '../../store/api';
+import { initializeUser } from '../../store/authSlice';
 
+const TOKEN_KEY = 'token';
 
 const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    me: builder.query({
+      query: () => '/users/me',
+    }),
     register: builder.mutation({
       query: (user) => ({
         url: '/users',
@@ -47,14 +52,21 @@ const authApi = api.injectEndpoints({
         body: { cart },
       }),
     }),
-
-    addToCart: builder.mutation({
-      query: (id) => ({
+    updateCart: builder.mutation({
+      query: ({ id, action }) => ({
         url: `/carts/${id}`,
-        method: 'PUT',
+        method: 'PATCH',
+        body: { action },
       }),
     }),
   }),
+  overrideExisting: true,
+  afterAuthCheck: ({ dispatch, getState }) => {
+    const storedToken = sessionStorage.getItem(TOKEN_KEY);
+    if (storedToken) {
+      dispatch(initializeUser());
+    }
+  },
 });
 
 export const {
@@ -64,6 +76,7 @@ export const {
   useLogoutMutation,
   useGetCartQuery,
   useAddUserCartMutation,
+  useUpdateCartMutation,
   useGetSingleUserQuery,
   useGetSingleCartQuery,
   useGetUserCartQuery,

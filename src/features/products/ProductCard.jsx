@@ -1,29 +1,31 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './productCard.css';
-
-
+import { useGetProductsByIdQuery } from './productsApi';
 
 const ProductCard = ({ product }) => {
+  const { id } = product;
   return (
-    <Link to={`/products/${product.id}`} className="product-card-link">
-      <li>
-        <img src={product.image} alt={product.title} />
-        <header>
-          <h3>{product.title}</h3>
-        </header>
-        <p className="price">${product.price.toFixed(2)}</p>
-        <div className="blue-box">
-          <p>{product.description}</p>
-          <section className="rating-container">
-            <div className="yellow-stars">
-              {generateStars(product.rating.rate)}
-            </div>
-            <div className="rating-count">{product.rating.count} reviews</div>
-          </section>
-        </div>
-      </li>
-    </Link>
+    product && (
+      <Link to={`/products/${id}`} className="product-card-link">
+        <li>
+          <img src={product.image} alt={product.title} />
+          <header>
+            <h3>{product.title}</h3>
+          </header>
+          <p className="price">${product.price}</p>
+          <div className="blue-box">
+            <p>{product.description}</p>
+            <section className="rating-container">
+              <div className="yellow-stars">
+                {generateStars(product.rating.rate)}
+              </div>
+              <div className="rating-count">{product.rating.count} reviews</div>
+            </section>
+          </div>
+        </li>
+      </Link>
+    )
   );
 };
 
@@ -34,4 +36,3 @@ const generateStars = (rating) => {
 };
 
 export default ProductCard;
-
