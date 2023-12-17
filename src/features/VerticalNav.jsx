@@ -22,34 +22,37 @@ import {
 import './products/index.css';
 
 const VerticalNav = () => {
+  const { category } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const category = useSelector(selectCategory);
+  const categorySelect = useSelector(selectCategory);
   const sortType = useSelector(selectSortType);
   const sortOrder = useSelector(selectSortOrder);
 
   const { data: sortOrderQuery } = useGetSortOrderQuery(sortOrder);
   console.log('sortOrderQuery ->', sortOrderQuery);
 
-  const { data: categoryQueryData } = useGetProductsByCategoryQuery(category);
-  console.log('categoryQueryData ->', categoryQueryData);
 
   const { data: getCategoriesQuery } = useGetAllCategoriesQuery();
-  console.log('getCategoriesQuery ->', getCategoriesQuery);
+
+  const { data: sortedByCategory, error } =
+    useGetProductsByCategoryQuery(category);
 
   const handleCategoryChange = async (categoryType) => {
-    dispatch(setCategory(categoryType));
-    console.log('new Category:', categoryType);
+    navigate(`/products/category/${categoryType}`);
+    try {
+      dispatch(setCategory(categoryType));
+      console.log('Category Updated ->', categoryType);
 
-    const sortedByCategory = await getCategoriesQuery;
-    console.log('sortedByCategory', sortedByCategory);
+      // Use the correct data variable
+      console.log('sortedByCategory ->', sortedByCategory);
 
-    if (sortedByCategory) {
-      console.log('sortedByCategory', sortedByCategory || sortedByCategory[0]);
-      // navigate(`/${categoryType}`);
+      if (sortedByCategory) {
+        console.log('sorted by category', sortedByCategory);
+      }
+    } catch (error) {
+      console.error('Error changing category', error);
     }
-    return sortedByCategory;
   };
 
   const handleSortTypeChange = async (type) => {
@@ -74,14 +77,15 @@ const VerticalNav = () => {
             Sort by Category:
             <select
               onChange={(e) => handleCategoryChange(e.target.value)}
-              value={category}
+              value={categorySelect}
             >
               <option value=""> -- All Categories --</option>
-              {[...getCategoriesQuery].map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
+              {getCategoriesQuery &&
+                getCategoriesQuery.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
             </select>
           </label>
         </div>

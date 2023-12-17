@@ -8,13 +8,11 @@ const productsApi = api.injectEndpoints({
     getProductsById: builder.query({
       query: (id) => `/products/${id}`,
     }),
-    getProductsByCategory: builder.query({
-      query: (category) => `/products/${category}`,
-    }),
+
     getAllCategories: builder.query({
       query: () => `/products/categories`,
     }),
-    getOneCategory: builder.query({
+    getProductsByCategory: builder.query({
       query: (category) => `/products/category/${category}`,
     }),
     deleteProduct: builder.mutation({

@@ -27,7 +27,7 @@ const cartApi = api.injectEndpoints({
       }),
     }),
     getSortOrder: builder.query({
-      query: (order) => `/carts?sort=${order}`, // 'asc' 'desc'
+      query: (order) => `/products?sort=${order}`, // 'asc' 'desc'
     }),
     updateProduct: builder.mutation({
       query: (id) => ({

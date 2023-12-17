@@ -10,6 +10,7 @@ import Login from './features/account/Login';
 import CartWrapper from './features/cart/CartWrapper';
 import { useSelector } from 'react-redux';
 import { selectUserId } from './store/authSlice';
+import FilteredProducts from './features/products/FilteredProducts';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<ProductsList />} />
         <Route path="/products" element={<ProductsList />} />
         <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/products/category/:category" element={<FilteredProducts />} />
         <Route path="/:category" element={<ProductsList />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/logout" element={<Login />} />
