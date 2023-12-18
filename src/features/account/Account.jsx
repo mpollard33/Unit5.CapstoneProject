@@ -7,16 +7,12 @@ import './index.css';
 
 const Account = () => {
   const id = useSelector(selectUserId);
-  console.log('user id', id);
 
   const selectUser = useSelector(selectCurrentUser) || [];
-  console.log('current user', selectUser, id);
 
   const usersString = JSON.parse(sessionStorage.getItem('users'));
-  console.log('usersString', usersString);
 
   const activeUser = usersString.find((user) => user.id === 11);
-  console.log('activeUser', activeUser);
 
   const { username, email, name, address } = activeUser;
   if (!activeUser) return <p>No user found...</p>;
