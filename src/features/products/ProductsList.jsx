@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useGetProductsQuery,
   useGetProductsByCategoryQuery,
@@ -11,7 +11,8 @@ import { useParams } from 'react-router-dom';
 import ProductCard from './ProductCard';
 
 const ProductsList = () => {
-  const { category } = useParams();
+  // const { category } = useParams();
+  const category = 'electronics';
   console.log('category params', category);
 
   const selectedCategory = useSelector(selectCategory);
@@ -19,39 +20,49 @@ const ProductsList = () => {
 
   const {
     data: allProducts,
-    error,
+    error: allProductsError,
     isLoading: productsLoading,
   } = useGetProductsQuery();
-  console.log('all products', allProducts);
 
-  const { error: singleCategoryError, isLoading: singleCategoryIsLoading } =
-    useGetProductsByCategoryQuery(category);
+  const {
+    data: singleCategory,
+    error: singleCategoryError,
+    isLoading: singleCategoryIsLoading,
+  } = useGetProductsByCategoryQuery(category);
 
-  const setProductsDisplay = async () => {
-    return await allProducts;
+  console.log('singleCategory', singleCategory);
+
+  const [products, setProducts] = useState([]);
+
+  const setProductsDisplay = () => {
+    if (category === null || category === undefined || category === '') {
+      return Promise.resolve(allProducts);
+    } else {
+      return Promise.resolve(singleCategory);
+    }
   };
 
   useEffect(() => {
     const fetchData = async () => {
       const result = await setProductsDisplay();
+      setProducts(result);
       console.log('after function', result);
     };
 
     fetchData();
   }, []);
 
-  console.log('after all products', allProducts);
-
+  console.log("products before render", products)
   if (productsLoading || singleCategoryIsLoading) return <div>Loading...</div>;
-  if (error || singleCategoryError)
-    return <div>{error || singleCategoryError}</div>;
+  if (allProductsError || singleCategoryError)
+    return <div>{allProductsError || singleCategoryError}</div>;
 
   return (
     <main className="main-container">
       <div className="page-container">
         <VerticalNav />
         <ul className="product-container">
-          {allProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </ul>
