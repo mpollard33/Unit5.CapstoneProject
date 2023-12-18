@@ -17,18 +17,21 @@ function App() {
     <>
       <HorizontalNav />
       <Routes>
-        <Route path="/" element={<ProductsList />} />
-        <Route path="/products" element={<ProductsList />} />
-        <Route path="/products/:id" element={<ProductDetails />} />
-        <Route path="/products/category/:category" element={<FilteredProducts />} />
-        <Route path="/products/sorted" element={<FilteredProducts /> } />
-        <Route path="/:category" element={<ProductsList />} />
         <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/logout" element={<Login />} />
         <Route path="/auth/register" element={<Registration />} />
         <Route path="/users/account" element={<Account />} />
-        <Route path="/carts/user/:id" element={<CartWrapper />} />{' '}
+        <Route path="/users/:id" element={<Account />} />
+        <Route path="/carts/user/:id" element={<CartWrapper />} />
         <Route path="/carts/" element={<CartWrapper />} />
+        <Route path="/products" element={<ProductsList />} />
+        <Route path="/products/sorted" element={<FilteredProducts />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
+        <Route
+          path="/products/category/:category"
+          element={<FilteredProducts />}
+        />
+
+        <Route path="/*" element={<ProductsList />} />
       </Routes>
     </>
   );

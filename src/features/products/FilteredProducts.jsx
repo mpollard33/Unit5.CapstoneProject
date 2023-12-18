@@ -9,11 +9,12 @@ import VerticalNav from '../VerticalNav';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useGetSortOrderQuery } from '../cart/cartApi';
+import { selectSortOrder, selectSortType } from '../../store/productSlice';
 
 const FilteredProducts = () => {
   const { category } = useParams();
-  const selectSortOrder = (state) => state.products.sort.order;
-  const selectSortType = (state) => state.products.sort.sortType;
+  const sortOrderSelector = useSelector(selectSortOrder);
+  const sortTypeSelector = useSelector(selectSortType)
 
   const {
     data: productsByCategory,
@@ -22,8 +23,8 @@ const FilteredProducts = () => {
   } = useGetProductsByCategoryQuery(category);
   console.log('PRODUCTS BY CATEGORY RESULT', productsByCategory);
 
-  const { data: orderedProducts, error: orderedError } =
-    useGetSortOrderQuery(selectSortOrder);
+  // const { data: orderedProducts, error: orderedError } =
+  //   useGetSortOrderQuery(selectSortOrder);
 
 //   console.log('SORT ORDER RESULT', orderedProducts);
 

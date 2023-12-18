@@ -45,8 +45,11 @@ const VerticalNav = () => {
   const handleCategoryChange = async (categoryType) => {
     try {
       dispatch(setCategory(categoryType));
+      if (categoryType === '') {
+        navigate('/products/');
+        return;
+      }
 
-   
       navigate(`/products/category/${categoryType}`);
 
       if (sortedByCategory) {
