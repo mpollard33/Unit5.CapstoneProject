@@ -14,19 +14,18 @@ import { selectSortOrder, selectSortType } from '../../store/productSlice';
 const FilteredProducts = () => {
   const { category } = useParams();
   const sortOrderSelector = useSelector(selectSortOrder);
-  const sortTypeSelector = useSelector(selectSortType)
+  const sortTypeSelector = useSelector(selectSortType);
 
   const {
     data: productsByCategory,
     error,
     isLoading,
   } = useGetProductsByCategoryQuery(category);
-  console.log('PRODUCTS BY CATEGORY RESULT', productsByCategory);
 
   // const { data: orderedProducts, error: orderedError } =
   //   useGetSortOrderQuery(selectSortOrder);
 
-//   console.log('SORT ORDER RESULT', orderedProducts);
+  //   console.log('SORT ORDER RESULT', orderedProducts);
 
   if (!productsByCategory) return <div>No data Found</div>;
   if (isLoading) return <div>Loading...</div>;

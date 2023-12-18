@@ -20,11 +20,10 @@ function App() {
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Registration />} />
         <Route path="/users/account" element={<Account />} />
-        <Route path="/users/:id" element={<Account />} />
+       <Route path="/users/:id" element={<Account />} />
         <Route path="/carts/user/:id" element={<CartWrapper />} />
         <Route path="/carts/" element={<CartWrapper />} />
         <Route path="/products" element={<ProductsList />} />
-        <Route path="/products/sorted" element={<FilteredProducts />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route
           path="/products/category/:category"

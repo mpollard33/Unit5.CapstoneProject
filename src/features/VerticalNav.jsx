@@ -60,18 +60,21 @@ const VerticalNav = () => {
   };
 
   const handleSortTypeChange = async (type) => {
-    if (type === '') return dispatch(setSortType({ sortType: '' }));
-    try {
-      dispatch(setSortType({ type }));
-      navigate(`/products/sorted`);
-    } catch (orderError) {
-      console.error(orderError);
-    }
+    // try {
+    //   if (type === '') return dispatch(setSortType({ sortType: '' }));
+    //   dispatch(setSortType({ type }));
+    //   navigate(`/products/sorted`);
+    // } catch (orderError) {
+    //   console.error(orderError);
+    // }
   };
 
   const handleSortOrderChange = async (order) => {
-    // if (order === '') return dispatch(setSortOrder({ order: '' }));
-    // dispatch(setSortOrder({ order }));
+    if (order === '') {
+      dispatch(setSortOrder({ order: '' }));
+      navigate('/products');
+    }
+    dispatch(setSortOrder(order));
   };
 
   return (
