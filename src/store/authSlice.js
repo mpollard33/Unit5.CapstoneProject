@@ -42,7 +42,7 @@ const authSlice = createSlice({
           ...state.cart,
           userId: payload.id,
           id: payload.id,
-          date: new Date().toISOString(),
+          // date: new Date().toISOString(),
         },
       };
     },
@@ -62,18 +62,23 @@ const authSlice = createSlice({
 
     addToCart: (state, { payload }) => {
       const { products } = state.cart;
+      console.log('addtocart reducer', products);
       const existingProductIndex = products.findIndex(
         (product) => product.id === payload,
       );
+      console.log('existingProductIndex', existingProductIndex);
 
       if (existingProductIndex !== -1) {
         state.cart.products[existingProductIndex].quantity += 1;
-        state.cart.products[existingProductIndex].dateAdded =
-          new Date().toISOString();
+        /* state.cart.products[existingProductIndex].dateAdded =
+         new Date().toISOString();*/
+        console.log('index not found in cart');
       } else {
         state.cart.products = [
           ...products,
-          { ...payload, quantity: 1, dateAdded: new Date().toISOString() },
+          {
+            ...payload /*quantity: 1*/ /*dateAdded: new Date().toISOString()*/,
+          },
         ];
       }
 
@@ -85,12 +90,19 @@ const authSlice = createSlice({
 
     removeFromCart: (state, { payload }) => {
       const productIdToRemove = payload.id;
-      state.cart.products = state.cart.products.filter(
-        (product) => product.id !== productIdToRemove,
+      // Find the index of the product to remove
+      const index = state.cart.products.findIndex(
+        (product) => product.id === productIdToRemove,
       );
-
+      // Remove the product from the array by its index
+      state.cart.products.splice(index, 1);
+      // Update the item count and the total
       state.cart.itemCount = state.cart.products.reduce(
         (total, product) => total + product.quantity,
+        0,
+      );
+      state.cart.total = state.cart.products.reduce(
+        (total, product) => total + product.price * product.quantity,
         0,
       );
     },

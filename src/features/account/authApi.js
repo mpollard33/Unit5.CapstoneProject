@@ -1,6 +1,5 @@
 import api from '../../store/api';
 
-
 const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
     register: builder.mutation({
@@ -22,12 +21,7 @@ const authApi = api.injectEndpoints({
         method: 'GET',
       }),
     }),
-    getSingleCart: builder.query({
-      query: (id) => ({
-        url: `carts/${id}`,
-        method: 'GET',
-      }),
-    }),
+   
     getUserCart: builder.query({
       query: (id) => ({
         url: `/carts/user/${id}`,
@@ -47,13 +41,6 @@ const authApi = api.injectEndpoints({
         body: { cart },
       }),
     }),
-
-    addToCart: builder.mutation({
-      query: (id) => ({
-        url: `/carts/${id}`,
-        method: 'PUT',
-      }),
-    }),
   }),
 });
 
@@ -68,4 +55,5 @@ export const {
   useGetSingleCartQuery,
   useGetUserCartQuery,
   useGetAllCartsQuery,
+  useAddToCartMutation,
 } = authApi;

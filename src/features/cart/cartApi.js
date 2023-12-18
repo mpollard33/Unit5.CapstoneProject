@@ -8,29 +8,27 @@ const cartApi = api.injectEndpoints({
     getUserCart: builder.query({
       query: (id) => `carts/user/${id}`,
     }),
-    updateCart: builder.mutation({
+    getSingleCart: builder.query({
       query: (id) => ({
-        url: `/carts/${id}`,
-        method: 'PUT',
-        body: { product },
+        url: `carts/${id}`,
+        method: 'GET',
       }),
     }),
-    updateCartQuantity: builder.mutation({
+    updateCart: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/carts/${id}`,
+        method: 'PATCH',
+        body: { products: data },
+      }),
+    }),
+    addToCart: builder.mutation({
       query: ({ id }) => ({
         url: `/carts/${id}`,
-        method: 'PATCH',
-        body: {
-          userId: 11,
-          date: new Date().toISOString(),
-          products: [{ id: 1, quantity: 1 }],
-        },
-      }),
-    }),
-
-    updateProduct: builder.mutation({
-      query: (id) => ({
-        url: `/carts/${id}`,
-        method: 'PATCH',
+        method: 'PUT',
+        body: JSON.stringify({
+          date: '2019-10-12',
+          products: [{ productId: 1, quantity: 3 }],
+        }),
       }),
     }),
   }),
@@ -40,6 +38,5 @@ export const {
   useGetAllCartsQuery,
   useGetUserCartQuery,
   useUpdateCartMutation,
-  useRemoveFromCartMutation,
-  useUpdateCartQuantityMutation,
+  useAddToCartMutation,
 } = cartApi;

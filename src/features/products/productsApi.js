@@ -5,7 +5,7 @@ const productsApi = api.injectEndpoints({
     getProducts: builder.query({
       query: () => '/products',
     }),
-    getProductsById: builder.query({
+    getProductById: builder.query({
       query: (id) => `/products/${id}`,
     }),
 
@@ -13,7 +13,7 @@ const productsApi = api.injectEndpoints({
       query: () => `/products/categories`,
     }),
     getSortOrder: builder.query({
-      query: (order) => `/products?sort=${order}`, // 'asc' 'desc'
+      query: (order) => `/products?sort=${order}`,
     }),
     getProductsByCategory: builder.query({
       query: (category, sort) => `/products/category/${category}?sort=${sort}`,
@@ -29,7 +29,7 @@ const productsApi = api.injectEndpoints({
 
 export const {
   useGetProductsQuery,
-  useGetProductsByIdQuery,
+  useGetProductByIdQuery,
   useGetProductsByCategoryQuery,
   useGetAllCategoriesQuery,
   useGetOneCategoryQuery,

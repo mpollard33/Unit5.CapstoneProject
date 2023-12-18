@@ -1,86 +1,106 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  useUpdateCartMutation,
-  useUpdateCartQuantityMutation,
-} from '../cart/cartApi';
+import { useAddToCartMutation } from '../cart/cartApi';
 import {
   selectIsLoggedIn,
-  removeFromCart,
   selectCart,
   selectUserId,
-  setLoggedIn,
   addToCart,
+  selectUserIdInCart,
 } from '../../store/authSlice';
-import './productCard.css';
-import { useGetSingleUserQuery } from '../account/authApi';
-import { useGetProductsByIdQuery } from './productsApi';
+import { useGetProductByIdQuery } from './productsApi';
 import './index.css';
 
 const SingleProduct = () => {
   const { id } = useParams();
+  console.log('id', id);
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(selectIsLoggedIn);
-  const userId = useGetSingleUserQuery(id);
+  const userId = useSelector(selectUserId);
   const cart = useSelector(selectCart);
-  const [displayLoginMessage, setDisplayLoginMessage] = useState(false);
-  const { data, error, isLoading } = useGetProductsByIdQuery(id);
-  const { mutate: product } = useUpdateCartMutation(id);
-  const [createMutation, { mutate: quantityMutation }] =
-    useUpdateCartQuantityMutation(id);
+  const cartId = useSelector(selectUserIdInCart);
+  console.log('cartId', cartId);
   const [quantity, setQuantity] = useState(1);
-
-  useEffect(() => {
-    if (!userId) {
-      dispatch(setLoggedIn(false));
-    }
-  }, [userId, dispatch]);
-
-  const renderLoginMessage = (message) => (
-    <p className="login-message">
-      {message || 'Please include a login message to render'}
-    </p>
-  );
+  const { data: productById, error, isLoading } = useGetProductByIdQuery(id);
+  const [addToCartMutation] = useAddToCartMutation();
 
   const handleAddToCart = async () => {
     if (!isLoggedIn) {
-      setDisplayLoginMessage(true);
       return;
     }
-    if (!data) throw new Error('Product data is not available.');
+    if (!productById) throw new Error('Product data is not available.');
 
-    const response = await createMutation({ id, qty: quantity });
-    dispatch(addToCart(response));
-
-    updateSessionStorage(cart);
+    try {
+      console.log('Request Payload:', {
+        cartId: 1,
+        products: [{ productId: id, quantity: quantity }],
+      });
+      const { data: updatedCart, error } = await addToCartMutation({
+        id: cartId,
+        data: {
+          products: [{ productId: id, quantity: quantity }],
+        },
+      });
+      console.log('Response:', updatedCart);
+      if (error) {
+        console.error('Error adding to cart', error);
+      } else {
+        dispatch(addToCart(updatedCart));
+        updateSessionStorage(updatedCart);
+      }
+    } catch (error) {
+      console.error('Error adding to cart', error);
+    }
   };
 
   const handleRemoveFromCart = async () => {
-    if (!isLoggedIn) {
-      setDisplayLoginMessage(true);
-      return;
-    }
-    if (!data) throw new Error('Product id not found');
-    try {
-      const response = await createMutation({ id, qty: 0 });
-      console.log('RESPONSE', response);
-      dispatch(removeFromCart(response));
-    } catch (error) {
-      console.error('Error removing from cart', error);
-    }
+    // if (!isLoggedIn) {
+    //   return;
+    // }
+    // if (!productById.data) throw new Error('Product id not found');
+    // try {
+    //   // Assuming you have the updateQuantityMutation hook available
+    //   const response = await updateQuantityMutation({ id, qty: 0 });
+    //   console.log('RESPONSE', response);
+    //   // dispatch(removeFromCart(product));
+    // } catch (error) {
+    //   console.error('Error removing from cart', error);
+    // }
   };
 
   const handleQuantityChange = (e) => {
     setQuantity(parseInt(e.target.value, 10) || 0);
   };
 
-  const handlePlaceholder = () => {};
-
   useEffect(() => {
-    console.log('SessionStorage updated!', cart);
     updateSessionStorage(cart);
   }, [cart]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (productById && productById.data) {
+          const {
+            title,
+            image,
+            price,
+            rating,
+            rate,
+            description,
+            count,
+            id: idProduct,
+          } = productById.data;
+
+          console.log('Product data:', title, image, price);
+        }
+      } catch (error) {
+        console.error('Error fetching product', error);
+      }
+    };
+
+    fetchData();
+  }, [productById]);
 
   const updateSessionStorage = (updatedCart) => {
     const existingUsers = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -104,24 +124,23 @@ const SingleProduct = () => {
   };
 
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error</div>;
-  if (!data) return <div>No data found</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!productById) return <div>No data found</div>;
 
-  const { title, image, price, rating, description } = data;
   return (
     <div className="product-card-container">
-      <img src={image} alt={title} className="single-product-image" />
+      <img
+        src={productById.image}
+        alt={productById.title}
+        className="single-product-image"
+      />
       <div className="product-info">
         <header>
-          <h2 className="single-product-title">{title}</h2>
+          <h2 className="single-product-title">{productById.title}</h2>
         </header>
-        <section className="rating-container">
-          <div className="yellow-stars">{generateStars(rating.rate)}</div>
-          <div className="rating">{rating.rate}</div>
-          <div className="rating-count">{rating.count} reviews</div>
-        </section>
-        <p className="single-product-price">${price.toFixed(2)}</p>
-        <p className="single-product-description">{description}</p>
+        <section className="rating-container">{/*  */}</section>
+        <p className="single-product-price">${productById.price}</p>
+        <p className="single-product-description">{productById.description}</p>
         {isLoggedIn ? (
           <form className="single-product-button-container">
             <button
@@ -156,6 +175,7 @@ const SingleProduct = () => {
     </div>
   );
 };
+
 const generateStars = (rating) =>
   '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
 
