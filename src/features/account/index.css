@@ -54,3 +54,29 @@ form input {
   height: 2em;
   width: 6em;
 }
+
+.account-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.account-information {
+  border: 2px solid black;
+  display: flex;
+  flex-direction: column;
+  margin: 10em;
+  padding: 4em;
+  border-radius: 8px;
+  background-color: lightgrey;
+}
+
+.account-item {
+  margin: 1em;
+  font-size: 150%;
+}
+
+.account-header{
+  font-size: 300%;
+}

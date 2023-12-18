@@ -105,7 +105,7 @@ const SingleProduct = () => {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error</div>;
-  if (!data) return <div>No data </div>;
+  if (!data) return <div>No data found</div>;
 
   const { title, image, price, rating, description } = data;
   return (

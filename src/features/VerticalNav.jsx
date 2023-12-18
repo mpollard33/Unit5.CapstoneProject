@@ -14,11 +14,11 @@ import {
   selectSort,
 } from '../store/productSlice';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetSortOrderQuery } from './cart/cartApi';
 import {
   useGetProductsByCategoryQuery,
   useGetAllCategoriesQuery,
   useGetProductsQuery,
+  useGetSortOrderQuery,
 } from './products/productsApi';
 import './products/index.css';
 
@@ -32,7 +32,6 @@ const VerticalNav = () => {
 
   const { data: sortOrderQuery, error: orderError } =
     useGetSortOrderQuery(sortOrder);
-  console.log('Sort Order Query', sortOrderQuery);
 
   const { data: getCategoriesQuery } = useGetAllCategoriesQuery();
 
@@ -40,7 +39,6 @@ const VerticalNav = () => {
     useGetProductsByCategoryQuery(category);
 
   const { data: productsQuery, error: productsError } = useGetProductsQuery();
-  console.log('products--query', productsQuery);
 
   const handleCategoryChange = async (categoryType) => {
     try {
@@ -49,11 +47,7 @@ const VerticalNav = () => {
         navigate('/products/');
         return;
       }
-
       navigate(`/products/category/${categoryType}`);
-
-      if (sortedByCategory) {
-      }
     } catch (categoryError) {
       console.error('Error changing category', categoryError);
     }
@@ -69,12 +63,22 @@ const VerticalNav = () => {
     // }
   };
 
-  const handleSortOrderChange = async (order) => {
-    if (order === '') {
-      dispatch(setSortOrder({ order: '' }));
-      navigate('/products');
+  const handleSortOrderChange = (order) => {
+    try {
+      if (order === '') {
+        if (categorySelect === '') navigate('/');
+        dispatch(setSortOrder({ order: '' }));
+        if (categorySelect !== undefined || null)
+          navigate(`/products/category/${categorySelect}`);
+        else{
+          navigate(`/products`)
+        }
+        return;
+      }
+      dispatch(setSortOrder(order));
+    } catch (error) {
+      console.error('Error changing sort order', error);
     }
-    dispatch(setSortOrder(order));
   };
 
   return (
