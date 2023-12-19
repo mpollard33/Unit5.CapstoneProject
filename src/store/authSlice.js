@@ -35,7 +35,7 @@ const authSlice = createSlice({
     setLoggedIn: (state, { payload }) => {
       return {
         ...state,
-        isLoggedIn: true,
+        isLoggedIn: false,
         id: payload.id,
         currentUser: payload,
         cart: {
@@ -45,6 +45,9 @@ const authSlice = createSlice({
           // date: new Date().toISOString(),
         },
       };
+    },
+    toggleLoginState: (state, { payload }) => {
+      state.isLoggedIn = payload;
     },
     setCurrentUser: (state, { payload }) => {
       const { currentUser, id } = payload;
@@ -120,13 +123,14 @@ export const selectCartItemCount = (state) => {
 };
 
 export const {
+  toggleLoginState,
   setLoggedIn,
   setCart,
   initializeUser,
   logout,
   addToCart,
   removeFromCart,
-  setCurrentUser
+  setCurrentUser,
 } = authSlice.actions;
 
 export const selectCart = createSelector(

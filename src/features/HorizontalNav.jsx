@@ -57,11 +57,7 @@ const HorizontalNav = () => {
               </Link>
             </li>
             <li>
-              <Link
-                to="/"
-                className="nav-link"
-                onClick={handleLogout}
-              >
+              <Link to="/" className="nav-link" onClick={handleLogout}>
                 {' '}
                 Logout
               </Link>

@@ -81,7 +81,7 @@ const Registration = () => {
           products: [],
         };
 
-        const cartIdResponse = getCartId(userCartData).unwrap();
+        const cartIdResponse = await getCartId(userCartData);
 
         const userCartWithId = { id: cartIdResponse, ...userCartData };
         console.log('userCart + id', userCartWithId);

@@ -5,6 +5,7 @@ import {
   setLoggedIn,
   selectUserId,
   selectIsLoggedIn,
+  toggleLoginState,
 } from '../../store/authSlice';
 import { useGetAllCartsQuery, useGetAllUsersQuery } from './authApi';
 
@@ -73,7 +74,7 @@ const Login = () => {
 
   useEffect(() => {
     if (!userId) {
-      dispatch(setLoggedIn(false));
+      dispatch(toggleLoginState(false));
     }
   }, [userId, dispatch]);
 
