@@ -67,7 +67,7 @@ const Login = () => {
       console.log('Rendered from Login');
     }
     if (carts && !sessionStorage.getItem('carts')) {
-      sessionStorage.setItem('users', JSON.stringify(users));
+      sessionStorage.setItem('carts', JSON.stringify(carts));
     }
   }, [users, carts]);
 

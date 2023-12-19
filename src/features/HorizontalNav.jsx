@@ -23,19 +23,15 @@ const HorizontalNav = () => {
     navigate('/');
   };
 
-  useEffect(
-    () => {
-      if (users && !sessionStorage.getItem('users')) {
-        sessionStorage.setItem('users', JSON.stringify(users));
-        console.log('Rendered from HorizontalNav');
-      }
-      if (carts && !sessionStorage.getItem('carts')) {
-        sessionStorage.setItem('users', JSON.stringify(users));
-      }
-    },
-    [users],
-    [carts],
-  );
+  useEffect(() => {
+    if (users && !sessionStorage.getItem('users')) {
+      sessionStorage.setItem('users', JSON.stringify(users));
+      console.log('Rendered from HorizontalNav');
+    }
+    if (carts && !sessionStorage.getItem('carts')) {
+      sessionStorage.setItem('carts', JSON.stringify(carts));
+    }
+  }, [users, carts]);
 
   return (
     <nav className={'horizontal-nav'}>

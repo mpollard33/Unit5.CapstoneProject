@@ -99,7 +99,7 @@ const Registration = () => {
       console.log('Rendered from Register');
     }
     if (carts && !sessionStorage.getItem('carts')) {
-      sessionStorage.setItem('users', JSON.stringify(users));
+      sessionStorage.setItem('carts', JSON.stringify(carts));
     }
     console.log('currentUser is:', userState);
   }, [users, carts]);
