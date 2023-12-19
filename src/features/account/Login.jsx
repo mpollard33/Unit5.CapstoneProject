@@ -19,19 +19,7 @@ const Login = () => {
   const userId = useSelector(selectUserId);
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const { data: users } = useGetAllUsersQuery();
-  const allCarts = useGetAllCartsQuery();
-
-  useEffect(() => {
-    if (users && !sessionStorage.getItem('users')) {
-      sessionStorage.setItem('users', JSON.stringify(users));
-    }
-  }, [users]);
-
-  useEffect(() => {
-    if (!userId) {
-      dispatch(setLoggedIn(false));
-    }
-  }, [userId]);
+  const { data: carts } = useGetAllCartsQuery();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -47,7 +35,7 @@ const Login = () => {
         dispatch(setLoggedIn(matchedUser));
 
         if (!sessionStorage.getItem('carts')) {
-          const storedCarts = JSON.stringify(allCarts.data);
+          const storedCarts = JSON.stringify(carts.data);
           sessionStorage.setItem('carts', storedCarts);
         }
 
@@ -72,6 +60,22 @@ const Login = () => {
       [name]: value,
     }));
   };
+
+  useEffect(() => {
+    if (users && !sessionStorage.getItem('users')) {
+      sessionStorage.setItem('users', JSON.stringify(users));
+      console.log('Rendered from Login');
+    }
+    if (carts && !sessionStorage.getItem('carts')) {
+      sessionStorage.setItem('users', JSON.stringify(users));
+    }
+  }, [users, carts]);
+
+  useEffect(() => {
+    if (!userId) {
+      dispatch(setLoggedIn(false));
+    }
+  }, [userId]);
 
   return (
     <div className="registration-container">

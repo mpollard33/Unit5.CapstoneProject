@@ -7,7 +7,7 @@ import {
   selectCartItemCount,
   selectIsLoggedIn,
 } from '../store/authSlice';
-import { useGetAllUsersQuery } from './account/authApi';
+import { useGetAllCartsQuery, useGetAllUsersQuery } from './account/authApi';
 
 const HorizontalNav = () => {
   const userId = useSelector(selectUserId);
@@ -16,16 +16,26 @@ const HorizontalNav = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { data: users } = useGetAllUsersQuery();
+  const { data: carts } = useGetAllCartsQuery();
 
   const handleLogout = () => {
     dispatch(logout());
+    navigate('/');
   };
 
-  useEffect(() => {
-    if (users && !sessionStorage.getItem('users')) {
-      sessionStorage.setItem('users', JSON.stringify(users));
-    }
-  }, [users]);
+  useEffect(
+    () => {
+      if (users && !sessionStorage.getItem('users')) {
+        sessionStorage.setItem('users', JSON.stringify(users));
+        console.log('Rendered from HorizontalNav');
+      }
+      if (carts && !sessionStorage.getItem('carts')) {
+        sessionStorage.setItem('users', JSON.stringify(users));
+      }
+    },
+    [users],
+    [carts],
+  );
 
   return (
     <nav className={'horizontal-nav'}>

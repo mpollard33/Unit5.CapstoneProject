@@ -46,6 +46,12 @@ const authSlice = createSlice({
         },
       };
     },
+    setCurrentUser: (state, action) => {
+      const { currentUser, id } = action.payload;
+      state.currentUser = { ...currentUser, id };
+      state.id = id;
+      state.isLoggedIn = true;
+    },
 
     setCart: (state, { payload }) => {
       state.cart = { ...state.cart, ...payload };
@@ -90,13 +96,10 @@ const authSlice = createSlice({
 
     removeFromCart: (state, { payload }) => {
       const productIdToRemove = payload.id;
-      // Find the index of the product to remove
       const index = state.cart.products.findIndex(
         (product) => product.id === productIdToRemove,
       );
-      // Remove the product from the array by its index
       state.cart.products.splice(index, 1);
-      // Update the item count and the total
       state.cart.itemCount = state.cart.products.reduce(
         (total, product) => total + product.quantity,
         0,
@@ -123,6 +126,7 @@ export const {
   logout,
   addToCart,
   removeFromCart,
+  setCurrentUser
 } = authSlice.actions;
 
 export const selectCart = createSelector(

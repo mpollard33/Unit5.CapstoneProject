@@ -14,6 +14,7 @@ import {
   selectUserId,
   selectCurrentUser,
   selectCart,
+  setCurrentUser,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
@@ -21,44 +22,34 @@ import './index.css';
 const Registration = () => {
   const { register, handleSubmit } = useForm();
   const dispatch = useDispatch();
-  const activeUser = useSelector(selectCurrentUser);
+  const userState = useSelector(selectCurrentUser);
   const userId = useSelector(selectUserId);
   const [registerUser] = useRegisterMutation();
   const allCarts = useGetAllCartsQuery();
   const [createUserCart, { data: cartId }] = useAddUserCartMutation();
   const { data: users } = useGetAllUsersQuery();
+  const { data: carts } = useGetAllCartsQuery();
 
-  useEffect(() => {
-    if (users && !sessionStorage.getItem('users')) {
-      sessionStorage.setItem('users', JSON.stringify(users));
-    }
-  }, [users]);
-  useEffect(() => {
-    if (!activeUser) {
-      const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
-      if (storedUser) {
-        dispatch(setCurrentUser(storedUser));
-      }
-    }
-  }, [activeUser, dispatch]);
+  const selectedCart = useSelector(selectCart);
 
   const onSubmit = async (formData) => {
     try {
-      const { data } = await registerUser(formData);
+      const { data: registerResponse } = await registerUser(formData);
 
-      if (data) {
+      if (registerResponse) {
         const apiCarts = JSON.stringify(allCarts.data);
         if (!sessionStorage.getItem('carts')) {
           sessionStorage.setItem('carts', apiCarts);
         }
 
-        const registeredUserId = data.id;
+        const registeredUserId = registerResponse.id;
 
         const currentUsers = JSON.parse(sessionStorage.getItem('users')) || [];
 
         const isDuplicateId = currentUsers.some(
           (user) => user.id === registeredUserId,
         );
+
         const updatedUserId = isDuplicateId
           ? currentUsers.length + 1
           : registeredUserId;
@@ -70,31 +61,32 @@ const Registration = () => {
         sessionStorage.setItem('users', JSON.stringify(updatedUsers));
         sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
 
-        const userCartData = {
-          id: registeredUserId,
-          userId: 5,
-          date: new Date().toISOString(),
-          products: [],
-        };
-
         const getCartId = async (cartData) => {
           try {
             const { data: cartId } = await createUserCart(cartData);
-            console.log('CartId', cartId);
+            console.log('Cart created with cartId: ', cartId);
             if (cartId) return cartId;
-            return 55;
+            return null;
           } catch (error) {
             console.error('Error during registration', error);
             throw error;
           }
         };
 
+        const userCartData = {
+          id: currentUsers.length + 1,
+          userId: currentUsers.length + 1,
+          date: new Date().toISOString(),
+          products: [],
+        };
+
+        const currentCarts = JSON.parse(sessionStorage.getItem('carts')) || [];
+
         const userCartId = await getCartId(userCartData);
+        const updatedCarts = [...currentCarts, userCartData];
 
-        // Dispatch setCart instead of setCartId
-        dispatch(setCart({ id: userCartId }));
-
-        console.log('Before');
+        dispatch(setCart(userCartData));
+        console.log('Current cart set:', selectedCart);
       }
     } catch (error) {
       console.log('Error during registration', error);
@@ -102,10 +94,24 @@ const Registration = () => {
   };
 
   useEffect(() => {
-    if (activeUser) {
-      console.log('UseEffect -> Active User ', activeUser);
+    if (users && !sessionStorage.getItem('users')) {
+      sessionStorage.setItem('users', JSON.stringify(users));
+      console.log('Rendered from Register');
     }
-  }, [activeUser]);
+    if (carts && !sessionStorage.getItem('carts')) {
+      sessionStorage.setItem('users', JSON.stringify(users));
+    }
+    console.log('currentUser is:', userState);
+  }, [users, carts]);
+
+  useEffect(() => {
+    if (!userState) {
+      const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+      if (storedUser) {
+        dispatch(setCurrentUser(storedUser));
+      }
+    }
+  }, [userState, dispatch]);
 
   return (
     <div className="registration-container">
