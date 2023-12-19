@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useGetSingleUserQuery } from './authApi';
 import { useParams } from 'react-router-dom';
-import { selectCurrentUser, selectUserId } from '../../store/authSlice';
-import { useSelector } from 'react-redux';
+import {
+  selectCurrentUser,
+  selectUserId,
+  setLoggedIn,
+} from '../../store/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
 
 const Account = () => {
   const id = useSelector(selectUserId);
-
+  const dispatch = useDispatch();
   const selectUser = useSelector(selectCurrentUser) || [];
 
   const usersString = JSON.parse(sessionStorage.getItem('users'));
 
   const activeUser = usersString.find((user) => user.id === 11);
+
+  useEffect(() => {
+    if (!id) {
+      dispatch(setLoggedIn(false));
+    }
+  }, [id, dispatch]);
 
   if (!activeUser) return <p>No user found...</p>;
   const { username, email, name, address, phone } = activeUser;

@@ -20,7 +20,7 @@ const HorizontalNav = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/');
+    // navigate('/');
   };
 
   useEffect(() => {
@@ -56,8 +56,15 @@ const HorizontalNav = () => {
                 Account
               </Link>
             </li>
-            <li onClick={handleLogout} className="nav-link">
-              Logout
+            <li>
+              <Link
+                to="/"
+                className="nav-link"
+                onClick={handleLogout}
+              >
+                {' '}
+                Logout
+              </Link>
             </li>
             <li>
               <Link to="/carts/" className="nav-link">

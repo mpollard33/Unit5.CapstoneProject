@@ -6,7 +6,7 @@ const cartApi = api.injectEndpoints({
       query: () => '/carts',
     }),
     getUserCart: builder.query({
-      query: (id) => `carts/user/${id}`,
+      query: (id) => `carts/userid/${id}`,
     }),
     getSingleCart: builder.query({
       query: (id) => ({
@@ -22,13 +22,10 @@ const cartApi = api.injectEndpoints({
       }),
     }),
     addToCart: builder.mutation({
-      query: ({ id }) => ({
+      query: (id, data) => ({
         url: `/carts/${id}`,
         method: 'PUT',
-        body: JSON.stringify({
-          date: '2019-10-12',
-          products: [{ productId: 1, quantity: 3 }],
-        }),
+        body: JSON.stringify(data),
       }),
     }),
   }),
@@ -37,6 +34,7 @@ const cartApi = api.injectEndpoints({
 export const {
   useGetAllCartsQuery,
   useGetUserCartQuery,
+  useGetSingleCartQuery,
   useUpdateCartMutation,
   useAddToCartMutation,
 } = cartApi;

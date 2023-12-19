@@ -15,6 +15,7 @@ import {
   selectCurrentUser,
   selectCart,
   setCurrentUser,
+  selectIsLoggedIn,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
@@ -25,24 +26,25 @@ const Registration = () => {
   const userState = useSelector(selectCurrentUser);
   const userId = useSelector(selectUserId);
   const [registerUser] = useRegisterMutation();
-  const allCarts = useGetAllCartsQuery();
-  const [createUserCart, { data: cartId }] = useAddUserCartMutation();
+  const [createUserCart] = useAddUserCartMutation();
   const { data: users } = useGetAllUsersQuery();
   const { data: carts } = useGetAllCartsQuery();
 
   const selectedCart = useSelector(selectCart);
-
+  const isLoggedIn = useSelector(selectIsLoggedIn);
   const onSubmit = async (formData) => {
     try {
+      //implicit unwrap()
       const { data: registerResponse } = await registerUser(formData);
 
       if (registerResponse) {
-        const apiCarts = JSON.stringify(allCarts.data);
+        const apiCarts = JSON.stringify(carts.data);
         if (!sessionStorage.getItem('carts')) {
           sessionStorage.setItem('carts', apiCarts);
         }
 
         const registeredUserId = registerResponse.id;
+        console.log('registeredUser Id', registerResponse.id);
 
         const currentUsers = JSON.parse(sessionStorage.getItem('users')) || [];
 
@@ -64,7 +66,7 @@ const Registration = () => {
         const getCartId = async (cartData) => {
           try {
             const { data: cartId } = await createUserCart(cartData);
-            console.log('Cart created with cartId: ', cartId);
+            console.log('createUserCart cartId: ', cartId);
             if (cartId) return cartId;
             return null;
           } catch (error) {
@@ -74,19 +76,21 @@ const Registration = () => {
         };
 
         const userCartData = {
-          id: currentUsers.length + 1,
           userId: currentUsers.length + 1,
           date: new Date().toISOString(),
           products: [],
         };
 
-        const currentCarts = JSON.parse(sessionStorage.getItem('carts')) || [];
+        const cartIdResponse = getCartId(userCartData).unwrap();
 
-        const userCartId = await getCartId(userCartData);
-        const updatedCarts = [...currentCarts, userCartData];
+        const userCartWithId = { id: cartIdResponse, ...userCartData };
+        console.log('userCart + id', userCartWithId);
 
-        dispatch(setCart(userCartData));
-        console.log('Current cart set:', selectedCart);
+        const jsonCart = JSON.stringify(userCartData);
+        console.log('jsonCart', jsonCart);
+
+        dispatch(setCart(jsonCart));
+        console.log('cart selector ->', selectedCart);
       }
     } catch (error) {
       console.log('Error during registration', error);
@@ -105,10 +109,12 @@ const Registration = () => {
   }, [users, carts]);
 
   useEffect(() => {
-    if (!userState) {
-      const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
-      if (storedUser) {
-        dispatch(setCurrentUser(storedUser));
+    if (isLoggedIn) {
+      if (!userState) {
+        const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (storedUser) {
+          dispatch(setCurrentUser(storedUser));
+        }
       }
     }
   }, [userState, dispatch]);

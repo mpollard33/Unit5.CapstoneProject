@@ -21,7 +21,7 @@ const authApi = api.injectEndpoints({
         method: 'GET',
       }),
     }),
-   
+
     getUserCart: builder.query({
       query: (id) => ({
         url: `/carts/user/${id}`,
@@ -45,15 +45,10 @@ const authApi = api.injectEndpoints({
 });
 
 export const {
-  useMeQuery,
-  useGetAllUsersQuery,
   useRegisterMutation,
-  useLogoutMutation,
-  useGetCartQuery,
-  useAddUserCartMutation,
   useGetSingleUserQuery,
-  useGetSingleCartQuery,
+  useGetAllUsersQuery,
   useGetUserCartQuery,
   useGetAllCartsQuery,
-  useAddToCartMutation,
+  useAddUserCartMutation,
 } = authApi;

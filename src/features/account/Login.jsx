@@ -75,7 +75,7 @@ const Login = () => {
     if (!userId) {
       dispatch(setLoggedIn(false));
     }
-  }, [userId]);
+  }, [userId, dispatch]);
 
   return (
     <div className="registration-container">
