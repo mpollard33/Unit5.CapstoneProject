@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAddToUserCartMutation } from '../cart/cartApi';
+import {
+  useAddToUserCartMutation,
+  useUpdateCartMutation,
+} from '../cart/cartApi';
 import {
   selectIsLoggedIn,
   selectCart,
   selectUserId,
   addToCart,
   selectUserIdInCart,
+  removeFromCart,
 } from '../../store/authSlice';
 import { useGetProductByIdQuery } from './productsApi';
 import './index.css';
@@ -24,6 +28,11 @@ const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
   const { data: productById, error, isLoading } = useGetProductByIdQuery(id);
   const [addToCartMutation] = useAddToUserCartMutation();
+  const [updateCartMutation] = useUpdateCartMutation();
+
+  const handleQuantityChange = (e) => {
+    setQuantity(parseInt(e.target.value, 10) || 0);
+  };
 
   const handleAddToCart = async () => {
     if (!isLoggedIn) {
@@ -32,46 +41,68 @@ const SingleProduct = () => {
     if (!productById) throw new Error('Product data is not available.');
 
     try {
-      console.log('Request Payload:', {
-        userId: 11,
+      console.log('addProduct Payload:', {
+        userId: userId,
         date: new Date().toISOString().split('T')[0],
-        products: [{ productId: 1, quantity: 5 }],
+        products: [{ productId: productById, quantity: quantity }],
       });
 
-      const { data: updatedCart, error } = await addToCartMutation({
-        userId: 11,
-        date: '2020-02-03',
-        products: [{ productId: 1, quantity: 5 }],
+      const { data: newCartProduct, error } = await addToCartMutation({
+        userId: userId,
+        date: new Date().toISOString().split('T')[0],
+        products: [{ productId: productById, quantity: quantity }],
       });
 
-      console.log('Response:', updatedCart);
+      console.log('Response:', newCartProduct);
       if (error) {
         console.error('Error adding to cart', error);
       }
-      dispatch(addToCart(updatedCart));
-      updateSessionStorage(updatedCart);
+
+      const cartToReducer = { id: newCartProduct.id, quantity: quantity };
+      const cartString = JSON.stringify(cartToReducer);
+
+      console.log('cartToReducer', cartToReducer);
+      dispatch(addToCart(cartToReducer));
+      updateSessionStorage(cartString);
     } catch (error) {
       console.error('Error adding to cart', error);
     }
   };
 
   const handleRemoveFromCart = async () => {
-    // if (!isLoggedIn) {
-    //   return;
-    // }
-    // if (!productById.data) throw new Error('Product id not found');
-    // try {
-    //   // Assuming you have the updateQuantityMutation hook available
-    //   const response = await updateQuantityMutation({ id, qty: 0 });
-    //   console.log('RESPONSE', response);
-    //   // dispatch(removeFromCart(product));
-    // } catch (error) {
-    //   console.error('Error removing from cart', error);
-    // }
-  };
+    if (!isLoggedIn) {
+      return;
+    }
+    if (!productById) throw new Error('Product id not found');
 
-  const handleQuantityChange = (e) => {
-    setQuantity(parseInt(e.target.value, 10) || 0);
+    console.log('UpdateCart(removeAll) Payload:', {
+      userId: userId,
+      date: new Date().toISOString().split('T')[0],
+      products: [{ productId: productById, quantity: quantity }],
+    });
+
+    try {
+      const { data: updateCart, error } = await addToCartMutation({
+        userId: userId,
+        date: new Date().toISOString().split('T')[0],
+        products: [{ productId: productById, quantity: quantity }],
+        id: id,
+      });
+
+      console.log('Response:', updateCart);
+      if (error) {
+        console.error('Error adding to cart', error);
+      }
+
+      const cartToReducer = { id: updateCart.id, quantity: 0 };
+      const cartString = JSON.stringify(cartToReducer);
+
+      console.log('cartToReducer', cartToReducer);
+      dispatch(removeFromCart(cartToReducer));
+      updateSessionStorage(cartString);
+    } catch (error) {
+      console.error('Error removing from cart', error);
+    }
   };
 
   useEffect(() => {
@@ -90,6 +121,7 @@ const SingleProduct = () => {
             rate,
             description,
             count,
+            total,
             id: idProduct,
           } = productById.data;
 

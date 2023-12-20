@@ -34,13 +34,13 @@ const authApi = api.injectEndpoints({
         method: 'GET',
       }),
     }),
-    // addUserCart: builder.mutation({
-    //   query: (cart) => ({
-    //     url: '/carts/',
-    //     method: 'POST',
-    //     body: { cart },
-    //   }),
-    // }),
+    addUserCart: builder.mutation({
+      query: (cart) => ({
+        url: '/carts/',
+        method: 'POST',
+        body: { cart },
+      }),
+    }),
   }),
 });
 

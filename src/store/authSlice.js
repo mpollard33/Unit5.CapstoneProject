@@ -72,13 +72,14 @@ const authSlice = createSlice({
     addToCart: (state, { payload }) => {
       const { products } = state.cart;
       console.log('addtocart reducer', products);
+
       const existingProductIndex = products.findIndex(
-        (product) => product.id === payload,
+        (product) => product.id === payload.id,
       );
       console.log('existingProductIndex', existingProductIndex);
 
       if (existingProductIndex !== -1) {
-        state.cart.products[existingProductIndex].quantity += 1;
+        state.cart.products[existingProductIndex].quantity += payload.quantity;
         /* state.cart.products[existingProductIndex].dateAdded =
          new Date().toISOString();*/
         console.log('index not found in cart');
@@ -86,7 +87,9 @@ const authSlice = createSlice({
         state.cart.products = [
           ...products,
           {
-            ...payload /*quantity: 1*/ /*dateAdded: new Date().toISOString()*/,
+            id: payload.id,
+            quantity:
+              payload.quantity /*quantity: 1*/ /*dateAdded: new Date().toISOString()*/,
           },
         ];
       }
@@ -95,9 +98,13 @@ const authSlice = createSlice({
         (total, product) => total + product.quantity,
         0,
       );
+      state.cart.total = state.cart.products.reduce(
+        (total, product) => total + product.price * product.quantity,
+        0,
+      );
     },
 
-    removeFromCart: (state, { payload }) => {
+    removeFromCart: (state, payload) => {
       const productIdToRemove = payload.id;
       const index = state.cart.products.findIndex(
         (product) => product.id === productIdToRemove,

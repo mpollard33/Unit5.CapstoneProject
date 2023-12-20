@@ -44,7 +44,9 @@ const Login = () => {
           'currentUser',
           JSON.stringify({ ...matchedUser, id: matchedUser.id }),
         );
-
+        
+        dispatch(toggleLoginState(true));
+        console.log('user logged in -> ');
         navigate('/users/account');
       } else {
         setError('Invalid username or password');
