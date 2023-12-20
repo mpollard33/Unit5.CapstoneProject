@@ -8,6 +8,8 @@ import {
   selectUserIdInCart,
   selectCart,
   removeFromCart,
+  setCart,
+  selectProductsInCart,
 } from '../../store/authSlice';
 import { useUpdateCartMutation } from './cartApi';
 import { useGetProductByIdQuery } from '../products/productsApi';
@@ -26,6 +28,7 @@ const CartProductCard = ({ product }) => {
   const handleQuantityChange = (e) => {
     setQuantity(parseInt(e.target.value, 10) || 0);
   };
+
   const handleRemoveFromCart = async () => {
     if (!isLoggedIn) {
       return;
@@ -39,11 +42,10 @@ const CartProductCard = ({ product }) => {
     });
 
     try {
-      const { data: updateCart, error } = await updateCartMutation({
+      const { data: updateCart, error } = await updateCartMutation(11, {
         userId: userId,
         date: new Date().toISOString().split('T')[0],
         products: [{ productId: productById, quantity: quantity }],
-        id: id,
       });
 
       console.log('Response:', updateCart);
@@ -51,7 +53,10 @@ const CartProductCard = ({ product }) => {
         console.error('Error adding to cart', error);
       }
 
-      const cartToReducer = { id: updateCart.id, quantity: 0 };
+      const cartToReducer = {
+        id: productById?.id || updateCart.id,
+        quantity: 0,
+      };
       const cartString = JSON.stringify(cartToReducer);
 
       console.log('cartToReducer', cartToReducer);
@@ -63,38 +68,31 @@ const CartProductCard = ({ product }) => {
   };
 
   const handleUpdateToCart = async () => {
-    if (!isLoggedIn) {
-      return;
-    }
-    if (!productById) throw new Error('Product data is not available.');
-
-    try {
-      console.log('updateProduct Payload:', {
-        userId: userId,
-        date: new Date().toISOString().split('T')[0],
-        products: [{ productId: productById, quantity: quantity }],
-      });
-
-      const { data: productUpdate, error } = await updateCartMutation({
-        userId: userId,
-        date: new Date().toISOString().split('T')[0],
-        products: [{ productId: productById, quantity: quantity }],
-      });
-
-      // console.log('Response:', newCartProduct);
-      if (error) {
-        console.error('Error updating product quantity', error);
-      }
-
-      const cartToReducer = { ...productById, quantity: quantity };
-      const cartString = JSON.stringify(cartToReducer);
-
-      console.log('cartToReducer', cartToReducer);
-      dispatch(updateCart(cartToReducer));
-      updateSessionStorage(cartString);
-    } catch (error) {
-      console.error('Error adding to cart', error);
-    }
+    // if (!isLoggedIn) {
+    //   return;
+    // }
+    // try {
+    //   console.log('updateProduct Payload:', {
+    //     userId: userId,
+    //     date: new Date().toISOString().split('T')[0],
+    //     products: [{ productId: productById, quantity: quantity }],
+    //   });
+    //   const { data: updateCart, error } = await updateCartMutation(11, {
+    //     userId: userId,
+    //     date: new Date().toISOString().split('T')[0],
+    //     products: [{ productId: productById, quantity: quantity }],
+    //   });
+    //   if (error) {
+    //     console.error('Error updating product quantity', error);
+    //   }
+    //   const cartToReducer = { ...selectCart, id: userId, quantity: quantity };
+    //   const cartString = JSON.stringify(cartToReducer);
+    //   console.log('cartToReducer', cartToReducer);
+    //   dispatch(setCart(cartString));
+    //   updateSessionStorage(cartString);
+    // } catch (error) {
+    //   console.error('Error updating cart', error);
+    // }
   };
 
   const updateSessionStorage = (updatedCart) => {
@@ -148,7 +146,7 @@ const CartProductCard = ({ product }) => {
                 <div className="rating-count">
                   {product.rating.count} reviews
                 </div>
-              </section>{' '}
+              </section>
             </div>
           </div>
         </li>
@@ -160,7 +158,7 @@ const CartProductCard = ({ product }) => {
           id="quantity"
           type="number"
           min="0"
-          value={product.quantity}
+          value={quantity}
           step="1"
           onChange={handleQuantityChange}
         />

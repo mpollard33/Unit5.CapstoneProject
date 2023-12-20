@@ -10,13 +10,13 @@ import { Link } from 'react-router-dom';
 import {
   setLoggedIn,
   setCart,
-  initializeUser,
   selectUserId,
   selectCurrentUser,
   selectCart,
   setCurrentUser,
   selectIsLoggedIn,
   toggleLoginState,
+  selectTotalInCart,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
@@ -33,6 +33,7 @@ const Registration = () => {
 
   const selectedCart = useSelector(selectCart);
   const isLoggedIn = useSelector(selectIsLoggedIn);
+  const totalInCart = useSelector(selectTotalInCart);
   const onSubmit = async (formData) => {
     try {
       //implicit unwrap()
@@ -85,6 +86,7 @@ const Registration = () => {
         const userCartWithId = {
           id: await getCartId(userCartData),
           ...userCartData,
+          total: totalInCart || 0,
         };
         console.log('userCart + id', userCartWithId);
 
@@ -105,7 +107,27 @@ const Registration = () => {
       console.log('Error during registration', error);
     }
   };
+  const updateSessionStorage = (updatedCart) => {
+    const existingUsers = JSON.parse(sessionStorage.getItem('currentUser'));
+    const existingCarts = JSON.parse(sessionStorage.getItem('carts')) || [];
 
+    const userCartIndex = existingCarts.findIndex(
+      (cart) => cart[existingUsers?.id] !== undefined,
+    );
+
+    const updatedCarts =
+      userCartIndex !== -1
+        ? [
+            ...existingCarts.slice(0, userCartIndex),
+            { [existingUsers?.id]: updatedCart },
+            ...existingCarts.slice(userCartIndex + 1),
+          ]
+        : [...existingCarts, { [existingUsers?.id]: updatedCart }];
+
+    sessionStorage.setItem('carts', JSON.stringify(updatedCarts));
+    sessionStorage.setItem('userCart', JSON.stringify(updatedCart));
+  };
+  
   useEffect(() => {
     if (users && !sessionStorage.getItem('users')) {
       sessionStorage.setItem('users', JSON.stringify(users));

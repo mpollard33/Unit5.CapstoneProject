@@ -57,7 +57,10 @@ const authSlice = createSlice({
     },
 
     setCart: (state, { payload }) => {
-      state.cart = { ...state.cart, ...payload };
+      state.cart = {
+        ...state.cart,
+        products: [...state.cart.products, ...payload.products], // Update products array
+      };
     },
 
     initializeUser: (state, { payload }) => {
@@ -123,13 +126,6 @@ const authSlice = createSlice({
   },
 });
 
-export const selectCartItemCount = (state) => {
-  if (state.auth.cart) {
-    return state.auth.cart.itemCount;
-  }
-  return 0;
-};
-
 export const {
   toggleLoginState,
   setLoggedIn,
@@ -191,4 +187,10 @@ export const selectCategoriesInCart = createSelector(
   (categories) => categories,
 );
 
+export const selectCartItemCount = (state) => {
+  if (state.auth.cart) {
+    return state.auth.cart.itemCount || 0;
+  }
+  return 0;
+};
 export default authSlice.reducer;

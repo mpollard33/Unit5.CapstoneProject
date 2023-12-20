@@ -3,7 +3,6 @@
   padding: 0;
 }
 
-/* Layout Containers */
 .main-container {
   display: flex;
   margin: 2em;
@@ -24,7 +23,6 @@
   gap: 4em;
 }
 
-/* Common Styles */
 img {
   height: 200px;
   width: 200px;
@@ -42,7 +40,6 @@ p {
   margin: 0.5em;
 }
 
-/* Product Styles */
 .price {
   color: blue;
   font-size: larger;
@@ -57,7 +54,6 @@ p {
   padding-bottom: 0.5em;
 }
 
-/* Navigation Styles */
 .horizontal-nav {
   display: flex;
   position: static;
@@ -101,7 +97,6 @@ p {
   color: #fdbd2c;
 }
 
-/* Page-Specific Styles */
 .page-container {
   display: flex;
   flex-direction: row;
@@ -131,7 +126,6 @@ p {
   border-radius: 6px;
 }
 
-/* Product Card Link */
 .product-card-link {
   text-decoration: none;
   color: inherit;

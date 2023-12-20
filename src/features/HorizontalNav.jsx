@@ -20,18 +20,18 @@ const HorizontalNav = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    // navigate('/');
   };
 
   useEffect(() => {
     if (users && !sessionStorage.getItem('users')) {
       sessionStorage.setItem('users', JSON.stringify(users));
-      console.log('Rendered from HorizontalNav');
     }
     if (carts && !sessionStorage.getItem('carts')) {
       sessionStorage.setItem('carts', JSON.stringify(carts));
     }
   }, [users, carts]);
+
+  useEffect(() => {}, [cartItemCount]);
 
   return (
     <nav className={'horizontal-nav'}>
@@ -58,7 +58,6 @@ const HorizontalNav = () => {
             </li>
             <li>
               <Link to="/" className="nav-link" onClick={handleLogout}>
-                {' '}
                 Logout
               </Link>
             </li>

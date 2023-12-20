@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useGetSingleUserQuery } from './authApi';
-import { useParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import {
   selectCurrentUser,
   selectUserId,
@@ -39,7 +37,7 @@ const Account = () => {
             <strong>Email:</strong> {activeUser && email}
           </p>
           <p className="account-item">
-            <strong>Name:</strong>{' '}
+            <strong>Name:</strong>
             {activeUser && `${name.firstname} ${name.lastname}`}
           </p>
           <p className="account-item">

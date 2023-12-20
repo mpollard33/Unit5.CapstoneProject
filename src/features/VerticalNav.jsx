@@ -110,7 +110,7 @@ const VerticalNav = () => {
       <section className="sort-container">
         <div className="nav-option">
           <label className="single-filter">
-            Sort By:{' '}
+            Sort By:
             <select
               onChange={(e) => handleSortTypeChange(e.target.value)}
               value={sortType}
@@ -124,7 +124,7 @@ const VerticalNav = () => {
         </div>
         <div className="nav-option">
           <label className="single-filter">
-            Sort Order:{' '}
+            Sort Order:
             <select
               onChange={(e) => handleSortOrderChange(e.target.value)}
               value={sortOrder}

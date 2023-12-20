@@ -27,35 +27,23 @@ const SingleProduct = () => {
   const { data: productById, error, isLoading } = useGetProductByIdQuery(id);
   const [addToCartMutation] = useAddToUserCartMutation();
   const [updateCartMutation] = useUpdateCartMutation();
-  
-
-  // console.log('cartId', cartId);
-  // console.log('id', id);
 
   const handleQuantityChange = (e) => {
     setQuantity(parseInt(e.target.value, 10) || 0);
   };
 
   const handleAddToCart = async () => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || !productById) {
       return;
     }
-    if (!productById) throw new Error('Product data is not available.');
 
     try {
-      console.log('addProduct Payload:', {
-        userId: userId,
-        date: new Date().toISOString().split('T')[0],
-        products: [{ productId: productById, quantity: quantity }],
-      });
-
       const { data: newCartProduct, error } = await addToCartMutation({
         userId: userId,
         date: new Date().toISOString().split('T')[0],
         products: [{ productId: productById, quantity: quantity }],
       });
 
-      // console.log('Response:', newCartProduct);
       if (error) {
         console.error('Error adding to cart', error);
       }
@@ -63,7 +51,6 @@ const SingleProduct = () => {
       const cartToReducer = { ...productById, quantity: quantity };
       const cartString = JSON.stringify(cartToReducer);
 
-      console.log('cartToReducer', cartToReducer);
       dispatch(addToCart(cartToReducer));
       updateSessionStorage(cartString);
     } catch (error) {
@@ -72,16 +59,9 @@ const SingleProduct = () => {
   };
 
   const handleRemoveFromCart = async () => {
-    if (!isLoggedIn) {
+    if (!isLoggedIn || !productById) {
       return;
     }
-    if (!productById) throw new Error('Product id not found');
-
-    console.log('UpdateCart(removeAll) Payload:', {
-      userId: userId,
-      date: new Date().toISOString().split('T')[0],
-      products: [{ productId: productById, quantity: quantity }],
-    });
 
     try {
       const { data: updateCart, error } = await addToCartMutation({
@@ -91,7 +71,6 @@ const SingleProduct = () => {
         id: id,
       });
 
-      console.log('Response:', updateCart);
       if (error) {
         console.error('Error adding to cart', error);
       }
@@ -99,7 +78,6 @@ const SingleProduct = () => {
       const cartToReducer = { id: updateCart.id, quantity: 0 };
       const cartString = JSON.stringify(cartToReducer);
 
-      console.log('cartToReducer', cartToReducer);
       dispatch(removeFromCart(cartToReducer));
       updateSessionStorage(cartString);
     } catch (error) {
@@ -110,34 +88,10 @@ const SingleProduct = () => {
   useEffect(() => {
     updateSessionStorage(cart);
   }, [cart]);
+
   useEffect(() => {
     console.log('param id changed', id);
   }, [id]);
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       if (productById && productById.data) {
-  //         const {
-  //           title,
-  //           image,
-  //           price,
-  //           rating,
-  //           rate,
-  //           description,
-  //           count,
-  //           total,
-  //           id: idProduct,
-  //         } = productById.data;
-
-  //         console.log('Product data:', title, image, price);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error fetching product', error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [productById]);
 
   const updateSessionStorage = (updatedCart) => {
     const existingUsers = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -176,7 +130,7 @@ const SingleProduct = () => {
           <h2 className="single-product-title">{productById.title}</h2>
         </header>
         <section className="rating-container">{/*  */}</section>
-        <p className="single-product-price">${productById.price}</p>
+        <p className="single-product-price">${productById.price.toFixed(2)}</p>
         <p className="single-product-description">{productById.description}</p>
         {isLoggedIn ? (
           <form className="single-product-button-container">
