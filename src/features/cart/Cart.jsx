@@ -13,12 +13,8 @@ const Cart = () => {
       <h2>Your Cart</h2>
       {userCart.products.length > 0 ? (
         <div>
-          {userCart.products.map((product) => (
-            <CartProductCard
-              key={product.data.products[0].id}
-              product={product}
-            />
-          ))}
+          {JSON.stringify(userCart)}
+  
           <div>
             <p>Total Items: {cartItemCount}</p>
             <p>Total Cost: {total}</p>
