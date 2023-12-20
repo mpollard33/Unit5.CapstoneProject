@@ -16,6 +16,7 @@ import {
   selectCart,
   setCurrentUser,
   selectIsLoggedIn,
+  toggleLoginState,
 } from '../../store/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import './index.css';
@@ -66,8 +67,8 @@ const Registration = () => {
         const getCartId = async (cartData) => {
           try {
             const { data: cartId } = await createUserCart(cartData);
-            console.log('createUserCart cartId: ', cartId);
-            if (cartId) return cartId;
+            console.log('createUserCart cartId: ', cartId.id);
+            if (cartId) return cartId.id;
             return null;
           } catch (error) {
             console.error('Error during registration', error);
@@ -81,16 +82,21 @@ const Registration = () => {
           products: [],
         };
 
-        const cartIdResponse = await getCartId(userCartData);
-
-        const userCartWithId = { id: cartIdResponse, ...userCartData };
+        const userCartWithId = { id: updatedUserId, ...userCartData };
         console.log('userCart + id', userCartWithId);
 
-        const jsonCart = JSON.stringify(userCartData);
-        console.log('jsonCart', jsonCart);
+        const jsonCart = JSON.stringify(userCartWithId);
+        console.log('jsonCart', userCartWithId);
 
-        dispatch(setCart(jsonCart));
+        dispatch(setCart(userCartWithId));
         console.log('cart selector ->', selectedCart);
+        if (carts) {
+          const cartsWithUser = [...carts, userCartWithId];
+          sessionStorage.setItem('carts', JSON.stringify(cartsWithUser));
+        }
+
+        dispatch(toggleLoginState(true));
+        console.log('user logged in -> ', isLoggedIn);
       }
     } catch (error) {
       console.log('Error during registration', error);
@@ -109,15 +115,17 @@ const Registration = () => {
   }, [users, carts]);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      if (!userState) {
-        const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
-        if (storedUser) {
-          dispatch(setCurrentUser(storedUser));
-        }
+    if (isLoggedIn && !userState) {
+      const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+      if (storedUser) {
+        dispatch(setCurrentUser(storedUser));
       }
     }
   }, [userState, dispatch]);
+
+  useEffect(() => {
+    console.log('userId changed', userId);
+  }, [userId]);
 
   return (
     <div className="registration-container">
