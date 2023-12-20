@@ -62,7 +62,7 @@ const SingleProduct = () => {
       const cartToReducer = { ...productById, quantity: quantity };
       const cartString = JSON.stringify(cartToReducer);
 
-      // console.log('cartToReducer', cartToReducer);
+      console.log('cartToReducer', cartToReducer);
       dispatch(addToCart(cartToReducer));
       updateSessionStorage(cartString);
     } catch (error) {

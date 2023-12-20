@@ -74,17 +74,16 @@ const authSlice = createSlice({
       const existingProductIndex = products.findIndex(
         (product) => product.id === action.payload.id,
       );
-
-      console.log('products:', products);
-      console.log('existingProductIndex:', existingProductIndex);
+      const quantity = action.payload.quantity;
+      const price = action.payload.price;
 
       if (existingProductIndex !== -1) {
-        state.cart.products[existingProductIndex].quantity +=
-          action.payload.quantity;
+        state.cart.products[existingProductIndex].quantity += quantity;
       } else {
         state.cart.products.push({
           id: action.payload.id,
           quantity: action.payload.quantity,
+          price: action.payload.price,
         });
       }
 
@@ -92,6 +91,8 @@ const authSlice = createSlice({
         (total, product) => total + product.quantity,
         0,
       );
+
+      // Calculate the total based on the products in the cart
       state.cart.total = state.cart.products.reduce(
         (total, product) => total + product.price * product.quantity,
         0,
