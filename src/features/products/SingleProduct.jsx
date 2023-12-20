@@ -18,17 +18,18 @@ import './index.css';
 
 const SingleProduct = () => {
   const { id } = useParams();
-  console.log('id', id);
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(selectIsLoggedIn);
   const userId = useSelector(selectUserId);
   const cart = useSelector(selectCart);
   const cartId = useSelector(selectUserIdInCart);
-  console.log('cartId', cartId);
   const [quantity, setQuantity] = useState(1);
   const { data: productById, error, isLoading } = useGetProductByIdQuery(id);
   const [addToCartMutation] = useAddToUserCartMutation();
   const [updateCartMutation] = useUpdateCartMutation();
+
+  // console.log('cartId', cartId);
+  // console.log('id', id);
 
   const handleQuantityChange = (e) => {
     setQuantity(parseInt(e.target.value, 10) || 0);
@@ -53,15 +54,15 @@ const SingleProduct = () => {
         products: [{ productId: productById, quantity: quantity }],
       });
 
-      console.log('Response:', newCartProduct);
+      // console.log('Response:', newCartProduct);
       if (error) {
         console.error('Error adding to cart', error);
       }
 
-      const cartToReducer = { id: newCartProduct.id, quantity: quantity };
+      const cartToReducer = { ...productById, quantity: quantity };
       const cartString = JSON.stringify(cartToReducer);
 
-      console.log('cartToReducer', cartToReducer);
+      // console.log('cartToReducer', cartToReducer);
       dispatch(addToCart(cartToReducer));
       updateSessionStorage(cartString);
     } catch (error) {
@@ -108,32 +109,34 @@ const SingleProduct = () => {
   useEffect(() => {
     updateSessionStorage(cart);
   }, [cart]);
-
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (productById && productById.data) {
-          const {
-            title,
-            image,
-            price,
-            rating,
-            rate,
-            description,
-            count,
-            total,
-            id: idProduct,
-          } = productById.data;
+    console.log('param id changed', id);
+  }, [id]);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       if (productById && productById.data) {
+  //         const {
+  //           title,
+  //           image,
+  //           price,
+  //           rating,
+  //           rate,
+  //           description,
+  //           count,
+  //           total,
+  //           id: idProduct,
+  //         } = productById.data;
 
-          console.log('Product data:', title, image, price);
-        }
-      } catch (error) {
-        console.error('Error fetching product', error);
-      }
-    };
+  //         console.log('Product data:', title, image, price);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching product', error);
+  //     }
+  //   };
 
-    fetchData();
-  }, [productById]);
+  //   fetchData();
+  // }, [productById]);
 
   const updateSessionStorage = (updatedCart) => {
     const existingUsers = JSON.parse(sessionStorage.getItem('currentUser'));

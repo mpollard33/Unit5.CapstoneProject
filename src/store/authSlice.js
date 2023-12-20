@@ -69,29 +69,23 @@ const authSlice = createSlice({
       return { ...getAuthInitialState() };
     },
 
-    addToCart: (state, { payload }) => {
+    addToCart: (state, action) => {
       const { products } = state.cart;
-      console.log('addtocart reducer', products);
-
       const existingProductIndex = products.findIndex(
-        (product) => product.id === payload.id,
+        (product) => product.id === action.payload.id,
       );
-      console.log('existingProductIndex', existingProductIndex);
+
+      console.log('products:', products);
+      console.log('existingProductIndex:', existingProductIndex);
 
       if (existingProductIndex !== -1) {
-        state.cart.products[existingProductIndex].quantity += payload.quantity;
-        /* state.cart.products[existingProductIndex].dateAdded =
-         new Date().toISOString();*/
-        console.log('index not found in cart');
+        state.cart.products[existingProductIndex].quantity +=
+          action.payload.quantity;
       } else {
-        state.cart.products = [
-          ...products,
-          {
-            id: payload.id,
-            quantity:
-              payload.quantity /*quantity: 1*/ /*dateAdded: new Date().toISOString()*/,
-          },
-        ];
+        state.cart.products.push({
+          id: action.payload.id,
+          quantity: action.payload.quantity,
+        });
       }
 
       state.cart.itemCount = state.cart.products.reduce(
@@ -109,6 +103,7 @@ const authSlice = createSlice({
       const index = state.cart.products.findIndex(
         (product) => product.id === productIdToRemove,
       );
+      console.log('index is', index);
       state.cart.products.splice(index, 1);
       state.cart.itemCount = state.cart.products.reduce(
         (total, product) => total + product.quantity,
