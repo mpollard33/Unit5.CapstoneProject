@@ -1,28 +1,26 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import CartProductCard from './CartProductCard';
-import { selectCartItemCount, selectTotalInCart } from '../../store/authSlice';
+import ProductCard from './CartProductCard';
+import { selectCart } from '../../store/authSlice';
+import './index.css';
 
 const Cart = () => {
-  const userCart = useSelector((state) => state.auth.cart);
-  const cartItemCount = useSelector(selectCartItemCount);
-  const total = useSelector(selectTotalInCart);
+  const cart = useSelector(selectCart);
+
+  if (!cart || !cart.products || !Array.isArray(cart.products)) {
+    return <div>Your cart is empty.</div>;
+  }
+
+  const { products } = cart;
 
   return (
     <div>
-      <h2>Your Cart</h2>
-      {userCart.products.length > 0 ? (
-        <div>
-          {JSON.stringify(userCart)}
-  
-          <div>
-            <p>Total Items: {cartItemCount}</p>
-            <p>Total Cost: {total}</p>
-          </div>
-        </div>
-      ) : (
-        <p>Your cart is empty.</p>
-      )}
+      <header className="cart-header">
+        <h2>Your Cart</h2>
+      </header>
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
     </div>
   );
 };

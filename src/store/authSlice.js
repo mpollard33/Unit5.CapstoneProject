@@ -69,30 +69,35 @@ const authSlice = createSlice({
       return { ...getAuthInitialState() };
     },
 
-    addToCart: (state, action) => {
+    addToCart: (state, { payload }) => {
       const { products } = state.cart;
       const existingProductIndex = products.findIndex(
-        (product) => product.id === action.payload.id,
+        (product) => product.id === payload.id,
       );
-      const quantity = action.payload.quantity;
-      const price = action.payload.price;
+      const { quantity, price, title, description, category, image, rating } =
+        payload;
 
       if (existingProductIndex !== -1) {
         state.cart.products[existingProductIndex].quantity += quantity;
       } else {
         state.cart.products.push({
-          id: action.payload.id,
-          quantity: action.payload.quantity,
-          price: action.payload.price,
+          id: payload.id,
+          quantity,
+          price,
+          title,
+          description,
+          category,
+          image,
+          rating: {
+            rate: rating.rate,
+            count: rating.count,
+          },
         });
       }
-
       state.cart.itemCount = state.cart.products.reduce(
         (total, product) => total + product.quantity,
         0,
       );
-
-      // Calculate the total based on the products in the cart
       state.cart.total = state.cart.products.reduce(
         (total, product) => total + product.price * product.quantity,
         0,
