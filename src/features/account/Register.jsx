@@ -67,7 +67,6 @@ const Registration = () => {
         const getCartId = async (cartData) => {
           try {
             const { data: cartId } = await createUserCart(cartData);
-            console.log('createUserCart cartId: ', cartId.id);
             if (cartId) return cartId.id;
             return null;
           } catch (error) {
@@ -81,22 +80,26 @@ const Registration = () => {
           date: new Date().toISOString(),
           products: [],
         };
+        console.log('ID from API ->', await getCartId(userCartData));
 
-        const userCartWithId = { id: updatedUserId, ...userCartData };
+        const userCartWithId = {
+          id: await getCartId(userCartData),
+          ...userCartData,
+        };
         console.log('userCart + id', userCartWithId);
 
         const jsonCart = JSON.stringify(userCartWithId);
         console.log('jsonCart', userCartWithId);
 
         dispatch(setCart(userCartWithId));
-        console.log('cart selector ->', selectedCart);
+
         if (carts) {
           const cartsWithUser = [...carts, userCartWithId];
           sessionStorage.setItem('carts', JSON.stringify(cartsWithUser));
         }
 
         dispatch(toggleLoginState(true));
-        console.log('user logged in -> ', isLoggedIn);
+        console.log('user logged in -> ');
       }
     } catch (error) {
       console.log('Error during registration', error);
