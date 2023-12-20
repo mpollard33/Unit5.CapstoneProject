@@ -59,7 +59,7 @@ const authSlice = createSlice({
     setCart: (state, { payload }) => {
       state.cart = {
         ...state.cart,
-        products: [...state.cart.products, ...payload.products], // Update products array
+        products: [...state.cart.products, ...payload.products], 
       };
     },
 
