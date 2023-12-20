@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAddToCartMutation } from '../cart/cartApi';
+import { useAddToUserCartMutation } from '../cart/cartApi';
 import {
   selectIsLoggedIn,
   selectCart,
@@ -23,7 +23,7 @@ const SingleProduct = () => {
   console.log('cartId', cartId);
   const [quantity, setQuantity] = useState(1);
   const { data: productById, error, isLoading } = useGetProductByIdQuery(id);
-  const [addToCartMutation] = useAddToCartMutation();
+  const [addToCartMutation] = useAddToUserCartMutation();
 
   const handleAddToCart = async () => {
     if (!isLoggedIn) {
@@ -33,22 +33,23 @@ const SingleProduct = () => {
 
     try {
       console.log('Request Payload:', {
-        cartId: 1,
-        products: [{ productId: id, quantity: quantity }],
+        userId: 11,
+        date: new Date().toISOString().split('T')[0],
+        products: [{ productId: 1, quantity: 5 }],
       });
+
       const { data: updatedCart, error } = await addToCartMutation({
-        id: cartId,
-        data: {
-          products: [{ productId: id, quantity: quantity }],
-        },
+        userId: 11,
+        date: '2020-02-03',
+        products: [{ productId: 1, quantity: 5 }],
       });
+
       console.log('Response:', updatedCart);
       if (error) {
         console.error('Error adding to cart', error);
-      } else {
-        dispatch(addToCart(updatedCart));
-        updateSessionStorage(updatedCart);
       }
+      dispatch(addToCart(updatedCart));
+      updateSessionStorage(updatedCart);
     } catch (error) {
       console.error('Error adding to cart', error);
     }
