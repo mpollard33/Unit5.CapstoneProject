@@ -7,7 +7,7 @@
 
 .cart-product-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   padding: 1em;
   margin: 1em;
   justify-content: center;
@@ -31,7 +31,7 @@
   font-size: x-large;
 }
 .cart-product-image {
-  width: fit-content;
+  width: 15em;
   height: 15em;
   display: flex;
   flex-direction: row;

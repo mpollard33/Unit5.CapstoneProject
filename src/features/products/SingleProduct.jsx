@@ -27,6 +27,7 @@ const SingleProduct = () => {
   const { data: productById, error, isLoading } = useGetProductByIdQuery(id);
   const [addToCartMutation] = useAddToUserCartMutation();
   const [updateCartMutation] = useUpdateCartMutation();
+  
 
   // console.log('cartId', cartId);
   // console.log('id', id);

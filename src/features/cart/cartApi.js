@@ -15,10 +15,10 @@ const cartApi = api.injectEndpoints({
       }),
     }),
     updateCart: builder.mutation({
-      query: ({ id, data }) => ({
+      query: (data) => ({
         url: `/carts/${id}`,
-        method: 'PATCH',
-        body: { products: data },
+        method: 'PUT',
+        body: JSON.stringify(data),
       }),
     }),
     addToUserCart: builder.mutation({
