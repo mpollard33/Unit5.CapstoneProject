@@ -1,3 +1,15 @@
+.nav-bar > li{
+padding: 2em;  
+}
+
+.nav-bar ul {
+  padding: 2em;
+}
+.nav-bar-styling {
+  border-top: 10px solid#002b80;
+  margin: 0;
+  padding: 0;
+}
 .registration-container {
   display: flex;
   flex-direction: column;
@@ -10,14 +22,13 @@
 .registration-container form {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
   margin-top: 2em;
 }
 
 .registration-container label {
   margin: 0.3em;
-
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
@@ -34,8 +45,17 @@
 
 form input {
   width: 16em;
-  height: 2em;
-  border-radius: 2px;
+  height: 2.5em;
+
+}
+
+input {
+  width: 24vw;
+  height: 1.8em;
+  text-align: center;
+  border-radius: 6.5px;
+  
+
 }
 
 .login-form {
