@@ -40,7 +40,7 @@ This application interacts with the [Fake Store API](https://fakestoreapi.com/) 
 
 ## Contact
 
-For any inquiries or questions, you can reach out to the project maintainer:
+For any inquiries or questions, you can reach out to me:
 
 - Email: mpollard33@gmail.com
 
