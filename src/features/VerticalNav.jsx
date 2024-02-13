@@ -2,7 +2,6 @@ import '../index.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCategory, setSort } from '../store/productSlice';
 import { useNavigate } from 'react-router-dom';
-import { ca } from 'date-fns/locale';
 
 const VerticalNav = () => {
   const {

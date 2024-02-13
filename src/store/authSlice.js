@@ -52,7 +52,7 @@ const authSlice = createSlice({
       const { productId, quantity, product } = payload.products[0];
 
       const existingProductIndex = state.cart.products.findIndex(
-        (p) => p.productId === productId,
+        (p) => p.productId === productId
       );
 
       if (existingProductIndex !== -1) {
@@ -63,7 +63,7 @@ const authSlice = createSlice({
 
       state.cart.itemCount = state.cart.products.reduce(
         (total, product) => total + product.quantity,
-        0,
+        0
       );
     },
 
@@ -77,7 +77,7 @@ const authSlice = createSlice({
       const updatedProducts = payload.products;
       const updatedItemCount = updatedProducts.reduce(
         (total, product) => total + product.quantity,
-        0,
+        0
       );
       state.cart = {
         ...state.cart,
@@ -100,7 +100,7 @@ const authSlice = createSlice({
           state.isLoggedIn = true;
           sessionStorage.setItem(TOKEN_KEY, payload);
         }
-      },
+      }
     );
   },
 });
@@ -108,7 +108,7 @@ const authSlice = createSlice({
 export const selectCartItemCount = (state) => {
   return state.auth.cart.products.reduce(
     (total, product) => total + product.quantity,
-    0,
+    0
   );
 };
 

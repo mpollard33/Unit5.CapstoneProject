@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   logout,
   selectState,
-  selectToken,
   selectUserId,
-  setLoggedIn,
   selectCartItemCount,
 } from '../store/authSlice';
 import { useGetAllUsersQuery } from './account/authApi';

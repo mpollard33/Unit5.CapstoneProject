@@ -4,11 +4,6 @@ const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: 'https://fakestoreapi.com/',
-    prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.token;
-      token && headers.set('authorization', `Bearer ${token}`);
-      return headers;
-    },
   }),
   endpoints: () => ({}),
 });
