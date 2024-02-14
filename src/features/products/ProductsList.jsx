@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  useGetProductsQuery,
-  useGetProductsByCategoryQuery,
-} from './productsApi';
+import { useGetProductsQuery, useGetProductsByCategoryQuery } from './productsApi';
 import VerticalNav from '../VerticalNav';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
