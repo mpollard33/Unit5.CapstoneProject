@@ -15,7 +15,11 @@ const productsApi = api.injectEndpoints({
       query: (category) => `/products/category/${category}`,
     }),
     getProductsBySortOrder: builder.query({
-      query: (sortOrder) => `/products/sort/${sortOrder}`,
+      query: (sortOrder) => `/products?sort=${sortOrder}`,
+    }),
+    getProductCategoryBySortOrder: builder.query({
+      query: (sortOrder, category) =>
+        `/products/category/${category}?sort=${sortOrder}`,
     }),
     deleteProduct: builder.mutation({
       query: (id) => ({
@@ -29,9 +33,9 @@ const productsApi = api.injectEndpoints({
 export const {
   useGetProductsQuery,
   useGetProductsByIdQuery,
-  useGetProductsByCategoryQuery,
   useGetAllCategoriesQuery,
-  useGetOneCategoryQuery,
-  useDeleteProductMutation,
+  useGetProductsByCategoryQuery,
   useGetProductsBySortOrderQuery,
+  useGetProductCategoryBySortOrderQuery,
+  useDeleteProductMutation,
 } = productsApi;
