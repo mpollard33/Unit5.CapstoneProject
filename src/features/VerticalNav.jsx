@@ -1,31 +1,35 @@
-import '../index.css';
 import { useDispatch, useSelector } from 'react-redux';
-import { setCategory, setSort } from '../store/productSlice';
 import { useNavigate } from 'react-router-dom';
+import '../index.css';
+import {
+  selectCategory,
+  selectSort,
+  setCategory,
+  setSort,
+} from '../store/productSlice';
 
 const VerticalNav = () => {
-  const {
-    selectedCategory,
-    sort: { sortType },
-  } = useSelector((state) => state.products);
+  const categorySelector = useSelector(selectCategory);
+  const sortSelector = useSelector(selectSort);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const sortType = useSelector(selectSort).sortType;
+
   const handleCategoryChange = (categoryType) => {
-    console.log('categoryType', categoryType);
-    const newCategory = categoryType === '' ? '' : categoryType.trim();
-    console.log('newCategory', newCategory);
-    dispatch(setCategory(newCategory));
-    navigate(`/products/category/${newCategory}`);
+    dispatch(setCategory(categoryType));
+
+    if (categorySelector !== 'none') {
+      navigate(`/products/category/${categoryType}`);
+    } else {
+      navigate(`/products`);
+    }
+    console.log('Category State Updated: ', updatedCategory);
   };
 
-  const handleSortChange = (option, order) => {
-    if (option === '') {
-      dispatch(setSort({ sortType: '', order: '' }));
-    } else {
-      const newSortType = option.trim();
-      dispatch(setSort({ sortType: newSortType, order }));
-    }
+  const handleSortChange = (type, order) => {
+    dispatch(setSort({ type, order }));
+    console.log('Sort State Updated: ', type, order);
   };
 
   return (
@@ -40,17 +44,20 @@ const VerticalNav = () => {
             Sort by Category:
             <select
               onChange={(e) => handleCategoryChange(e.target.value)}
-              value={selectedCategory}
+              value={categorySelector}
             >
-              <option value=""> -- All Categories --</option>
+              <option hidden disabled value="">
+                -- Select A Category --
+              </option>
               {[
+                'all categories',
                 'jewelery',
                 'electronics',
                 "men's clothing",
                 "women's clothing",
               ].map((category) => (
                 <option key={category} value={category}>
-                  {category}
+                  {category[0].toUpperCase().concat(category.slice(1))}
                 </option>
               ))}
             </select>
@@ -76,5 +83,4 @@ const VerticalNav = () => {
     </ul>
   );
 };
-
 export default VerticalNav;
