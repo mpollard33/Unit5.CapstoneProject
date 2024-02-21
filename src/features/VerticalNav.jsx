@@ -17,13 +17,14 @@ const VerticalNav = () => {
   const sortType = useSelector(selectSort).sortType;
 
   const handleCategoryChange = (categoryType) => {
-    dispatch(setCategory(categoryType));
-
-    if (categorySelector !== 'none') {
-      navigate(`/products/category/${categoryType}`);
-    } else {
+    if (categoryType === 'all products') {
       navigate(`/products`);
+      dispatch(setCategory(''));
+    } else {
+      navigate(`/products/category/${categoryType}`);
+      dispatch(setCategory(categoryType));
     }
+
     console.log('Category State Updated: ', updatedCategory);
   };
 
@@ -50,7 +51,7 @@ const VerticalNav = () => {
                 -- Select A Category --
               </option>
               {[
-                'all categories',
+                'all products',
                 'jewelery',
                 'electronics',
                 "men's clothing",
