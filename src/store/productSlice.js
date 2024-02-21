@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const productSlice = createSlice({
   name: 'products',
   initialState: {
-    sort: { sortType: '', order: 'asc' },
+    sort: { sortType: '', order: '' },
     selectedCategory: '',
   },
   reducers: {
