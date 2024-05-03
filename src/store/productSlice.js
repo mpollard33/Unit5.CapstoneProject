@@ -9,12 +9,15 @@ const productSlice = createSlice({
   reducers: {
     setSort: (state, { payload }) => {
       state.sort = {
-        sortType: payload.sortType.trim(),
+        sortType: payload.sortType,
         order: payload.order,
       };
+      console.log('setSort: ', payload);
     },
     setCategory: (state, { payload }) => {
       state.selectedCategory = payload.trim();
+
+      console.log('setCategory:', payload);
     },
   },
 });
