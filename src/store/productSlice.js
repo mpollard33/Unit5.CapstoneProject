@@ -1,29 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit';
-
 const productSlice = createSlice({
   name: 'products',
   initialState: {
-    sort: { sortType: '', order: '' },
+    sortType: '',
+    sortOrder: '',
     selectedCategory: '',
   },
   reducers: {
-    setSort: (state, { payload }) => {
-      state.sort = {
-        sortType: payload.sortType,
-        order: payload.order,
-      };
-      console.log('setSort: ', payload);
+    setSortOrder: (state, { payload }) => {
+      state.sortOrder = payload.trim();
+      console.log('state.sortOrder ', state.sortOrder);
+    },
+    setSortType: (state, { payload }) => {
+      state.sortType = payload.trim();
+      console.log('state.sortType ', state.sortType)
     },
     setCategory: (state, { payload }) => {
       state.selectedCategory = payload.trim();
-
-      console.log('setCategory:', payload);
+      console.log('state.selectedCategory ', state.selectedCategory);
     },
   },
 });
 
-export const { setSort, setCategory } = productSlice.actions;
-export const selectSort = (state) => state.products.sort;
+export const { setSortOrder, setSortType, setCategory } = productSlice.actions;
+export const selectSortType = (state) => state.products.sortType;
+export const selectSortOrder = (state) => state.products.sortOrder;
 export const selectCategory = (state) => state.products.selectedCategory;
 
 export default productSlice.reducer;
