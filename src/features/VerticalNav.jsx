@@ -3,34 +3,40 @@ import { useNavigate } from 'react-router-dom';
 import '../index.css';
 import {
   selectCategory,
-  selectSort,
+  selectSortType,
+  selectSortOrder,
   setCategory,
-  setSort,
+  setSortType,
+  setSortOrder,
 } from '../store/productSlice';
 
 const VerticalNav = () => {
   const categorySelector = useSelector(selectCategory);
-  const sortSelector = useSelector(selectSort);
+  const sortOrderSelector = useSelector(selectSortOrder);
+  const sortTypeSelector = useSelector(selectSortType);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const sortType = useSelector(selectSort).sortType;
-
   const handleCategoryChange = (categoryType) => {
     if (categoryType === 'all products') {
-      navigate(`/products`);
-      dispatch(setCategory(''));
+      if (sortOrderSelector === 'asc' || 'desc') {
+        dispatch(setCategory(''));
+        navigate(`/products?sort=${sortOrderSelector}`);
+      }
     } else {
-      navigate(`/products/category/${categoryType}`);
+      if (sortOrderSelector === 'asc' || 'desc') {
+        navigate(`/products/category/${categoryType}?sort=${sortOrderSelector}`);
+      }
       dispatch(setCategory(categoryType));
     }
-
-    console.log('Category State Updated: ', updatedCategory);
   };
 
-  const handleSortChange = (type, order) => {
-    dispatch(setSort({ type, order }));
-    console.log('Sort State Updated: ', type, order);
+  const handleSortChange = (categoryType, sortOrder) => {
+    if (categoryType === '' || categoryType === 'all products')
+      navigate(`/products?sort=${sortOrder}`);
+    dispatch(setSortType(categoryType));
+    dispatch(setSortOrder(sortOrder));
+    console.log('');
   };
 
   return (
@@ -72,7 +78,7 @@ const VerticalNav = () => {
             Sort by {option}:{' '}
             <select
               onChange={(e) => handleSortChange(option, e.target.value)}
-              value={sortType}
+              value={sortTypeSelector}
             >
               <option value="">-- Select --</option>
               <option value="asc">Low to High</option>
