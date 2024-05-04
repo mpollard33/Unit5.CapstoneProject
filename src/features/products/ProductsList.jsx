@@ -3,7 +3,7 @@ import { useGetProductsQuery, useGetProductsByCategoryQuery } from './productsAp
 import VerticalNav from '../VerticalNav';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { selectCategory } from '../../store/productSlice';
+import { selectCategory, selectSortType, selectSortOrder  } from '../../store/productSlice';
 import ProductCard from './ProductCard';
 import './index.css';
 
@@ -13,7 +13,9 @@ const ProductsList = () => {
   const categoryQuery = useGetProductsByCategoryQuery(category);
   const allProductsQuery = useGetProductsQuery();
 
-  const query = selectedCategory ? categoryQuery : allProductsQuery;
+   const query = selectedCategory ? categoryQuery : allProductsQuery;
+
+//switch statement for query + state modifiers
 
   return (
     <main className="main-container">
